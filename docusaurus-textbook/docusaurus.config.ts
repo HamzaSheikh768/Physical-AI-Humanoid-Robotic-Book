@@ -146,19 +146,19 @@ const config: Config = {
           items: [
             {
               label: "Module 1 – ROS 2",
-              to: "/docs/Module-1-ROS2",
+              to: "/docs/Module-1-ROS2/Introduction-to-Physical-AI",
             },
             {
               label: "Module 2 – Digital Twin",
-              to: "/docs/Module-2-Digital-Twin",
+              to: "/docs/Module-2-Digital-Twin/glossary",
             },
             {
               label: "Module 3 – AI Robot Brain",
-              to: "/docs/Module-3-AI-Robot-Brain",
+              to: "/docs/Module-3-AI-Robot-Brain/NVIDIA-Isaac-Platform",
             },
             {
               label: "Module 4 – Vision Language Action",
-              to: "/docs/Module-4-Vision-Language-Action",
+              to: "/docs/Module-4-Vision-Language-Action/Humanoid-Kinematics-and-Locomotion",
             },
           ],
         },
