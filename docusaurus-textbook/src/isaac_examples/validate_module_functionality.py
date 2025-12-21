@@ -8,10 +8,10 @@ by checking the integration between all components and ensuring the quickstart g
 instructions would work properly.
 """
 
+import ast
 import os
 import sys
 from pathlib import Path
-import ast
 
 # Use current directory as base path
 BASE_PATH = Path.cwd()
@@ -45,34 +45,28 @@ def validate_module_structure():
         "docs/Module-3-AI-Robot-Brain/rl-architecture.mmd",
         "docs/Module-3-AI-Robot-Brain/sim-to-real-workflow.mmd",
         "docs/Module-3-AI-Robot-Brain/ai-robot-brain-architecture.mmd",
-
         # Isaac Sim components
         "src/isaac_examples/isaac_sim/scene_config.py",
         "src/isaac_examples/isaac_sim/robot_setup.py",
         "src/isaac_examples/isaac_sim/synthetic_data_lab.py",
         "src/isaac_examples/isaac_sim/integration_test.py",
-
         # Isaac ROS components
         "src/isaac_examples/isaac_ros/perception_node.py",
         "src/isaac_examples/isaac_ros/vision_pipeline.py",
-
         # Manipulation components
         "src/isaac_examples/manipulation/grasp_planning.py",
         "src/isaac_examples/manipulation/arm_control.py",
         "src/isaac_examples/manipulation/object_manipulation_lab.py",
         "src/isaac_examples/manipulation/test_integration.py",
-
         # Reinforcement Learning components
         "src/isaac_examples/reinforcement_learning/rl_training.py",
         "src/isaac_examples/reinforcement_learning/policy_deployment.py",
         "src/isaac_examples/reinforcement_learning/rl_lab.py",
         "src/isaac_examples/reinforcement_learning/test_deployment.py",
-
         # Common utilities
         "src/isaac_examples/common/isaac_ros_utils.py",
-
         # Quickstart guide
-        "specs/001-ai-robot-brain/quickstart.md"
+        "specs/001-ai-robot-brain/quickstart.md",
     ]
 
     missing_files = []
@@ -98,31 +92,33 @@ def validate_documentation_content():
     docs_to_check = [
         "docs/Module-3-AI-Robot-Brain/08-NVIDIA-Isaac-Platform.md",
         "docs/Module-3-AI-Robot-Brain/09-Perception-and-Manipulation.md",
-        "docs/Module-3-AI-Robot-Brain/10-Reinforcement-Learning-and-Sim-to-Real.md"
+        "docs/Module-3-AI-Robot-Brain/10-Reinforcement-Learning-and-Sim-to-Real.md",
     ]
 
     valid_docs = 0
     for doc_path in docs_to_check:
         if check_file_has_content(doc_path):
             # Check for expected content markers
-            with open(doc_path, 'r', encoding='utf-8') as f:
+            with open(doc_path, "r", encoding="utf-8") as f:
                 content = f.read()
 
             # Basic checks for well-formed documentation
             # Look for content after frontmatter (skip YAML frontmatter if present)
-            lines = content.split('\n')
+            lines = content.split("\n")
             content_after_frontmatter = content
-            if lines and lines[0].strip() == '---':
+            if lines and lines[0].strip() == "---":
                 # Find the end of frontmatter
                 try:
-                    end_frontmatter_idx = lines.index('---', 1)
-                    content_after_frontmatter = '\n'.join(lines[end_frontmatter_idx + 1:])
+                    end_frontmatter_idx = lines.index("---", 1)
+                    content_after_frontmatter = "\n".join(
+                        lines[end_frontmatter_idx + 1 :]
+                    )
                 except ValueError:
                     # No closing --- found, use original content
                     pass
 
-            has_title = content_after_frontmatter.lstrip().startswith('# ')
-            has_introduction = 'Introduction' in content or 'Overview' in content
+            has_title = content_after_frontmatter.lstrip().startswith("# ")
+            has_introduction = "Introduction" in content or "Overview" in content
             has_content = len(content) > 100  # At least 100 characters
 
             if has_title and has_introduction and has_content:
@@ -146,23 +142,23 @@ def validate_code_structure():
         "src/isaac_examples/isaac_ros/vision_pipeline.py",
         "src/isaac_examples/manipulation/arm_control.py",
         "src/isaac_examples/reinforcement_learning/rl_training.py",
-        "src/isaac_examples/reinforcement_learning/policy_deployment.py"
+        "src/isaac_examples/reinforcement_learning/policy_deployment.py",
     ]
 
     valid_code = 0
     for code_path in code_files_to_check:
         if check_file_has_content(code_path):
             try:
-                with open(code_path, 'r', encoding='utf-8') as f:
+                with open(code_path, "r", encoding="utf-8") as f:
                     content = f.read()
 
                 # Parse to check for valid Python syntax
                 ast.parse(content)
 
                 # Check for expected ROS 2 patterns
-                has_ros_imports = 'import rclpy' in content or 'from rclpy' in content
-                has_node_class = 'class' in content and 'Node' in content
-                has_main = 'def main' in content or '__main__' in content
+                has_ros_imports = "import rclpy" in content or "from rclpy" in content
+                has_node_class = "class" in content and "Node" in content
+                has_main = "def main" in content or "__main__" in content
 
                 valid_code += 1
                 print(f"  ✅ {Path(code_path).name} - Valid structure")
@@ -187,25 +183,27 @@ def validate_quickstart_guide():
         print("❌ Quickstart guide is missing or empty")
         return False
 
-    with open(quickstart_path, 'r', encoding='utf-8') as f:
+    with open(quickstart_path, "r", encoding="utf-8") as f:
         content = f.read()
 
     # Check for essential sections
-    has_prerequisites = 'Prerequisites' in content
-    has_setup = 'Environment Setup' in content or 'Setup' in content
-    has_examples = 'Running the Examples' in content or 'Examples' in content
-    has_troubleshooting = 'Troubleshooting' in content
+    has_prerequisites = "Prerequisites" in content
+    has_setup = "Environment Setup" in content or "Setup" in content
+    has_examples = "Running the Examples" in content or "Examples" in content
+    has_troubleshooting = "Troubleshooting" in content
 
     essential_checks = [
-        ('Prerequisites section', has_prerequisites),
-        ('Environment Setup section', has_setup),
-        ('Examples section', has_examples),
-        ('Troubleshooting section', has_troubleshooting)
+        ("Prerequisites section", has_prerequisites),
+        ("Environment Setup section", has_setup),
+        ("Examples section", has_examples),
+        ("Troubleshooting section", has_troubleshooting),
     ]
 
     passed_checks = sum(1 for _, check in essential_checks if check)
 
-    print(f"✅ Quickstart guide has {passed_checks}/{len(essential_checks)} essential sections")
+    print(
+        f"✅ Quickstart guide has {passed_checks}/{len(essential_checks)} essential sections"
+    )
 
     for check_name, passed in essential_checks:
         status = "✅" if passed else "❌"
@@ -220,25 +218,31 @@ def validate_integration_tests():
 
     test_files = [
         "src/isaac_examples/manipulation/test_integration.py",
-        "src/isaac_examples/reinforcement_learning/test_deployment.py"
+        "src/isaac_examples/reinforcement_learning/test_deployment.py",
     ]
 
     valid_tests = 0
     for test_path in test_files:
         if check_file_has_content(test_path):
-            with open(test_path, 'r', encoding='utf-8') as f:
+            with open(test_path, "r", encoding="utf-8") as f:
                 content = f.read()
 
             # Check for test structure
-            has_imports = 'import unittest' in content or 'from unittest' in content or 'import pytest' in content
-            has_test_functions = 'def test_' in content or 'def run_' in content
-            has_main = '__main__' in content or 'main(' in content
+            has_imports = (
+                "import unittest" in content
+                or "from unittest" in content
+                or "import pytest" in content
+            )
+            has_test_functions = "def test_" in content or "def run_" in content
+            has_main = "__main__" in content or "main(" in content
 
             if has_test_functions:  # At minimum, it should have test functions
                 valid_tests += 1
                 print(f"  ✅ {Path(test_path).name} - Valid test structure")
             else:
-                print(f"  ⚠️  {Path(test_path).name} - May have incomplete test structure")
+                print(
+                    f"  ⚠️  {Path(test_path).name} - May have incomplete test structure"
+                )
         else:
             print(f"  ❌ {Path(test_path).name} - File is empty or missing")
 
@@ -249,7 +253,7 @@ def validate_integration_tests():
 def main():
     """Main validation function"""
     print("Module 3 - AI Robot Brain: Complete Functionality Validation")
-    print("="*70)
+    print("=" * 70)
 
     # Run all validations
     structure_valid = validate_module_structure()
@@ -258,16 +262,16 @@ def main():
     quickstart_valid = validate_quickstart_guide()
     tests_valid = validate_integration_tests()
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("FINAL VALIDATION SUMMARY")
-    print("="*70)
+    print("=" * 70)
 
     results = [
         ("Module Structure", structure_valid),
         ("Documentation Content", docs_valid),
         ("Code Structure", code_valid),
         ("Quickstart Guide", quickstart_valid),
-        ("Integration Tests", tests_valid)
+        ("Integration Tests", tests_valid),
     ]
 
     all_passed = True
@@ -277,10 +281,12 @@ def main():
         if not passed:
             all_passed = False
 
-    print("\n" + "="*70)
-    overall_status = "✅ ALL VALIDATIONS PASSED" if all_passed else "❌ SOME VALIDATIONS FAILED"
+    print("\n" + "=" * 70)
+    overall_status = (
+        "✅ ALL VALIDATIONS PASSED" if all_passed else "❌ SOME VALIDATIONS FAILED"
+    )
     print(f"OVERALL STATUS: {overall_status}")
-    print("="*70)
+    print("=" * 70)
 
     if all_passed:
         print("\n🎉 The AI Robot Brain module is fully validated and ready for use!")

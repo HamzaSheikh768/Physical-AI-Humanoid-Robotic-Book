@@ -8,19 +8,21 @@ data to perception processing nodes.
 
 import sys
 import time
-from unittest.mock import Mock, MagicMock
-import numpy as np
+from unittest.mock import MagicMock, Mock
+
 import cv2
+import numpy as np
+from cv_bridge import CvBridge
+from geometry_msgs.msg import PoseArray
 from sensor_msgs.msg import Image
 from std_msgs.msg import Header
-from geometry_msgs.msg import PoseArray
-from cv_bridge import CvBridge
 
 
 class MockIsaacSim:
     """
     Mock class to simulate Isaac Sim functionality for testing purposes
     """
+
     def __init__(self):
         self.scene_objects = []
         self.cameras = []
@@ -39,11 +41,11 @@ class MockIsaacSim:
     def add_camera(self, name, position, resolution=(640, 480)):
         """Add a camera to the simulation"""
         camera = {
-            'name': name,
-            'position': position,
-            'resolution': resolution,
-            'rgb_buffer': None,
-            'depth_buffer': None
+            "name": name,
+            "position": position,
+            "resolution": resolution,
+            "rgb_buffer": None,
+            "depth_buffer": None,
         }
         self.cameras.append(camera)
         print(f"Mock Isaac Sim: Added camera {name} at {position}")
@@ -57,13 +59,19 @@ class MockIsaacSim:
         camera = self.cameras[0]  # Use first camera
 
         # Generate mock RGB image (random colored rectangles to simulate objects)
-        height, width = camera['resolution'][1], camera['resolution'][0]
+        height, width = camera["resolution"][1], camera["resolution"][0]
         rgb_image = np.random.randint(0, 255, (height, width, 3), dtype=np.uint8)
 
         # Add some colored rectangles to simulate objects
-        cv2.rectangle(rgb_image, (100, 100), (200, 200), (255, 0, 0), -1)  # Blue rectangle
-        cv2.rectangle(rgb_image, (300, 200), (400, 300), (0, 255, 0), -1)  # Green rectangle
-        cv2.rectangle(rgb_image, (150, 300), (250, 400), (0, 0, 255), -1)  # Red rectangle
+        cv2.rectangle(
+            rgb_image, (100, 100), (200, 200), (255, 0, 0), -1
+        )  # Blue rectangle
+        cv2.rectangle(
+            rgb_image, (300, 200), (400, 300), (0, 255, 0), -1
+        )  # Green rectangle
+        cv2.rectangle(
+            rgb_image, (150, 300), (250, 400), (0, 0, 255), -1
+        )  # Red rectangle
 
         # Generate mock depth image
         depth_image = np.random.uniform(0.5, 5.0, (height, width)).astype(np.float32)
@@ -80,10 +88,11 @@ class MockPerceptionNode:
     """
     Mock class to simulate Isaac ROS perception node functionality
     """
+
     def __init__(self):
         self.detection_publisher = Mock()
         self.visualization_publisher = Mock()
-        self.camera_namespace = '/camera'
+        self.camera_namespace = "/camera"
         self.detection_results = []
 
     def process_sensor_data(self, rgb_image, depth_image):
@@ -121,9 +130,15 @@ class MockPerceptionNode:
         mask_red = mask_red1 + mask_red2
 
         # Find contours for each color
-        contours_blue, _ = cv2.findContours(mask_blue, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        contours_green, _ = cv2.findContours(mask_green, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        contours_red, _ = cv2.findContours(mask_red, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours_blue, _ = cv2.findContours(
+            mask_blue, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+        )
+        contours_green, _ = cv2.findContours(
+            mask_green, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+        )
+        contours_red, _ = cv2.findContours(
+            mask_red, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+        )
 
         # Create detection results
         detections = []
@@ -137,18 +152,22 @@ class MockPerceptionNode:
                     cy = int(M["m01"] / M["m00"])
 
                     # Get depth at this point
-                    avg_depth = np.mean(depth_image[cy-10:cy+10, cx-10:cx+10])
+                    avg_depth = np.mean(
+                        depth_image[cy - 10 : cy + 10, cx - 10 : cx + 10]
+                    )
 
                     # Convert pixel coordinates to world coordinates (simplified)
-                    world_x = (cx - rgb_image.shape[1]/2) * avg_depth * 0.001
-                    world_y = (cy - rgb_image.shape[0]/2) * avg_depth * 0.001
+                    world_x = (cx - rgb_image.shape[1] / 2) * avg_depth * 0.001
+                    world_y = (cy - rgb_image.shape[0] / 2) * avg_depth * 0.001
                     world_z = avg_depth
 
-                    detections.append({
-                        'class': 'blue_object',
-                        'position': (world_x, world_y, world_z),
-                        'confidence': 0.85
-                    })
+                    detections.append(
+                        {
+                            "class": "blue_object",
+                            "position": (world_x, world_y, world_z),
+                            "confidence": 0.85,
+                        }
+                    )
 
         # Process green objects
         for contour in contours_green:
@@ -159,18 +178,22 @@ class MockPerceptionNode:
                     cy = int(M["m01"] / M["m00"])
 
                     # Get depth at this point
-                    avg_depth = np.mean(depth_image[cy-10:cy+10, cx-10:cx+10])
+                    avg_depth = np.mean(
+                        depth_image[cy - 10 : cy + 10, cx - 10 : cx + 10]
+                    )
 
                     # Convert pixel coordinates to world coordinates (simplified)
-                    world_x = (cx - rgb_image.shape[1]/2) * avg_depth * 0.001
-                    world_y = (cy - rgb_image.shape[0]/2) * avg_depth * 0.001
+                    world_x = (cx - rgb_image.shape[1] / 2) * avg_depth * 0.001
+                    world_y = (cy - rgb_image.shape[0] / 2) * avg_depth * 0.001
                     world_z = avg_depth
 
-                    detections.append({
-                        'class': 'green_object',
-                        'position': (world_x, world_y, world_z),
-                        'confidence': 0.80
-                    })
+                    detections.append(
+                        {
+                            "class": "green_object",
+                            "position": (world_x, world_y, world_z),
+                            "confidence": 0.80,
+                        }
+                    )
 
         # Process red objects
         for contour in contours_red:
@@ -181,22 +204,28 @@ class MockPerceptionNode:
                     cy = int(M["m01"] / M["m00"])
 
                     # Get depth at this point
-                    avg_depth = np.mean(depth_image[cy-10:cy+10, cx-10:cx+10])
+                    avg_depth = np.mean(
+                        depth_image[cy - 10 : cy + 10, cx - 10 : cx + 10]
+                    )
 
                     # Convert pixel coordinates to world coordinates (simplified)
-                    world_x = (cx - rgb_image.shape[1]/2) * avg_depth * 0.001
-                    world_y = (cy - rgb_image.shape[0]/2) * avg_depth * 0.001
+                    world_x = (cx - rgb_image.shape[1] / 2) * avg_depth * 0.001
+                    world_y = (cy - rgb_image.shape[0] / 2) * avg_depth * 0.001
                     world_z = avg_depth
 
-                    detections.append({
-                        'class': 'red_object',
-                        'position': (world_x, world_y, world_z),
-                        'confidence': 0.90
-                    })
+                    detections.append(
+                        {
+                            "class": "red_object",
+                            "position": (world_x, world_y, world_z),
+                            "confidence": 0.90,
+                        }
+                    )
 
         print(f"Mock Perception Node: Detected {len(detections)} objects")
         for detection in detections:
-            print(f"  - {detection['class']} at ({detection['position'][0]:.2f}, {detection['position'][1]:.2f}, {detection['position'][2]:.2f})")
+            print(
+                f"  - {detection['class']} at ({detection['position'][0]:.2f}, {detection['position'][1]:.2f}, {detection['position'][2]:.2f})"
+            )
 
         # Store results
         self.detection_results = detections
@@ -205,7 +234,7 @@ class MockPerceptionNode:
         pose_array = PoseArray()
         pose_array.header = Header()
         pose_array.header.stamp.sec = int(time.time())
-        pose_array.header.frame_id = 'camera_link'
+        pose_array.header.frame_id = "camera_link"
 
         return pose_array
 
@@ -214,9 +243,9 @@ def test_integration():
     """
     Test the integration between Isaac Sim and Perception Node
     """
-    print("="*70)
+    print("=" * 70)
     print("INTEGRATION TEST: Isaac Sim Scene and Perception Node")
-    print("="*70)
+    print("=" * 70)
 
     # Initialize components
     print("\n1. Initializing Isaac Sim environment...")
@@ -248,9 +277,13 @@ def test_integration():
         # Verify results
         print("\n7. Verifying integration results...")
         if perception_node.detection_results:
-            print(f"   ✓ Successfully detected {len(perception_node.detection_results)} objects")
+            print(
+                f"   ✓ Successfully detected {len(perception_node.detection_results)} objects"
+            )
             for i, detection in enumerate(perception_node.detection_results):
-                print(f"     Object {i+1}: {detection['class']} at {detection['position']}")
+                print(
+                    f"     Object {i+1}: {detection['class']} at {detection['position']}"
+                )
         else:
             print("   ✗ No objects detected")
 
@@ -283,6 +316,7 @@ def main():
     except Exception as e:
         print(f"\n✗ Integration test ERROR: {e}")
         import traceback
+
         traceback.print_exc()
         return 1
 

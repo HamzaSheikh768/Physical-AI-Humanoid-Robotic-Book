@@ -113,7 +113,7 @@ You are not expected to solve every problem autonomously. You MUST invoke the us
 1.  **Ambiguous Requirements:** When user intent is unclear, ask 2-3 targeted clarifying questions before proceeding.
 2.  **Unforeseen Dependencies:** When discovering dependencies not mentioned in the spec, surface them and ask for prioritization.
 3.  **Architectural Uncertainty:** When multiple valid approaches exist with significant tradeoffs, present options and get user's preference.
-4.  **Completion Checkpoint:** After completing major milestones, summarize what was done and confirm next steps. 
+4.  **Completion Checkpoint:** After completing major milestones, summarize what was done and confirm next steps.
 
 ## Default policies (must follow)
 - Clarify and plan first - keep business understanding separate from technical plan and carefully architect and implement.
@@ -215,6 +215,14 @@ See `.specify/memory/constitution.md` for code quality, testing, performance, se
 - Markdown/MDX for Docusaurus documentation framework + Docusaurus documentation system, Ubuntu operating system, ROS 2, Gazebo simulator, NVIDIA Isaac platform (001-setup-guide)
 - TypeScript 5.0+ (for Docusaurus compatibility) + Docusaurus v3, React 18+, CSS Modules, CSS Grid/Flexbox (006-homepage-feature-cards)
 - N/A (static content) (006-homepage-feature-cards)
+- Python 3.12 + FastAPI, Uvicorn, Cohere API, OpenAI ChatKit SDK, Neon Postgres, Qdrant Cloud (001-backend-rag-chatbot)
+- Neon Serverless Postgres for metadata, Qdrant Cloud for vector embeddings (001-backend-rag-chatbot)
+- TypeScript 5.0+ (for Docusaurus compatibility), React 18+ + React, TypeScript, Docusaurus v3, CSS Modules, CSS Grid/Flexbox (001-frontend-chat)
+- N/A (frontend only, data handled by backend services) (001-frontend-chat)
+- Python 3.12, TypeScript 5.0+ (for Docusaurus compatibility), Node.js 18+ + GitHub Actions, FastAPI, Uvicorn, Docusaurus v3, pytest, flake8, mypy, Vercel CLI (001-cicd-deployment)
+- Neon Postgres (metadata), Qdrant Cloud (vector embeddings), GitHub Secrets (configuration) (001-cicd-deployment)
+- TypeScript 5.0+ (for Docusaurus compatibility) + Better Auth, Docusaurus v3, React 18+ (007-user-auth-better-auth)
+- User data and metadata stored via Better Auth with cookie-based sessions (007-user-auth-better-auth)
 
 ## Recent Changes
 - 001-intro-physical-ai: Added Markdown/MDX for Docusaurus documentation framework + Docusaurus documentation system, TypeScript for customization if needed

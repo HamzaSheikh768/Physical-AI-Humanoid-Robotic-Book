@@ -8,35 +8,34 @@ for robotic perception. The pipeline includes RGB-D processing, object detection
 pose estimation, and semantic segmentation capabilities.
 """
 
-import rclpy
-from rclpy.node import Node
-from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
+import threading
+from collections import deque
+from typing import Dict, List, Optional, Tuple
 
-from sensor_msgs.msg import Image, CameraInfo, PointCloud2
-from geometry_msgs.msg import Point, Pose, PoseArray
-from std_msgs.msg import Header
-from visualization_msgs.msg import Marker, MarkerArray
+import cv2
+import message_filters
+import numpy as np
+import rclpy
+import tf2_geometry_msgs
+import tf2_ros
 from builtin_interfaces.msg import Time
 from cv_bridge import CvBridge
-import message_filters
-from tf2_ros import Buffer, TransformListener
-import tf2_ros
-import tf2_geometry_msgs
-
-import numpy as np
-import cv2
-from collections import deque
-import threading
-from typing import List, Dict, Tuple, Optional
+from geometry_msgs.msg import Point, Pose, PoseArray
 
 # Import common utilities
 from isaac_examples.common.isaac_ros_utils import (
-    image_msg_to_cv2,
-    cv2_to_image_msg,
-    create_pose,
     create_point,
-    get_transform
+    create_pose,
+    cv2_to_image_msg,
+    get_transform,
+    image_msg_to_cv2,
 )
+from rclpy.node import Node
+from rclpy.qos import HistoryPolicy, QoSProfile, ReliabilityPolicy
+from sensor_msgs.msg import CameraInfo, Image, PointCloud2
+from std_msgs.msg import Header
+from tf2_ros import Buffer, TransformListener
+from visualization_msgs.msg import Marker, MarkerArray
 
 
 class IsaacVisionPipeline(Node):
@@ -45,23 +44,27 @@ class IsaacVisionPipeline(Node):
     """
 
     def __init__(self):
-        super().__init__('isaac_vision_pipeline')
+        super().__init__("isaac_vision_pipeline")
 
         # Declare parameters
-        self.declare_parameter('camera_namespace', '/camera')
-        self.declare_parameter('enable_visualization', True)
-        self.declare_parameter('detection_confidence_threshold', 0.6)
-        self.declare_parameter('tracking_enabled', True)
-        self.declare_parameter('max_tracking_objects', 10)
-        self.declare_parameter('object_classes', ['person', 'bottle', 'cup', 'chair', 'monitor'])
+        self.declare_parameter("camera_namespace", "/camera")
+        self.declare_parameter("enable_visualization", True)
+        self.declare_parameter("detection_confidence_threshold", 0.6)
+        self.declare_parameter("tracking_enabled", True)
+        self.declare_parameter("max_tracking_objects", 10)
+        self.declare_parameter(
+            "object_classes", ["person", "bottle", "cup", "chair", "monitor"]
+        )
 
         # Get parameters
-        self.camera_namespace = self.get_parameter('camera_namespace').value
-        self.enable_visualization = self.get_parameter('enable_visualization').value
-        self.confidence_threshold = self.get_parameter('detection_confidence_threshold').value
-        self.tracking_enabled = self.get_parameter('tracking_enabled').value
-        self.max_tracking_objects = self.get_parameter('max_tracking_objects').value
-        self.object_classes = self.get_parameter('object_classes').value
+        self.camera_namespace = self.get_parameter("camera_namespace").value
+        self.enable_visualization = self.get_parameter("enable_visualization").value
+        self.confidence_threshold = self.get_parameter(
+            "detection_confidence_threshold"
+        ).value
+        self.tracking_enabled = self.get_parameter("tracking_enabled").value
+        self.max_tracking_objects = self.get_parameter("max_tracking_objects").value
+        self.object_classes = self.get_parameter("object_classes").value
 
         # Initialize CvBridge
         self.bridge = CvBridge()
@@ -71,42 +74,46 @@ class IsaacVisionPipeline(Node):
         self.tf_listener = TransformListener(self.tf_buffer, self)
 
         # Publishers
-        self.object_poses_pub = self.create_publisher(PoseArray, 'object_poses', 10)
-        self.visualization_pub = self.create_publisher(MarkerArray, 'vision_markers', 10) if self.enable_visualization else None
-        self.tracked_objects_pub = self.create_publisher(PoseArray, 'tracked_objects', 10)
+        self.object_poses_pub = self.create_publisher(PoseArray, "object_poses", 10)
+        self.visualization_pub = (
+            self.create_publisher(MarkerArray, "vision_markers", 10)
+            if self.enable_visualization
+            else None
+        )
+        self.tracked_objects_pub = self.create_publisher(
+            PoseArray, "tracked_objects", 10
+        )
 
         # Create QoS profile for sensor data
         qos_profile = QoSProfile(
             reliability=ReliabilityPolicy.BEST_EFFORT,
             history=HistoryPolicy.KEEP_LAST,
-            depth=1
+            depth=1,
         )
 
         # Subscribers for RGB and Depth images
         self.rgb_sub = message_filters.Subscriber(
             self,
             Image,
-            f'{self.camera_namespace}/rgb/image_raw',
-            qos_profile=qos_profile
+            f"{self.camera_namespace}/rgb/image_raw",
+            qos_profile=qos_profile,
         )
         self.depth_sub = message_filters.Subscriber(
             self,
             Image,
-            f'{self.camera_namespace}/depth/image_raw',
-            qos_profile=qos_profile
+            f"{self.camera_namespace}/depth/image_raw",
+            qos_profile=qos_profile,
         )
         self.camera_info_sub = self.create_subscription(
             CameraInfo,
-            f'{self.camera_namespace}/camera_info',
+            f"{self.camera_namespace}/camera_info",
             self.camera_info_callback,
-            10
+            10,
         )
 
         # Approximate time synchronizer for RGB and Depth
         self.sync = message_filters.ApproximateTimeSynchronizer(
-            [self.rgb_sub, self.depth_sub],
-            queue_size=10,
-            slop=0.1
+            [self.rgb_sub, self.depth_sub], queue_size=10, slop=0.1
         )
         self.sync.registerCallback(self.vision_callback)
 
@@ -116,8 +123,8 @@ class IsaacVisionPipeline(Node):
 
         # Object tracking components
         self.object_trackers = {}  # Dictionary to store object trackers
-        self.object_history = {}   # Dictionary to store object history
-        self.object_ids = {}       # Dictionary to maintain consistent IDs
+        self.object_history = {}  # Dictionary to store object history
+        self.object_ids = {}  # Dictionary to maintain consistent IDs
         self.next_object_id = 0
 
         # Threading for performance
@@ -127,9 +134,11 @@ class IsaacVisionPipeline(Node):
         self.frame_count = 0
         self.processing_times = deque(maxlen=30)  # Last 30 frames for FPS calculation
 
-        self.get_logger().info('Isaac Vision Pipeline initialized')
-        self.get_logger().info(f'Listening to camera namespace: {self.camera_namespace}')
-        self.get_logger().info(f'Object classes: {self.object_classes}')
+        self.get_logger().info("Isaac Vision Pipeline initialized")
+        self.get_logger().info(
+            f"Listening to camera namespace: {self.camera_namespace}"
+        )
+        self.get_logger().info(f"Object classes: {self.object_classes}")
 
     def camera_info_callback(self, camera_info_msg):
         """
@@ -154,39 +163,47 @@ class IsaacVisionPipeline(Node):
         try:
             # Convert ROS images to OpenCV
             rgb_image = image_msg_to_cv2(rgb_msg)
-            depth_image = image_msg_to_cv2(depth_msg, desired_encoding='32FC1')
+            depth_image = image_msg_to_cv2(depth_msg, desired_encoding="32FC1")
 
             if rgb_image is None or depth_image is None:
-                self.get_logger().warn('Failed to convert images')
+                self.get_logger().warn("Failed to convert images")
                 return
 
             # Process the vision pipeline
-            detections = self.run_vision_pipeline(rgb_image, depth_image, rgb_msg.header)
+            detections = self.run_vision_pipeline(
+                rgb_image, depth_image, rgb_msg.header
+            )
 
             # Publish results
             self.publish_vision_results(detections, rgb_msg.header)
 
             # Calculate and log performance
             end_time = self.get_clock().now()
-            processing_time = (end_time - start_time).nanoseconds / 1e6  # in milliseconds
+            processing_time = (
+                end_time - start_time
+            ).nanoseconds / 1e6  # in milliseconds
             self.processing_times.append(processing_time)
 
             if self.frame_count % 30 == 0:  # Log every 30 frames
-                avg_processing_time = sum(self.processing_times) / len(self.processing_times)
+                avg_processing_time = sum(self.processing_times) / len(
+                    self.processing_times
+                )
                 fps = 1000.0 / avg_processing_time if avg_processing_time > 0 else 0
                 self.get_logger().info(
-                    f'Vision pipeline: {avg_processing_time:.2f}ms ({fps:.1f} FPS)'
+                    f"Vision pipeline: {avg_processing_time:.2f}ms ({fps:.1f} FPS)"
                 )
 
             self.frame_count += 1
 
         except Exception as e:
-            self.get_logger().error(f'Error in vision_callback: {e}')
+            self.get_logger().error(f"Error in vision_callback: {e}")
             import traceback
+
             traceback.print_exc()
 
-    def run_vision_pipeline(self, rgb_image: np.ndarray, depth_image: np.ndarray,
-                           header: Header) -> List[Dict]:
+    def run_vision_pipeline(
+        self, rgb_image: np.ndarray, depth_image: np.ndarray, header: Header
+    ) -> List[Dict]:
         """
         Run the complete vision pipeline
 
@@ -236,11 +253,23 @@ class IsaacVisionPipeline(Node):
 
         # Define color ranges for different object classes
         color_ranges = {
-            'person': (np.array([0, 20, 70]), np.array([20, 150, 255])),      # Skin tones
-            'bottle': (np.array([80, 50, 50]), np.array([130, 255, 255])),    # Blue-ish objects
-            'cup': (np.array([15, 100, 100]), np.array([35, 255, 255])),      # Yellow-ish objects
-            'chair': (np.array([10, 50, 50]), np.array([30, 255, 255])),      # Brown-ish objects
-            'monitor': (np.array([90, 50, 50]), np.array([120, 255, 255]))    # Blue screens
+            "person": (np.array([0, 20, 70]), np.array([20, 150, 255])),  # Skin tones
+            "bottle": (
+                np.array([80, 50, 50]),
+                np.array([130, 255, 255]),
+            ),  # Blue-ish objects
+            "cup": (
+                np.array([15, 100, 100]),
+                np.array([35, 255, 255]),
+            ),  # Yellow-ish objects
+            "chair": (
+                np.array([10, 50, 50]),
+                np.array([30, 255, 255]),
+            ),  # Brown-ish objects
+            "monitor": (
+                np.array([90, 50, 50]),
+                np.array([120, 255, 255]),
+            ),  # Blue screens
         }
 
         for class_name in self.object_classes:
@@ -249,7 +278,9 @@ class IsaacVisionPipeline(Node):
                 mask = cv2.inRange(hsv, lower, upper)
 
                 # Find contours
-                contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                contours, _ = cv2.findContours(
+                    mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+                )
 
                 for contour in contours:
                     area = cv2.contourArea(contour)
@@ -269,8 +300,9 @@ class IsaacVisionPipeline(Node):
 
         return detections
 
-    def estimate_3d_poses(self, detections: List[List], depth_image: np.ndarray,
-                         header: Header) -> List[Dict]:
+    def estimate_3d_poses(
+        self, detections: List[List], depth_image: np.ndarray, header: Header
+    ) -> List[Dict]:
         """
         Estimate 3D poses from 2D detections and depth information
 
@@ -294,8 +326,10 @@ class IsaacVisionPipeline(Node):
             center_y = y + h // 2
 
             # Get depth at center of bounding box (with some averaging)
-            depth_region = depth_image[max(0, center_y-10):min(height, center_y+10),
-                                      max(0, center_x-10):min(width, center_x+10)]
+            depth_region = depth_image[
+                max(0, center_y - 10) : min(height, center_y + 10),
+                max(0, center_x - 10) : min(width, center_x + 10),
+            ]
 
             # Calculate average depth (ignore invalid values)
             valid_depths = depth_region[depth_region > 0]
@@ -317,8 +351,8 @@ class IsaacVisionPipeline(Node):
                 world_z = avg_depth
             else:
                 # Fallback conversion
-                world_x = (center_x - width/2) * avg_depth * 0.001
-                world_y = (center_y - height/2) * avg_depth * 0.001
+                world_x = (center_x - width / 2) * avg_depth * 0.001
+                world_y = (center_y - height / 2) * avg_depth * 0.001
                 world_z = avg_depth
 
             # Create pose
@@ -326,17 +360,19 @@ class IsaacVisionPipeline(Node):
 
             # Store object information
             object_info = {
-                'class': class_name,
-                'confidence': conf,
-                'pose': pose,
-                'bbox': (x, y, w, h),
-                'depth': avg_depth
+                "class": class_name,
+                "confidence": conf,
+                "pose": pose,
+                "bbox": (x, y, w, h),
+                "depth": avg_depth,
             }
             objects_with_poses.append(object_info)
 
         return objects_with_poses
 
-    def update_object_tracking(self, detected_objects: List[Dict], header: Header) -> List[Dict]:
+    def update_object_tracking(
+        self, detected_objects: List[Dict], header: Header
+    ) -> List[Dict]:
         """
         Update object tracking with detected objects
 
@@ -352,7 +388,7 @@ class IsaacVisionPipeline(Node):
             for i, obj in enumerate(detected_objects):
                 obj_id = f"obj_{self.next_object_id}"
                 self.next_object_id += 1
-                obj['id'] = obj_id
+                obj["id"] = obj_id
                 self.object_ids[obj_id] = obj
                 self.object_history[obj_id] = [obj]
             return detected_objects
@@ -363,15 +399,18 @@ class IsaacVisionPipeline(Node):
 
         for detected_obj in detected_objects:
             best_match = None
-            min_distance = float('inf')
+            min_distance = float("inf")
 
             # Find best matching tracked object
             for obj_id, tracked_obj in self.object_ids.items():
                 # Calculate distance between detected and tracked poses
                 dist = np.sqrt(
-                    (detected_obj['pose'].position.x - tracked_obj['pose'].position.x)**2 +
-                    (detected_obj['pose'].position.y - tracked_obj['pose'].position.y)**2 +
-                    (detected_obj['pose'].position.z - tracked_obj['pose'].position.z)**2
+                    (detected_obj["pose"].position.x - tracked_obj["pose"].position.x)
+                    ** 2
+                    + (detected_obj["pose"].position.y - tracked_obj["pose"].position.y)
+                    ** 2
+                    + (detected_obj["pose"].position.z - tracked_obj["pose"].position.z)
+                    ** 2
                 )
 
                 if dist < min_distance and dist < 0.2:  # 20cm threshold
@@ -381,12 +420,14 @@ class IsaacVisionPipeline(Node):
             if best_match is not None:
                 # Update existing tracked object
                 self.object_ids[best_match].update(detected_obj)
-                self.object_ids[best_match]['id'] = best_match  # Ensure ID is preserved
+                self.object_ids[best_match]["id"] = best_match  # Ensure ID is preserved
                 self.object_history[best_match].append(detected_obj)
 
                 # Keep only recent history
                 if len(self.object_history[best_match]) > 10:
-                    self.object_history[best_match] = self.object_history[best_match][-10:]
+                    self.object_history[best_match] = self.object_history[best_match][
+                        -10:
+                    ]
 
                 tracked_objects.append(self.object_ids[best_match])
             else:
@@ -394,7 +435,7 @@ class IsaacVisionPipeline(Node):
                 if len(self.object_ids) < self.max_tracking_objects:
                     obj_id = f"obj_{self.next_object_id}"
                     self.next_object_id += 1
-                    detected_obj['id'] = obj_id
+                    detected_obj["id"] = obj_id
                     self.object_ids[obj_id] = detected_obj
                     self.object_history[obj_id] = [detected_obj]
                     tracked_objects.append(detected_obj)
@@ -412,7 +453,9 @@ class IsaacVisionPipeline(Node):
 
         return tracked_objects
 
-    def apply_segmentation_masks(self, objects: List[Dict], rgb_image: np.ndarray) -> List[Dict]:
+    def apply_segmentation_masks(
+        self, objects: List[Dict], rgb_image: np.ndarray
+    ) -> List[Dict]:
         """
         Apply segmentation masks to objects (simulated)
 
@@ -426,7 +469,7 @@ class IsaacVisionPipeline(Node):
         # In a real implementation, this would apply semantic segmentation
         # For this simulation, we'll just add a dummy segmentation property
         for obj in objects:
-            obj['segmentation_mask'] = True  # Placeholder for segmentation mask
+            obj["segmentation_mask"] = True  # Placeholder for segmentation mask
 
         return objects
 
@@ -443,7 +486,7 @@ class IsaacVisionPipeline(Node):
         pose_array.header = header
 
         for obj in objects:
-            pose_array.poses.append(obj['pose'])
+            pose_array.poses.append(obj["pose"])
 
         self.object_poses_pub.publish(pose_array)
 
@@ -451,9 +494,9 @@ class IsaacVisionPipeline(Node):
         tracked_pose_array = PoseArray()
         tracked_pose_array.header = header
         for obj in objects:
-            if 'id' in obj:
+            if "id" in obj:
                 # For visualization, we'll use the pose
-                tracked_pose_array.poses.append(obj['pose'])
+                tracked_pose_array.poses.append(obj["pose"])
 
         self.tracked_objects_pub.publish(tracked_pose_array)
 
@@ -481,32 +524,34 @@ class IsaacVisionPipeline(Node):
             marker.action = Marker.ADD
 
             # Position and orientation
-            marker.pose = obj['pose']
+            marker.pose = obj["pose"]
 
             # Scale based on detection confidence
-            scale_factor = 0.1 + (obj['confidence'] - 0.5) * 0.1  # Scale between 0.1 and 0.15
+            scale_factor = (
+                0.1 + (obj["confidence"] - 0.5) * 0.1
+            )  # Scale between 0.1 and 0.15
             marker.scale.x = scale_factor
             marker.scale.y = scale_factor
             marker.scale.z = scale_factor
 
             # Color based on object class
-            if obj['class'] == 'person':
+            if obj["class"] == "person":
                 marker.color.r = 1.0
                 marker.color.g = 0.0
                 marker.color.b = 0.0
-            elif obj['class'] == 'bottle':
+            elif obj["class"] == "bottle":
                 marker.color.r = 0.0
                 marker.color.g = 0.0
                 marker.color.b = 1.0
-            elif obj['class'] == 'cup':
+            elif obj["class"] == "cup":
                 marker.color.r = 0.0
                 marker.color.g = 1.0
                 marker.color.b = 0.0
-            elif obj['class'] == 'chair':
+            elif obj["class"] == "chair":
                 marker.color.r = 1.0
                 marker.color.g = 1.0
                 marker.color.b = 0.0
-            elif obj['class'] == 'monitor':
+            elif obj["class"] == "monitor":
                 marker.color.r = 1.0
                 marker.color.g = 0.0
                 marker.color.b = 1.0
@@ -526,7 +571,7 @@ class IsaacVisionPipeline(Node):
             label_marker.action = Marker.ADD
 
             # Position text slightly above the object
-            label_marker.pose = obj['pose']
+            label_marker.pose = obj["pose"]
             label_marker.pose.position.z += 0.15
 
             label_marker.scale.z = 0.1  # Text scale
@@ -560,5 +605,5 @@ def main(args=None):
         rclpy.shutdown()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -9,29 +9,30 @@ It runs a complete perception-action loop to verify all components work together
 """
 
 import sys
-import time
 import threading
-from unittest.mock import Mock, MagicMock
-import numpy as np
-import cv2
-from sensor_msgs.msg import Image, CameraInfo
-from std_msgs.msg import Header
-from geometry_msgs.msg import Pose, PoseArray
-from cv_bridge import CvBridge
+import time
+from unittest.mock import MagicMock, Mock
 
-from isaac_examples.isaac_sim.scene_config import IsaacSimScene
-from isaac_examples.isaac_sim.robot_setup import RobotSetup
+import cv2
+import numpy as np
+from cv_bridge import CvBridge
+from geometry_msgs.msg import Pose, PoseArray
 from isaac_examples.isaac_ros.perception_node import IsaacPerceptionNode
 from isaac_examples.isaac_ros.vision_pipeline import IsaacVisionPipeline
-from isaac_examples.manipulation.grasp_planning import GraspPlanner
+from isaac_examples.isaac_sim.robot_setup import RobotSetup
+from isaac_examples.isaac_sim.scene_config import IsaacSimScene
 from isaac_examples.manipulation.arm_control import ArmController
+from isaac_examples.manipulation.grasp_planning import GraspPlanner
 from isaac_examples.manipulation.object_manipulation_lab import ObjectManipulationLab
+from sensor_msgs.msg import CameraInfo, Image
+from std_msgs.msg import Header
 
 
 class MockIsaacSim:
     """
     Mock class to simulate Isaac Sim functionality for testing purposes
     """
+
     def __init__(self):
         self.scene_objects = []
         self.cameras = []
@@ -50,23 +51,19 @@ class MockIsaacSim:
     def add_camera(self, name, position, resolution=(640, 480)):
         """Add a camera to the simulation"""
         camera = {
-            'name': name,
-            'position': position,
-            'resolution': resolution,
-            'rgb_buffer': None,
-            'depth_buffer': None
+            "name": name,
+            "position": position,
+            "resolution": resolution,
+            "rgb_buffer": None,
+            "depth_buffer": None,
         }
         self.cameras.append(camera)
         print(f"Mock Isaac Sim: Added camera {name} at {position}")
         return camera
 
-    def add_object(self, name, position, color='red'):
+    def add_object(self, name, position, color="red"):
         """Add an object to the simulation scene"""
-        obj = {
-            'name': name,
-            'position': position,
-            'color': color
-        }
+        obj = {"name": name, "position": position, "color": color}
         self.scene_objects.append(obj)
         print(f"Mock Isaac Sim: Added {color} object {name} at {position}")
         return obj
@@ -79,13 +76,19 @@ class MockIsaacSim:
         camera = self.cameras[0]  # Use first camera
 
         # Generate mock RGB image (random colored rectangles to simulate objects)
-        height, width = camera['resolution'][1], camera['resolution'][0]
+        height, width = camera["resolution"][1], camera["resolution"][0]
         rgb_image = np.random.randint(0, 255, (height, width, 3), dtype=np.uint8)
 
         # Add some colored rectangles to simulate objects
-        cv2.rectangle(rgb_image, (100, 100), (200, 200), (255, 0, 0), -1)  # Blue rectangle
-        cv2.rectangle(rgb_image, (300, 200), (400, 300), (0, 255, 0), -1)  # Green rectangle
-        cv2.rectangle(rgb_image, (150, 300), (250, 400), (0, 0, 255), -1)  # Red rectangle
+        cv2.rectangle(
+            rgb_image, (100, 100), (200, 200), (255, 0, 0), -1
+        )  # Blue rectangle
+        cv2.rectangle(
+            rgb_image, (300, 200), (400, 300), (0, 255, 0), -1
+        )  # Green rectangle
+        cv2.rectangle(
+            rgb_image, (150, 300), (250, 400), (0, 0, 255), -1
+        )  # Red rectangle
 
         # Generate mock depth image
         depth_image = np.random.uniform(0.5, 5.0, (height, width)).astype(np.float32)
@@ -102,6 +105,7 @@ class PerceptionManipulationIntegrationTester:
     """
     Test class for validating perception and manipulation integration
     """
+
     def __init__(self):
         self.bridge = CvBridge()
         self.test_results = []
@@ -112,16 +116,16 @@ class PerceptionManipulationIntegrationTester:
         """
         Run comprehensive integration tests for perception and manipulation
         """
-        print("="*70)
+        print("=" * 70)
         print("INTEGRATION TEST: Perception and Manipulation System")
-        print("="*70)
+        print("=" * 70)
 
         tests = [
             self.test_scene_setup,
             self.test_perception_pipeline,
             self.test_grasp_planning,
             self.test_arm_control,
-            self.test_complete_manipulation_loop
+            self.test_complete_manipulation_loop,
         ]
 
         for test_func in tests:
@@ -159,7 +163,9 @@ class PerceptionManipulationIntegrationTester:
         robot_setup.add_franka_robot(world, position=[0.0, 0.0, 0.0])
 
         # Add a camera to the scene
-        sim_scene.add_camera_to_scene(world, position=[2.0, 0.0, 1.5], name="test_camera")
+        sim_scene.add_camera_to_scene(
+            world, position=[2.0, 0.0, 1.5], name="test_camera"
+        )
 
         print("  ✓ Isaac Sim scene configured with robot and camera")
         return True
@@ -190,11 +196,26 @@ class PerceptionManipulationIntegrationTester:
 
             # Define color ranges for different object classes
             color_ranges = {
-                'person': (np.array([0, 20, 70]), np.array([20, 150, 255])),      # Skin tones
-                'bottle': (np.array([80, 50, 50]), np.array([130, 255, 255])),    # Blue-ish objects
-                'cup': (np.array([15, 100, 100]), np.array([35, 255, 255])),      # Yellow-ish objects
-                'chair': (np.array([10, 50, 50]), np.array([30, 255, 255])),      # Brown-ish objects
-                'monitor': (np.array([90, 50, 50]), np.array([120, 255, 255]))    # Blue screens
+                "person": (
+                    np.array([0, 20, 70]),
+                    np.array([20, 150, 255]),
+                ),  # Skin tones
+                "bottle": (
+                    np.array([80, 50, 50]),
+                    np.array([130, 255, 255]),
+                ),  # Blue-ish objects
+                "cup": (
+                    np.array([15, 100, 100]),
+                    np.array([35, 255, 255]),
+                ),  # Yellow-ish objects
+                "chair": (
+                    np.array([10, 50, 50]),
+                    np.array([30, 255, 255]),
+                ),  # Brown-ish objects
+                "monitor": (
+                    np.array([90, 50, 50]),
+                    np.array([120, 255, 255]),
+                ),  # Blue screens
             }
 
             # Simulate object detection
@@ -205,7 +226,9 @@ class PerceptionManipulationIntegrationTester:
                     mask = cv2.inRange(hsv, lower, upper)
 
                     # Find contours
-                    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                    contours, _ = cv2.findContours(
+                        mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+                    )
 
                     for contour in contours:
                         area = cv2.contourArea(contour)
@@ -214,12 +237,17 @@ class PerceptionManipulationIntegrationTester:
                             x, y, w, h = cv2.boundingRect(contour)
 
                             # Calculate confidence based on area (larger objects = higher confidence)
-                            confidence = min(0.95, area / (rgb_image.shape[0] * rgb_image.shape[1] * 0.5))
+                            confidence = min(
+                                0.95,
+                                area / (rgb_image.shape[0] * rgb_image.shape[1] * 0.5),
+                            )
 
                             if confidence >= perception_node.confidence_threshold:
                                 detections.append([x, y, w, h, confidence, class_name])
 
-            print(f"  ✓ Perception pipeline processed data and detected {len(detections)} objects")
+            print(
+                f"  ✓ Perception pipeline processed data and detected {len(detections)} objects"
+            )
             return True
         except Exception as e:
             print(f"  ✗ Perception pipeline failed: {e}")
@@ -238,7 +266,7 @@ class PerceptionManipulationIntegrationTester:
         object_poses = PoseArray()
         object_poses.header = Header()
         object_poses.header.stamp.sec = int(time.time())
-        object_poses.header.frame_id = 'map'
+        object_poses.header.frame_id = "map"
 
         # Add some test object poses
         for i in range(3):
@@ -254,7 +282,9 @@ class PerceptionManipulationIntegrationTester:
             # Simulate the callback processing
             for obj_pose in object_poses.poses:
                 object_grasps = grasp_planner.plan_grasps_for_object(obj_pose)
-                print(f"  - Planned {len(object_grasps)} grasp candidates for object at ({obj_pose.position.x:.2f}, {obj_pose.position.y:.2f}, {obj_pose.position.z:.2f})")
+                print(
+                    f"  - Planned {len(object_grasps)} grasp candidates for object at ({obj_pose.position.x:.2f}, {obj_pose.position.y:.2f}, {obj_pose.position.z:.2f})"
+                )
 
             # Select best grasp
             grasp_planner.candidate_grasps = []
@@ -293,9 +323,15 @@ class PerceptionManipulationIntegrationTester:
             pre_grasp = arm_controller.calculate_pre_grasp_pose(test_pose)
             post_grasp = arm_controller.calculate_post_grasp_pose(test_pose)
 
-            print(f"  - Home pose: ({home_pose.position.x:.2f}, {home_pose.position.y:.2f}, {home_pose.position.z:.2f})")
-            print(f"  - Pre-grasp pose: ({pre_grasp.position.x:.2f}, {pre_grasp.position.y:.2f}, {pre_grasp.position.z:.2f})")
-            print(f"  - Post-grasp pose: ({post_grasp.position.x:.2f}, {post_grasp.position.y:.2f}, {post_grasp.position.z:.2f})")
+            print(
+                f"  - Home pose: ({home_pose.position.x:.2f}, {home_pose.position.y:.2f}, {home_pose.position.z:.2f})"
+            )
+            print(
+                f"  - Pre-grasp pose: ({pre_grasp.position.x:.2f}, {pre_grasp.position.y:.2f}, {pre_grasp.position.z:.2f})"
+            )
+            print(
+                f"  - Post-grasp pose: ({post_grasp.position.x:.2f}, {post_grasp.position.y:.2f}, {post_grasp.position.z:.2f})"
+            )
 
             # Test gripper control
             arm_controller.close_gripper()
@@ -334,12 +370,16 @@ class PerceptionManipulationIntegrationTester:
             rgb_image, depth_image = sim_env.generate_mock_sensor_data()
 
             if rgb_image is not None and depth_image is not None:
-                print(f"    Generated mock sensor data - RGB: {rgb_image.shape}, Depth: {depth_image.shape}")
+                print(
+                    f"    Generated mock sensor data - RGB: {rgb_image.shape}, Depth: {depth_image.shape}"
+                )
 
                 # Process through perception pipeline
                 header = Header()
                 header.stamp.sec = int(time.time())
-                detections = perception_node.run_vision_pipeline(rgb_image, depth_image, header)
+                detections = perception_node.run_vision_pipeline(
+                    rgb_image, depth_image, header
+                )
 
                 print(f"    Perception detected {len(detections)} objects")
 
@@ -348,7 +388,7 @@ class PerceptionManipulationIntegrationTester:
                 object_poses.header = header
                 for i in range(min(2, len(detections))):
                     obj = detections[i]
-                    object_poses.poses.append(obj['pose'])
+                    object_poses.poses.append(obj["pose"])
 
                 # Process object poses through manipulation lab
                 manipulation_lab.object_poses_callback(object_poses)
@@ -362,6 +402,7 @@ class PerceptionManipulationIntegrationTester:
         except Exception as e:
             print(f"  ✗ Complete manipulation loop failed: {e}")
             import traceback
+
             traceback.print_exc()
             return False
 
@@ -369,9 +410,9 @@ class PerceptionManipulationIntegrationTester:
         """
         Print summary of all tests
         """
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
         print("INTEGRATION TEST SUMMARY")
-        print("="*70)
+        print("=" * 70)
         print(f"Total Tests: {len(self.test_results)}")
         print(f"Passed: {self.test_passed}")
         print(f"Failed: {self.test_failed}")
@@ -384,7 +425,7 @@ class PerceptionManipulationIntegrationTester:
             print("\n✓ ALL INTEGRATION TESTS PASSED")
         else:
             print(f"\n✗ {self.test_failed} TEST(S) FAILED")
-        print("="*70)
+        print("=" * 70)
 
 
 def main():
@@ -404,6 +445,7 @@ def main():
     except Exception as e:
         print(f"\n✗ Integration test ERROR: {e}")
         import traceback
+
         traceback.print_exc()
         return 1
 

@@ -4,18 +4,18 @@ Isaac Sim Scene Configuration for AI Robot Brain Module
 This module provides a framework for creating Isaac Sim scenes with robot configurations.
 """
 
-import omni
-from omni.isaac.core import World
-from omni.isaac.core.utils.stage import add_reference_to_stage
-from omni.isaac.core.utils.nucleus import get_assets_root_path
-from omni.isaac.core.utils.prims import get_prim_at_path
-from omni.isaac.core.robots import Robot
-from omni.isaac.core.utils.viewports import set_camera_view
-from omni.isaac.core.scenes.scene import Scene
-from omni.isaac.core.objects import DynamicCuboid
-from omni.isaac.core.utils.carb import set_carb_setting
 import carb
 import numpy as np
+import omni
+from omni.isaac.core import World
+from omni.isaac.core.objects import DynamicCuboid
+from omni.isaac.core.robots import Robot
+from omni.isaac.core.scenes.scene import Scene
+from omni.isaac.core.utils.carb import set_carb_setting
+from omni.isaac.core.utils.nucleus import get_assets_root_path
+from omni.isaac.core.utils.prims import get_prim_at_path
+from omni.isaac.core.utils.stage import add_reference_to_stage
+from omni.isaac.core.utils.viewports import set_camera_view
 
 
 class IsaacSimScene:
@@ -29,11 +29,13 @@ class IsaacSimScene:
         self.objects = []
         self.cameras = []
 
-    def setup_basic_scene(self,
-                         robot_usd_path: str = None,
-                         robot_position: tuple = (0.0, 0.0, 0.0),
-                         robot_orientation: tuple = (0.0, 0.0, 0.0, 1.0),
-                         add_default_objects: bool = True):
+    def setup_basic_scene(
+        self,
+        robot_usd_path: str = None,
+        robot_position: tuple = (0.0, 0.0, 0.0),
+        robot_orientation: tuple = (0.0, 0.0, 0.0, 1.0),
+        add_default_objects: bool = True,
+    ):
         """
         Setup a basic Isaac Sim scene with robot and optional objects
 
@@ -64,7 +66,7 @@ class IsaacSimScene:
                     position=robot_position,
                     orientation=robot_orientation,
                     size=1.0,
-                    mass=1.0
+                    mass=1.0,
                 )
             )
             self.robots.append(robot)
@@ -78,7 +80,7 @@ class IsaacSimScene:
                     name="object1",
                     position=[0.5, 0.0, 0.5],
                     size=0.2,
-                    mass=0.1
+                    mass=0.1,
                 )
             )
             self.objects.append(object1)
@@ -90,12 +92,14 @@ class IsaacSimScene:
                     name="object2",
                     position=[-0.3, 0.4, 0.3],
                     size=0.15,
-                    mass=0.08
+                    mass=0.08,
                 )
             )
             self.objects.append(object2)
 
-    def setup_camera(self, camera_position: tuple = (2.0, 2.0, 2.0), target: tuple = (0.0, 0.0, 0.0)):
+    def setup_camera(
+        self, camera_position: tuple = (2.0, 2.0, 2.0), target: tuple = (0.0, 0.0, 0.0)
+    ):
         """
         Setup a camera in the scene
 
@@ -122,17 +126,26 @@ class IsaacSimScene:
         if robot_index < len(self.robots):
             robot = self.robots[robot_index]
             position, orientation = robot.get_world_pose()
-            linear_vel, angular_vel = robot.get_world_linear_velocity(), robot.get_world_angular_velocity()
+            linear_vel, angular_vel = (
+                robot.get_world_linear_velocity(),
+                robot.get_world_angular_velocity(),
+            )
 
             return {
-                'position': position,
-                'orientation': orientation,
-                'linear_velocity': linear_vel,
-                'angular_velocity': angular_vel
+                "position": position,
+                "orientation": orientation,
+                "linear_velocity": linear_vel,
+                "angular_velocity": angular_vel,
             }
         return None
 
-    def add_object(self, position: tuple, size: float = 0.1, mass: float = 0.1, name: str = "object"):
+    def add_object(
+        self,
+        position: tuple,
+        size: float = 0.1,
+        mass: float = 0.1,
+        name: str = "object",
+    ):
         """
         Add an object to the scene
 
@@ -148,7 +161,7 @@ class IsaacSimScene:
                 name=name,
                 position=position,
                 size=size,
-                mass=mass
+                mass=mass,
             )
         )
         self.objects.append(obj)

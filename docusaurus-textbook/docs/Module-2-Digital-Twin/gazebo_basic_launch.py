@@ -9,65 +9,64 @@ from launch_ros.substitutions import FindPackageShare
 def generate_launch_description():
     # Declare launch arguments
     world_arg = DeclareLaunchArgument(
-        'world',
-        default_value='empty.world',
-        description='Choose one of the world files from `/usr/share/gazebo-11/worlds` or specify custom world path'
+        "world",
+        default_value="empty.world",
+        description="Choose one of the world files from `/usr/share/gazebo-11/worlds` or specify custom world path",
     )
 
     # Launch Gazebo
     gazebo = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([
-            PathJoinSubstitution([
-                FindPackageShare('gazebo_ros'),
-                'launch',
-                'gazebo.launch.py'
-            ])
-        ]),
+        PythonLaunchDescriptionSource(
+            [
+                PathJoinSubstitution(
+                    [FindPackageShare("gazebo_ros"), "launch", "gazebo.launch.py"]
+                )
+            ]
+        ),
         launch_arguments={
-            'world': [PathJoinSubstitution([FindPackageShare('my_robot_gazebo'), 'worlds', 'basic_room.world'])]
-        }.items()
+            "world": [
+                PathJoinSubstitution(
+                    [FindPackageShare("my_robot_gazebo"), "worlds", "basic_room.world"]
+                )
+            ]
+        }.items(),
     )
 
     # Robot State Publisher node
     robot_state_publisher = Node(
-        package='robot_state_publisher',
-        executable='robot_state_publisher',
-        name='robot_state_publisher',
-        parameters=[{
-            'use_sim_time': True,
-            'publish_frequency': 50.0
-        }],
-        remappings=[
-            ('/joint_states', 'joint_states')
-        ]
+        package="robot_state_publisher",
+        executable="robot_state_publisher",
+        name="robot_state_publisher",
+        parameters=[{"use_sim_time": True, "publish_frequency": 50.0}],
+        remappings=[("/joint_states", "joint_states")],
     )
 
     # Joint State Publisher node (for non-fixed joints)
     joint_state_publisher = Node(
-        package='joint_state_publisher',
-        executable='joint_state_publisher',
-        name='joint_state_publisher',
-        parameters=[{
-            'use_sim_time': True,
-            'rate': 50
-        }],
-        remappings=[
-            ('/joint_states', 'joint_states')
-        ]
+        package="joint_state_publisher",
+        executable="joint_state_publisher",
+        name="joint_state_publisher",
+        parameters=[{"use_sim_time": True, "rate": 50}],
+        remappings=[("/joint_states", "joint_states")],
     )
 
     # Spawn robot in Gazebo
     spawn_robot = Node(
-        package='gazebo_ros',
-        executable='spawn_entity.py',
+        package="gazebo_ros",
+        executable="spawn_entity.py",
         arguments=[
-            '-entity', 'my_robot',
-            '-topic', 'robot_description',
-            '-x', '0.0',
-            '-y', '0.0',
-            '-z', '0.5'  # Start 0.5m above ground to ensure proper spawning
+            "-entity",
+            "my_robot",
+            "-topic",
+            "robot_description",
+            "-x",
+            "0.0",
+            "-y",
+            "0.0",
+            "-z",
+            "0.5",  # Start 0.5m above ground to ensure proper spawning
         ],
-        output='screen'
+        output="screen",
     )
 
     # Create the launch description and populate

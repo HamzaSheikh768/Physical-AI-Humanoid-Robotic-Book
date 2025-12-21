@@ -8,39 +8,40 @@ policies from simulation to real-world deployment. It includes model conversion,
 optimization, safety validation, and deployment to real robots.
 """
 
-import rclpy
-from rclpy.node import Node
-from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
+import json
+import os
+import shutil
+import subprocess
+import tempfile
+import threading
+import time
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple, Union
 
-from std_msgs.msg import Header, String
-from geometry_msgs.msg import Pose, Twist
-from sensor_msgs.msg import JointState, Image, CameraInfo
-from builtin_interfaces.msg import Time
-
-import torch
-import torch.nn as nn
-import torch.onnx
 import numpy as np
 import onnx
 import onnxruntime as ort
+import rclpy
 import tensorflow as tf
-from tensorflow.python.framework.convert_to_constants import convert_variables_to_constants_v2
-import os
-import json
+import torch
+import torch.nn as nn
+import torch.onnx
 import yaml
-import time
-from typing import Dict, List, Tuple, Optional, Any, Union
-import threading
-import subprocess
-import tempfile
-from pathlib import Path
-import shutil
+from builtin_interfaces.msg import Time
+from geometry_msgs.msg import Pose, Twist
 
 # Import common utilities
 from isaac_examples.common.isaac_ros_utils import (
-    create_pose,
     create_point,
-    get_transform
+    create_pose,
+    get_transform,
+)
+from rclpy.node import Node
+from rclpy.qos import HistoryPolicy, QoSProfile, ReliabilityPolicy
+from sensor_msgs.msg import CameraInfo, Image, JointState
+from std_msgs.msg import Header, String
+from tensorflow.python.framework.convert_to_constants import (
+    convert_variables_to_constants_v2,
 )
 
 
@@ -48,6 +49,7 @@ class PolicyExporter:
     """
     Class for exporting trained RL policies to various formats
     """
+
     def __init__(self, model_path: str, export_format: str = "onnx"):
         self.model_path = model_path
         self.export_format = export_format
@@ -68,18 +70,18 @@ class PolicyExporter:
             model_path = self.model_path
 
         # Load checkpoint
-        checkpoint = torch.load(model_path, map_location=torch.device('cpu'))
+        checkpoint = torch.load(model_path, map_location=torch.device("cpu"))
 
         # Assuming the model architecture is ActorCriticNetwork from rl_training.py
         # In a real implementation, you would need to reconstruct the model based on saved architecture
-        if 'model_state_dict' in checkpoint:
+        if "model_state_dict" in checkpoint:
             # For now, we'll create a generic model structure
             # In practice, you would load the actual architecture
             self.model = self._create_model_from_checkpoint(checkpoint)
-            self.model.load_state_dict(checkpoint['model_state_dict'])
+            self.model.load_state_dict(checkpoint["model_state_dict"])
         else:
             # If it's a direct model save
-            self.model = torch.load(model_path, map_location=torch.device('cpu'))
+            self.model = torch.load(model_path, map_location=torch.device("cpu"))
 
         self.model.eval()  # Set to evaluation mode
         return self.model
@@ -97,9 +99,9 @@ class PolicyExporter:
         # This is a simplified version - in practice, you'd have more robust architecture reconstruction
         # For now, we'll create a generic Actor-Critic network
         # In a real implementation, you'd store the model architecture in the checkpoint
-        state_dim = checkpoint.get('state_dim', 24)  # Default from rl_training.py
-        action_dim = checkpoint.get('action_dim', 7)  # Default from rl_training.py
-        hidden_dim = checkpoint.get('hidden_dim', 256)
+        state_dim = checkpoint.get("state_dim", 24)  # Default from rl_training.py
+        action_dim = checkpoint.get("action_dim", 7)  # Default from rl_training.py
+        hidden_dim = checkpoint.get("hidden_dim", 256)
 
         # Create a simple Actor-Critic network
         class SimpleActorCritic(nn.Module):
@@ -109,7 +111,7 @@ class PolicyExporter:
                     nn.Linear(state_dim, hidden_dim),
                     nn.ReLU(),
                     nn.Linear(hidden_dim, hidden_dim),
-                    nn.ReLU()
+                    nn.ReLU(),
                 )
                 self.actor_mean = nn.Linear(hidden_dim, action_dim)
                 self.critic = nn.Linear(hidden_dim, 1)
@@ -147,13 +149,13 @@ class PolicyExporter:
             export_params=True,
             opset_version=11,
             do_constant_folding=True,
-            input_names=['input'],
-            output_names=['action_mean', 'value'],
+            input_names=["input"],
+            output_names=["action_mean", "value"],
             dynamic_axes={
-                'input': {0: 'batch_size'},
-                'action_mean': {0: 'batch_size'},
-                'value': {0: 'batch_size'}
-            }
+                "input": {0: "batch_size"},
+                "action_mean": {0: "batch_size"},
+                "value": {0: "batch_size"},
+            },
         )
 
         print(f"Model exported to ONNX format: {output_path}")
@@ -173,7 +175,7 @@ class PolicyExporter:
             self.load_model()
 
         # Convert PyTorch model to TensorFlow (using ONNX as intermediate)
-        with tempfile.NamedTemporaryFile(suffix='.onnx', delete=False) as tmp_onnx:
+        with tempfile.NamedTemporaryFile(suffix=".onnx", delete=False) as tmp_onnx:
             # First export to ONNX
             self.export_to_onnx(tmp_onnx.name, torch.randn(1, self.model.state_dim))
 
@@ -203,13 +205,17 @@ class PolicyExporter:
             Path to the exported TensorRT model
         """
         # First export to ONNX
-        with tempfile.NamedTemporaryFile(suffix='.onnx', delete=False) as tmp_onnx:
+        with tempfile.NamedTemporaryFile(suffix=".onnx", delete=False) as tmp_onnx:
             self.export_to_onnx(tmp_onnx.name, input_sample)
 
             # Convert ONNX to TensorRT using NVIDIA's tools
             try:
                 import tensorrt as trt
-                from polygraphy.backend.trt import create_network, engine_from_network, save_engine
+                from polygraphy.backend.trt import (
+                    create_network,
+                    engine_from_network,
+                    save_engine,
+                )
 
                 # Load ONNX model
                 onnx_model = onnx.load(tmp_onnx.name)
@@ -239,6 +245,7 @@ class SafetyValidator:
     """
     Class for validating policy safety before deployment
     """
+
     def __init__(self, model_path: str):
         self.model_path = model_path
         self.session = None
@@ -280,18 +287,22 @@ class SafetyValidator:
 
         # Define safe action bounds (example: joint limits, velocity limits)
         action_bounds = {
-            'min': np.array([-1.0] * len(action_mean)),  # Example bounds
-            'max': np.array([1.0] * len(action_mean))
+            "min": np.array([-1.0] * len(action_mean)),  # Example bounds
+            "max": np.array([1.0] * len(action_mean)),
         }
 
         # Check if action is within bounds
-        if np.any(action_mean < action_bounds['min']) or np.any(action_mean > action_bounds['max']):
+        if np.any(action_mean < action_bounds["min"]) or np.any(
+            action_mean > action_bounds["max"]
+        ):
             print(f"Action out of bounds: {action_mean}")
             return False
 
         return True
 
-    def validate_stability(self, initial_state: np.ndarray, num_steps: int = 100) -> bool:
+    def validate_stability(
+        self, initial_state: np.ndarray, num_steps: int = 100
+    ) -> bool:
         """
         Validate policy stability over multiple steps
 
@@ -324,7 +335,9 @@ class SafetyValidator:
 
         return True
 
-    def run_comprehensive_safety_check(self, test_states: List[np.ndarray]) -> Dict[str, Any]:
+    def run_comprehensive_safety_check(
+        self, test_states: List[np.ndarray]
+    ) -> Dict[str, Any]:
         """
         Run comprehensive safety validation on multiple test states
 
@@ -335,29 +348,31 @@ class SafetyValidator:
             Dictionary with validation results
         """
         results = {
-            'action_space_valid': True,
-            'stability_valid': True,
-            'overall_safe': True,
-            'failed_states': [],
-            'details': []
+            "action_space_valid": True,
+            "stability_valid": True,
+            "overall_safe": True,
+            "failed_states": [],
+            "details": [],
         }
 
         for i, state in enumerate(test_states):
             # Validate action space
             action_valid = self.validate_action_space(state)
             if not action_valid:
-                results['action_space_valid'] = False
-                results['failed_states'].append(i)
-                results['details'].append(f"State {i}: Action space violation")
+                results["action_space_valid"] = False
+                results["failed_states"].append(i)
+                results["details"].append(f"State {i}: Action space violation")
 
             # Validate stability for this state
             stability_valid = self.validate_stability(state, num_steps=50)
             if not stability_valid:
-                results['stability_valid'] = False
-                results['failed_states'].append(i)
-                results['details'].append(f"State {i}: Stability violation")
+                results["stability_valid"] = False
+                results["failed_states"].append(i)
+                results["details"].append(f"State {i}: Stability violation")
 
-        results['overall_safe'] = results['action_space_valid'] and results['stability_valid']
+        results["overall_safe"] = (
+            results["action_space_valid"] and results["stability_valid"]
+        )
         return results
 
 
@@ -365,13 +380,16 @@ class DeploymentManager:
     """
     Class for managing policy deployment to real robots
     """
+
     def __init__(self, robot_name: str = "franka", deployment_target: str = "local"):
         self.robot_name = robot_name
         self.deployment_target = deployment_target
         self.deployment_path = f"/opt/ros/robot_models/{robot_name}/policies"
         self.model_config = {}
 
-    def prepare_deployment_package(self, model_path: str, config: Dict[str, Any]) -> str:
+    def prepare_deployment_package(
+        self, model_path: str, config: Dict[str, Any]
+    ) -> str:
         """
         Prepare a deployment package with model and configuration
 
@@ -383,7 +401,9 @@ class DeploymentManager:
             Path to the deployment package
         """
         # Create deployment directory
-        deployment_dir = os.path.join(self.deployment_path, f"policy_{int(time.time())}")
+        deployment_dir = os.path.join(
+            self.deployment_path, f"policy_{int(time.time())}"
+        )
         os.makedirs(deployment_dir, exist_ok=True)
 
         # Copy model to deployment directory
@@ -393,7 +413,7 @@ class DeploymentManager:
 
         # Save configuration
         config_path = os.path.join(deployment_dir, "config.json")
-        with open(config_path, 'w') as f:
+        with open(config_path, "w") as f:
             json.dump(config, f, indent=2)
 
         # Create deployment manifest
@@ -402,10 +422,10 @@ class DeploymentManager:
             "config_path": "config.json",
             "robot_name": self.robot_name,
             "deployment_timestamp": time.time(),
-            "deployment_target": self.deployment_target
+            "deployment_target": self.deployment_target,
         }
         manifest_path = os.path.join(deployment_dir, "manifest.json")
-        with open(manifest_path, 'w') as f:
+        with open(manifest_path, "w") as f:
             json.dump(manifest, f, indent=2)
 
         print(f"Deployment package prepared at: {deployment_dir}")
@@ -432,7 +452,12 @@ class DeploymentManager:
             elif self.deployment_target.startswith("ssh://"):
                 # For remote deployment via SSH
                 remote_host = self.deployment_target[6:]  # Remove ssh:// prefix
-                cmd = ["scp", "-r", deployment_package_path, f"{remote_host}:/opt/robot_policies/"]
+                cmd = [
+                    "scp",
+                    "-r",
+                    deployment_package_path,
+                    f"{remote_host}:/opt/robot_policies/",
+                ]
                 result = subprocess.run(cmd, capture_output=True, text=True)
                 if result.returncode != 0:
                     print(f"Deployment failed: {result.stderr}")
@@ -466,7 +491,7 @@ class DeploymentManager:
             return False
 
         # Load manifest and verify contents
-        with open(manifest_path, 'r') as f:
+        with open(manifest_path, "r") as f:
             manifest = json.load(f)
 
         required_fields = ["model_path", "config_path", "robot_name"]
@@ -495,103 +520,111 @@ class PolicyDeploymentNode(Node):
     """
     ROS 2 node for managing policy deployment
     """
+
     def __init__(self):
-        super().__init__('policy_deployment_node')
+        super().__init__("policy_deployment_node")
 
         # Declare parameters
-        self.declare_parameter('model_path', '/tmp/rl_models/rl_model_episode_100.pth')
-        self.declare_parameter('export_format', 'onnx')
-        self.declare_parameter('robot_name', 'franka')
-        self.declare_parameter('deployment_target', 'local')
-        self.declare_parameter('validate_safety', True)
-        self.declare_parameter('enable_tensorrt', True)
-        self.declare_parameter('deployment_config_path', '/tmp/deployment_config.json')
+        self.declare_parameter("model_path", "/tmp/rl_models/rl_model_episode_100.pth")
+        self.declare_parameter("export_format", "onnx")
+        self.declare_parameter("robot_name", "franka")
+        self.declare_parameter("deployment_target", "local")
+        self.declare_parameter("validate_safety", True)
+        self.declare_parameter("enable_tensorrt", True)
+        self.declare_parameter("deployment_config_path", "/tmp/deployment_config.json")
 
         # Get parameters
-        self.model_path = self.get_parameter('model_path').value
-        self.export_format = self.get_parameter('export_format').value
-        self.robot_name = self.get_parameter('robot_name').value
-        self.deployment_target = self.get_parameter('deployment_target').value
-        self.validate_safety = self.get_parameter('validate_safety').value
-        self.enable_tensorrt = self.get_parameter('enable_tensorrt').value
-        self.deployment_config_path = self.get_parameter('deployment_config_path').value
+        self.model_path = self.get_parameter("model_path").value
+        self.export_format = self.get_parameter("export_format").value
+        self.robot_name = self.get_parameter("robot_name").value
+        self.deployment_target = self.get_parameter("deployment_target").value
+        self.validate_safety = self.get_parameter("validate_safety").value
+        self.enable_tensorrt = self.get_parameter("enable_tensorrt").value
+        self.deployment_config_path = self.get_parameter("deployment_config_path").value
 
         # Publishers
-        self.deployment_status_pub = self.create_publisher(Header, 'deployment_status', 10)
-        self.safety_validation_pub = self.create_publisher(Header, 'safety_validation', 10)
-        self.export_status_pub = self.create_publisher(Header, 'export_status', 10)
+        self.deployment_status_pub = self.create_publisher(
+            Header, "deployment_status", 10
+        )
+        self.safety_validation_pub = self.create_publisher(
+            Header, "safety_validation", 10
+        )
+        self.export_status_pub = self.create_publisher(Header, "export_status", 10)
 
         # Internal state
         self.deployment_thread = None
         self.deployment_active = False
 
-        self.get_logger().info('Policy Deployment Node initialized')
-        self.get_logger().info(f'Model path: {self.model_path}')
-        self.get_logger().info(f'Deployment target: {self.deployment_target}')
+        self.get_logger().info("Policy Deployment Node initialized")
+        self.get_logger().info(f"Model path: {self.model_path}")
+        self.get_logger().info(f"Deployment target: {self.deployment_target}")
 
     def deploy_policy(self):
         """
         Deploy the trained policy to the target robot
         """
-        self.get_logger().info('Starting policy deployment process...')
+        self.get_logger().info("Starting policy deployment process...")
 
         # Publish deployment start status
         status_header = Header()
         status_header.stamp = self.get_clock().now().to_msg()
-        status_header.frame_id = 'deployment_started'
+        status_header.frame_id = "deployment_started"
         self.deployment_status_pub.publish(status_header)
 
         try:
             # Step 1: Export the model to the desired format
             exported_model_path = self.export_model()
             if not exported_model_path:
-                self.get_logger().error('Model export failed')
+                self.get_logger().error("Model export failed")
                 return False
 
             # Step 2: Validate safety if enabled
             if self.validate_safety:
                 safety_valid = self.validate_policy_safety(exported_model_path)
                 if not safety_valid:
-                    self.get_logger().error('Safety validation failed')
+                    self.get_logger().error("Safety validation failed")
                     return False
 
             # Step 3: Prepare deployment package
             config = self.load_deployment_config()
-            deployment_package_path = self.prepare_deployment_package(exported_model_path, config)
+            deployment_package_path = self.prepare_deployment_package(
+                exported_model_path, config
+            )
             if not deployment_package_path:
-                self.get_logger().error('Deployment package preparation failed')
+                self.get_logger().error("Deployment package preparation failed")
                 return False
 
             # Step 4: Validate deployment package
             if not self.validate_deployment_package(deployment_package_path):
-                self.get_logger().error('Deployment package validation failed')
+                self.get_logger().error("Deployment package validation failed")
                 return False
 
             # Step 5: Deploy to target
             deployment_success = self.deploy_to_target(deployment_package_path)
             if not deployment_success:
-                self.get_logger().error('Deployment to target failed')
+                self.get_logger().error("Deployment to target failed")
                 return False
 
-            self.get_logger().info('Policy deployment completed successfully')
+            self.get_logger().info("Policy deployment completed successfully")
 
             # Publish deployment completion status
             status_header = Header()
             status_header.stamp = self.get_clock().now().to_msg()
-            status_header.frame_id = 'deployment_completed'
+            status_header.frame_id = "deployment_completed"
             self.deployment_status_pub.publish(status_header)
 
             return True
 
         except Exception as e:
-            self.get_logger().error(f'Deployment error: {e}')
+            self.get_logger().error(f"Deployment error: {e}")
             import traceback
+
             traceback.print_exc()
 
             # Publish deployment error status
             status_header = Header()
             status_header.stamp = self.get_clock().now().to_msg()
-            status_header.frame_id = f'deployment_error_{str(e)}'
+            status_header.frame_id = f"deployment_error_{str(e)}"
             self.deployment_status_pub.publish(status_header)
 
             return False
@@ -603,7 +636,7 @@ class PolicyDeploymentNode(Node):
         Returns:
             Path to the exported model, or None if export failed
         """
-        self.get_logger().info(f'Exporting model to {self.export_format} format')
+        self.get_logger().info(f"Exporting model to {self.export_format} format")
 
         # Create exporter
         exporter = PolicyExporter(self.model_path, self.export_format)
@@ -617,14 +650,16 @@ class PolicyDeploymentNode(Node):
             exporter.load_model()
 
             # Create sample input for tracing (this should match your actual input dimensions)
-            sample_input = torch.randn(1, 24)  # Assuming 24-dim state from rl_training.py
+            sample_input = torch.randn(
+                1, 24
+            )  # Assuming 24-dim state from rl_training.py
 
             # Export based on format
-            if self.export_format.lower() == 'onnx':
+            if self.export_format.lower() == "onnx":
                 exported_path = exporter.export_to_onnx(export_path, sample_input)
-            elif self.export_format.lower() == 'tensorflow':
+            elif self.export_format.lower() == "tensorflow":
                 exported_path = exporter.export_to_tensorflow(export_path)
-            elif self.export_format.lower() == 'trt' and self.enable_tensorrt:
+            elif self.export_format.lower() == "trt" and self.enable_tensorrt:
                 exported_path = exporter.export_to_trt(export_path, sample_input)
             else:
                 # Default to ONNX
@@ -633,21 +668,22 @@ class PolicyDeploymentNode(Node):
             # Publish export success status
             status_header = Header()
             status_header.stamp = self.get_clock().now().to_msg()
-            status_header.frame_id = f'export_success_{self.export_format}'
+            status_header.frame_id = f"export_success_{self.export_format}"
             self.export_status_pub.publish(status_header)
 
-            self.get_logger().info(f'Model exported successfully to: {exported_path}')
+            self.get_logger().info(f"Model exported successfully to: {exported_path}")
             return exported_path
 
         except Exception as e:
-            self.get_logger().error(f'Model export failed: {e}')
+            self.get_logger().error(f"Model export failed: {e}")
             import traceback
+
             traceback.print_exc()
 
             # Publish export error status
             status_header = Header()
             status_header.stamp = self.get_clock().now().to_msg()
-            status_header.frame_id = f'export_error_{str(e)}'
+            status_header.frame_id = f"export_error_{str(e)}"
             self.export_status_pub.publish(status_header)
 
             return None
@@ -662,7 +698,7 @@ class PolicyDeploymentNode(Node):
         Returns:
             True if policy is safe, False otherwise
         """
-        self.get_logger().info('Validating policy safety...')
+        self.get_logger().info("Validating policy safety...")
 
         try:
             # Create safety validator
@@ -677,38 +713,41 @@ class PolicyDeploymentNode(Node):
             # Run comprehensive safety check
             results = validator.run_comprehensive_safety_check(test_states)
 
-            self.get_logger().info(f'Safety validation results: {results}')
+            self.get_logger().info(f"Safety validation results: {results}")
 
-            if results['overall_safe']:
-                self.get_logger().info('Policy safety validation passed')
+            if results["overall_safe"]:
+                self.get_logger().info("Policy safety validation passed")
 
                 # Publish safety validation success
                 status_header = Header()
                 status_header.stamp = self.get_clock().now().to_msg()
-                status_header.frame_id = 'safety_validation_passed'
+                status_header.frame_id = "safety_validation_passed"
                 self.safety_validation_pub.publish(status_header)
 
                 return True
             else:
-                self.get_logger().error(f'Policy safety validation failed: {results["details"]}')
+                self.get_logger().error(
+                    f'Policy safety validation failed: {results["details"]}'
+                )
 
                 # Publish safety validation failure
                 status_header = Header()
                 status_header.stamp = self.get_clock().now().to_msg()
-                status_header.frame_id = 'safety_validation_failed'
+                status_header.frame_id = "safety_validation_failed"
                 self.safety_validation_pub.publish(status_header)
 
                 return False
 
         except Exception as e:
-            self.get_logger().error(f'Safety validation error: {e}')
+            self.get_logger().error(f"Safety validation error: {e}")
             import traceback
+
             traceback.print_exc()
 
             # Publish safety validation error
             status_header = Header()
             status_header.stamp = self.get_clock().now().to_msg()
-            status_header.frame_id = f'safety_validation_error_{str(e)}'
+            status_header.frame_id = f"safety_validation_error_{str(e)}"
             self.safety_validation_pub.publish(status_header)
 
             return False
@@ -721,7 +760,7 @@ class PolicyDeploymentNode(Node):
             Configuration dictionary
         """
         if os.path.exists(self.deployment_config_path):
-            with open(self.deployment_config_path, 'r') as f:
+            with open(self.deployment_config_path, "r") as f:
                 return json.load(f)
         else:
             # Return default configuration
@@ -732,15 +771,17 @@ class PolicyDeploymentNode(Node):
                 "safety_constraints": {
                     "max_velocity": 0.5,
                     "max_acceleration": 1.0,
-                    "joint_limits": True
+                    "joint_limits": True,
                 },
                 "execution_parameters": {
                     "control_frequency": 50,
-                    "prediction_horizon": 10
-                }
+                    "prediction_horizon": 10,
+                },
             }
 
-    def prepare_deployment_package(self, model_path: str, config: Dict[str, Any]) -> str:
+    def prepare_deployment_package(
+        self, model_path: str, config: Dict[str, Any]
+    ) -> str:
         """
         Prepare deployment package with model and configuration
 
@@ -751,21 +792,28 @@ class PolicyDeploymentNode(Node):
         Returns:
             Path to the deployment package
         """
-        self.get_logger().info('Preparing deployment package...')
+        self.get_logger().info("Preparing deployment package...")
 
         try:
             # Create deployment manager
-            deployment_manager = DeploymentManager(self.robot_name, self.deployment_target)
+            deployment_manager = DeploymentManager(
+                self.robot_name, self.deployment_target
+            )
 
             # Prepare deployment package
-            deployment_package_path = deployment_manager.prepare_deployment_package(model_path, config)
+            deployment_package_path = deployment_manager.prepare_deployment_package(
+                model_path, config
+            )
 
-            self.get_logger().info(f'Deployment package prepared at: {deployment_package_path}')
+            self.get_logger().info(
+                f"Deployment package prepared at: {deployment_package_path}"
+            )
             return deployment_package_path
 
         except Exception as e:
-            self.get_logger().error(f'Deployment package preparation failed: {e}')
+            self.get_logger().error(f"Deployment package preparation failed: {e}")
             import traceback
+
             traceback.print_exc()
             return None
 
@@ -781,21 +829,24 @@ class PolicyDeploymentNode(Node):
         """
         try:
             # Create deployment manager
-            deployment_manager = DeploymentManager(self.robot_name, self.deployment_target)
+            deployment_manager = DeploymentManager(
+                self.robot_name, self.deployment_target
+            )
 
             # Validate the deployment
             is_valid = deployment_manager.validate_deployment(deployment_package_path)
 
             if is_valid:
-                self.get_logger().info('Deployment package validation passed')
+                self.get_logger().info("Deployment package validation passed")
             else:
-                self.get_logger().error('Deployment package validation failed')
+                self.get_logger().error("Deployment package validation failed")
 
             return is_valid
 
         except Exception as e:
-            self.get_logger().error(f'Deployment package validation error: {e}')
+            self.get_logger().error(f"Deployment package validation error: {e}")
             import traceback
+
             traceback.print_exc()
             return False
 
@@ -809,25 +860,28 @@ class PolicyDeploymentNode(Node):
         Returns:
             True if deployment successful, False otherwise
         """
-        self.get_logger().info(f'Deploying to target: {self.deployment_target}')
+        self.get_logger().info(f"Deploying to target: {self.deployment_target}")
 
         try:
             # Create deployment manager
-            deployment_manager = DeploymentManager(self.robot_name, self.deployment_target)
+            deployment_manager = DeploymentManager(
+                self.robot_name, self.deployment_target
+            )
 
             # Deploy to target
             success = deployment_manager.deploy_to_robot(deployment_package_path)
 
             if success:
-                self.get_logger().info('Deployment to target successful')
+                self.get_logger().info("Deployment to target successful")
             else:
-                self.get_logger().error('Deployment to target failed')
+                self.get_logger().error("Deployment to target failed")
 
             return success
 
         except Exception as e:
-            self.get_logger().error(f'Deployment to target error: {e}')
+            self.get_logger().error(f"Deployment to target error: {e}")
             import traceback
+
             traceback.print_exc()
             return False
 
@@ -845,16 +899,18 @@ def main(args=None):
         success = policy_deployment_node.deploy_policy()
 
         if success:
-            policy_deployment_node.get_logger().info('Policy deployment completed successfully')
+            policy_deployment_node.get_logger().info(
+                "Policy deployment completed successfully"
+            )
         else:
-            policy_deployment_node.get_logger().error('Policy deployment failed')
+            policy_deployment_node.get_logger().error("Policy deployment failed")
 
     except KeyboardInterrupt:
-        policy_deployment_node.get_logger().info('Interrupted by user')
+        policy_deployment_node.get_logger().info("Interrupted by user")
     finally:
         policy_deployment_node.destroy_node()
         rclpy.shutdown()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

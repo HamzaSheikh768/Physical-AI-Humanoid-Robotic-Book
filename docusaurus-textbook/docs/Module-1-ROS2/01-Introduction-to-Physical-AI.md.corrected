@@ -399,4 +399,3 @@ graph TB
 This pipeline shows how ROS 2 serves as the middleware connecting the physical world to the computational world, enabling the Sense → Think → Act loop that characterizes Physical AI systems.
 
 We've also delved deeper into the ROS 2 ecosystem, exploring real-world applications, technical architecture, and best practices that guide effective development. This foundational knowledge is critical for building the more advanced capabilities covered in subsequent chapters.
-

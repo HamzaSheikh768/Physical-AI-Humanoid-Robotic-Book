@@ -2,6 +2,14 @@ import { themes as prismThemes } from "prism-react-renderer";
 import type { Config } from "@docusaurus/types";
 import type * as Preset from "@docusaurus/preset-classic";
 
+// Use dotenv only if it's available (optional dependency for config via env)
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  require("dotenv").config();
+} catch (e) {
+  // dotenv not installed – skip loading .env
+}
+
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
@@ -16,17 +24,26 @@ const config: Config = {
   },
 
   // Set the production url of your site here
-  url: "https://hamzasheikh768.github.io",
+  url: "https://physical-ai-humanoid-robotic-book-r-nine.vercel.app",
   // Set the /<baseUrl>/ pathname under which your site is served
-  // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: "/Physical-AI-Humanoid-Robotic-Book/",
+  // For Vercel deployment, use "/"
+  baseUrl: "/",
 
-  // GitHub pages deployment config.
+// GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: "HamzaSheikh768", // Usually your GitHub org/user name.
-  projectName: "Physical-AI-Humanoid-Robotic-Book", // Usually your repo name.
+  organizationName: "sheikhhamza", // Usually your GitHub org/user name.
+  projectName: "Physical AI & Humanoid Robotic Book", // Usually your repo name.
 
-  onBrokenLinks: "throw",
+  // Custom fields for API URL configuration
+  customFields: {
+    //Backend API Url
+    CHAT_API_URL: process.env.CHAT_API_URL || 'http://localhost:8000',
+  },
+
+  // GitHub pages deployment config removed for Vercel deployment
+
+  onBrokenLinks: "warn",
+  // onBrokenMarkdownLinks: "warn",
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
@@ -71,6 +88,7 @@ const config: Config = {
 
   stylesheets: [
     "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap",
+    "/css/chat.css",
   ],
   themeConfig: {
     // Replace with your project's social card

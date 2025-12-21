@@ -8,34 +8,34 @@ It takes object poses from perception systems and generates feasible grasp poses
 for robotic arms.
 """
 
-import rclpy
-from rclpy.node import Node
-from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
-
-from geometry_msgs.msg import Pose, PoseArray, Point, Quaternion
-from std_msgs.msg import Header
-from visualization_msgs.msg import Marker, MarkerArray
-from sensor_msgs.msg import JointState
-from moveit_msgs.msg import MoveItErrorCodes, PlanningScene, RobotState
-from moveit_msgs.srv import GetMotionPlan
-from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
-from builtin_interfaces.msg import Time
+import math
+from enum import Enum
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
-import math
-from typing import List, Dict, Tuple, Optional
-from enum import Enum
+import rclpy
+from builtin_interfaces.msg import Time
+from geometry_msgs.msg import Point, Pose, PoseArray, Quaternion
 
 # Import common utilities
 from isaac_examples.common.isaac_ros_utils import (
-    create_pose,
     create_point,
-    create_vector3
+    create_pose,
+    create_vector3,
 )
+from moveit_msgs.msg import MoveItErrorCodes, PlanningScene, RobotState
+from moveit_msgs.srv import GetMotionPlan
+from rclpy.node import Node
+from rclpy.qos import HistoryPolicy, QoSProfile, ReliabilityPolicy
+from sensor_msgs.msg import JointState
+from std_msgs.msg import Header
+from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
+from visualization_msgs.msg import Marker, MarkerArray
 
 
 class GraspType(Enum):
     """Enumeration of different grasp types"""
+
     PINCH = "pinch"
     PALM = "palm"
     SUCTION = "suction"
@@ -44,7 +44,14 @@ class GraspType(Enum):
 
 class GraspPose:
     """Class to represent a grasp pose with additional properties"""
-    def __init__(self, pose: Pose, grasp_type: GraspType, score: float = 0.0, approach_direction: Point = None):
+
+    def __init__(
+        self,
+        pose: Pose,
+        grasp_type: GraspType,
+        score: float = 0.0,
+        approach_direction: Point = None,
+    ):
         self.pose = pose
         self.grasp_type = grasp_type
         self.score = score  # Higher score means better grasp
@@ -57,35 +64,38 @@ class GraspPlanner(Node):
     """
 
     def __init__(self):
-        super().__init__('grasp_planner')
+        super().__init__("grasp_planner")
 
         # Declare parameters
-        self.declare_parameter('robot_base_frame', 'base_link')
-        self.declare_parameter('end_effector_frame', 'gripper_link')
-        self.declare_parameter('grasp_approach_distance', 0.1)  # 10cm approach
-        self.declare_parameter('grasp_offset_distance', 0.05)   # 5cm above object
-        self.declare_parameter('min_grasp_score', 0.5)         # Minimum score for valid grasp
-        self.declare_parameter('enable_visualization', True)
+        self.declare_parameter("robot_base_frame", "base_link")
+        self.declare_parameter("end_effector_frame", "gripper_link")
+        self.declare_parameter("grasp_approach_distance", 0.1)  # 10cm approach
+        self.declare_parameter("grasp_offset_distance", 0.05)  # 5cm above object
+        self.declare_parameter("min_grasp_score", 0.5)  # Minimum score for valid grasp
+        self.declare_parameter("enable_visualization", True)
 
         # Get parameters
-        self.robot_base_frame = self.get_parameter('robot_base_frame').value
-        self.end_effector_frame = self.get_parameter('end_effector_frame').value
-        self.grasp_approach_distance = self.get_parameter('grasp_approach_distance').value
-        self.grasp_offset_distance = self.get_parameter('grasp_offset_distance').value
-        self.min_grasp_score = self.get_parameter('min_grasp_score').value
-        self.enable_visualization = self.get_parameter('enable_visualization').value
+        self.robot_base_frame = self.get_parameter("robot_base_frame").value
+        self.end_effector_frame = self.get_parameter("end_effector_frame").value
+        self.grasp_approach_distance = self.get_parameter(
+            "grasp_approach_distance"
+        ).value
+        self.grasp_offset_distance = self.get_parameter("grasp_offset_distance").value
+        self.min_grasp_score = self.get_parameter("min_grasp_score").value
+        self.enable_visualization = self.get_parameter("enable_visualization").value
 
         # Publishers
-        self.grasp_poses_pub = self.create_publisher(PoseArray, 'candidate_grasps', 10)
-        self.best_grasp_pub = self.create_publisher(Pose, 'best_grasp', 10)
-        self.visualization_pub = self.create_publisher(MarkerArray, 'grasp_visualization', 10) if self.enable_visualization else None
+        self.grasp_poses_pub = self.create_publisher(PoseArray, "candidate_grasps", 10)
+        self.best_grasp_pub = self.create_publisher(Pose, "best_grasp", 10)
+        self.visualization_pub = (
+            self.create_publisher(MarkerArray, "grasp_visualization", 10)
+            if self.enable_visualization
+            else None
+        )
 
         # Subscribers
         self.object_poses_sub = self.create_subscription(
-            PoseArray,
-            'object_poses',
-            self.object_poses_callback,
-            10
+            PoseArray, "object_poses", self.object_poses_callback, 10
         )
 
         # Internal state
@@ -93,7 +103,7 @@ class GraspPlanner(Node):
         self.candidate_grasps = []
         self.best_grasp = None
 
-        self.get_logger().info('Grasp Planner initialized')
+        self.get_logger().info("Grasp Planner initialized")
 
     def object_poses_callback(self, pose_array_msg):
         """
@@ -102,7 +112,9 @@ class GraspPlanner(Node):
         Args:
             pose_array_msg: PoseArray message containing object poses
         """
-        self.get_logger().info(f'Received {len(pose_array_msg.poses)} object poses for grasp planning')
+        self.get_logger().info(
+            f"Received {len(pose_array_msg.poses)} object poses for grasp planning"
+        )
 
         # Store object poses
         self.object_poses = pose_array_msg.poses
@@ -138,34 +150,40 @@ class GraspPlanner(Node):
         grasp_configs = [
             # Top-down grasp
             {
-                'approach': Point(x=0.0, y=0.0, z=-1.0),
-                'orientation': Quaternion(w=1.0, x=0.0, y=0.0, z=0.0),  # Default orientation
-                'grasp_type': GraspType.PINCH
+                "approach": Point(x=0.0, y=0.0, z=-1.0),
+                "orientation": Quaternion(
+                    w=1.0, x=0.0, y=0.0, z=0.0
+                ),  # Default orientation
+                "grasp_type": GraspType.PINCH,
             },
             # Side grasp 1 (from positive X)
             {
-                'approach': Point(x=-1.0, y=0.0, z=0.0),
-                'orientation': Quaternion(w=0.707, x=0.0, y=0.0, z=0.707),  # Rotate 90° around Z
-                'grasp_type': GraspType.PALM
+                "approach": Point(x=-1.0, y=0.0, z=0.0),
+                "orientation": Quaternion(
+                    w=0.707, x=0.0, y=0.0, z=0.707
+                ),  # Rotate 90° around Z
+                "grasp_type": GraspType.PALM,
             },
             # Side grasp 2 (from negative X)
             {
-                'approach': Point(x=1.0, y=0.0, z=0.0),
-                'orientation': Quaternion(w=0.0, x=0.0, y=0.707, z=0.707),  # Rotate 90° around Y
-                'grasp_type': GraspType.PALM
+                "approach": Point(x=1.0, y=0.0, z=0.0),
+                "orientation": Quaternion(
+                    w=0.0, x=0.0, y=0.707, z=0.707
+                ),  # Rotate 90° around Y
+                "grasp_type": GraspType.PALM,
             },
             # Side grasp 3 (from positive Y)
             {
-                'approach': Point(x=0.0, y=-1.0, z=0.0),
-                'orientation': Quaternion(w=0.5, x=0.5, y=0.5, z=0.5),  # 90° rotation
-                'grasp_type': GraspType.PINCH
+                "approach": Point(x=0.0, y=-1.0, z=0.0),
+                "orientation": Quaternion(w=0.5, x=0.5, y=0.5, z=0.5),  # 90° rotation
+                "grasp_type": GraspType.PINCH,
             },
             # Side grasp 4 (from negative Y)
             {
-                'approach': Point(x=0.0, y=1.0, z=0.0),
-                'orientation': Quaternion(w=0.5, x=-0.5, y=-0.5, z=0.5),  # 90° rotation
-                'grasp_type': GraspType.PINCH
-            }
+                "approach": Point(x=0.0, y=1.0, z=0.0),
+                "orientation": Quaternion(w=0.5, x=-0.5, y=-0.5, z=0.5),  # 90° rotation
+                "grasp_type": GraspType.PINCH,
+            },
         ]
 
         for config in grasp_configs:
@@ -174,29 +192,39 @@ class GraspPlanner(Node):
 
             # Position: offset from object by grasp offset distance in the approach direction
             offset_distance = self.grasp_offset_distance
-            grasp_pose.position.x = obj_pose.position.x + config['approach'].x * offset_distance
-            grasp_pose.position.y = obj_pose.position.y + config['approach'].y * offset_distance
-            grasp_pose.position.z = obj_pose.position.z + config['approach'].z * offset_distance
+            grasp_pose.position.x = (
+                obj_pose.position.x + config["approach"].x * offset_distance
+            )
+            grasp_pose.position.y = (
+                obj_pose.position.y + config["approach"].y * offset_distance
+            )
+            grasp_pose.position.z = (
+                obj_pose.position.z + config["approach"].z * offset_distance
+            )
 
             # Orientation: use the specified orientation
-            grasp_pose.orientation = config['orientation']
+            grasp_pose.orientation = config["orientation"]
 
             # Calculate grasp score based on multiple factors
-            score = self.calculate_grasp_score(grasp_pose, obj_pose, config['grasp_type'])
+            score = self.calculate_grasp_score(
+                grasp_pose, obj_pose, config["grasp_type"]
+            )
 
             # Create GraspPose object
             grasp = GraspPose(
                 pose=grasp_pose,
-                grasp_type=config['grasp_type'],
+                grasp_type=config["grasp_type"],
                 score=score,
-                approach_direction=config['approach']
+                approach_direction=config["approach"],
             )
 
             candidate_grasps.append(grasp)
 
         return candidate_grasps
 
-    def calculate_grasp_score(self, grasp_pose: Pose, obj_pose: Pose, grasp_type: GraspType) -> float:
+    def calculate_grasp_score(
+        self, grasp_pose: Pose, obj_pose: Pose, grasp_type: GraspType
+    ) -> float:
         """
         Calculate a score for how good a particular grasp is
 
@@ -263,7 +291,7 @@ class GraspPlanner(Node):
         dx = point1.x - point2.x
         dy = point1.y - point2.y
         dz = point1.z - point2.z
-        return math.sqrt(dx*dx + dy*dy + dz*dz)
+        return math.sqrt(dx * dx + dy * dy + dz * dz)
 
     def select_best_grasp(self):
         """
@@ -274,7 +302,9 @@ class GraspPlanner(Node):
             return
 
         # Filter grasps by minimum score
-        valid_grasps = [g for g in self.candidate_grasps if g.score >= self.min_grasp_score]
+        valid_grasps = [
+            g for g in self.candidate_grasps if g.score >= self.min_grasp_score
+        ]
 
         if not valid_grasps:
             # If no grasp meets minimum score, pick the highest scoring one
@@ -286,9 +316,9 @@ class GraspPlanner(Node):
         self.best_grasp = best
 
         self.get_logger().info(
-            f'Selected best grasp with score {best.score:.3f}, '
-            f'type {best.grasp_type.value} at position '
-            f'({best.pose.position.x:.3f}, {best.pose.position.y:.3f}, {best.pose.position.z:.3f})'
+            f"Selected best grasp with score {best.score:.3f}, "
+            f"type {best.grasp_type.value} at position "
+            f"({best.pose.position.x:.3f}, {best.pose.position.y:.3f}, {best.pose.position.z:.3f})"
         )
 
     def publish_grasp_results(self):
@@ -339,7 +369,7 @@ class GraspPlanner(Node):
             start_point = create_point(
                 grasp.pose.position.x - grasp.approach_direction.x * 0.05,
                 grasp.pose.position.y - grasp.approach_direction.y * 0.05,
-                grasp.pose.position.z - grasp.approach_direction.z * 0.05
+                grasp.pose.position.z - grasp.approach_direction.z * 0.05,
             )
             end_point = grasp.pose.position
 
@@ -441,10 +471,12 @@ class GraspPlanner(Node):
 
         # For this simulation, we'll do a basic check
         # Ensure the position is within a reasonable workspace
-        if (abs(grasp_pose.position.x) > 2.0 or
-            abs(grasp_pose.position.y) > 2.0 or
-            grasp_pose.position.z < 0.1 or
-            grasp_pose.position.z > 2.0):
+        if (
+            abs(grasp_pose.position.x) > 2.0
+            or abs(grasp_pose.position.y) > 2.0
+            or grasp_pose.position.z < 0.1
+            or grasp_pose.position.z > 2.0
+        ):
             return False
 
         return True
@@ -454,6 +486,7 @@ class SimpleGraspPlanner:
     """
     Simplified grasp planner for demonstration purposes
     """
+
     def __init__(self):
         self.min_grasp_score = 0.5
 
@@ -482,11 +515,7 @@ class SimpleGraspPlanner:
         # Calculate a basic score
         score = 0.8  # High score for top-down grasp
 
-        grasp = GraspPose(
-            pose=grasp_pose,
-            grasp_type=GraspType.PINCH,
-            score=score
-        )
+        grasp = GraspPose(pose=grasp_pose, grasp_type=GraspType.PINCH, score=score)
 
         return grasp if score >= self.min_grasp_score else None
 
@@ -526,5 +555,5 @@ def main(args=None):
         rclpy.shutdown()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

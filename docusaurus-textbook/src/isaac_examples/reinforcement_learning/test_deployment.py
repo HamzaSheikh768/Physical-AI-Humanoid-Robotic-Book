@@ -7,20 +7,24 @@ This script validates the complete RL policy deployment pipeline,
 including safety constraint validation, model export, and deployment verification.
 """
 
-import sys
+import json
 import os
-import time
+import sys
 import tempfile
+import time
+from pathlib import Path
+from unittest.mock import Mock, patch
+
 import numpy as np
 import torch
 import torch.nn as nn
-from unittest.mock import Mock, patch
-import json
-from pathlib import Path
 
 # Import the components to test
 from isaac_examples.reinforcement_learning.policy_deployment import (
-    PolicyExporter, SafetyValidator, DeploymentManager, PolicyDeploymentNode
+    DeploymentManager,
+    PolicyDeploymentNode,
+    PolicyExporter,
+    SafetyValidator,
 )
 from isaac_examples.reinforcement_learning.rl_training import ActorCriticNetwork
 
@@ -29,12 +33,13 @@ class MockRobotInterface:
     """
     Mock robot interface for testing deployment without real hardware
     """
+
     def __init__(self):
         self.connected = False
         self.safety_limits = {
-            'max_velocity': 0.5,
-            'max_acceleration': 1.0,
-            'joint_limits': True
+            "max_velocity": 0.5,
+            "max_acceleration": 1.0,
+            "joint_limits": True,
         }
         self.current_state = np.zeros(7)  # 7-DOF robot
 
@@ -55,8 +60,10 @@ class MockRobotInterface:
             raise RuntimeError("Robot not connected")
 
         # Validate safety constraints
-        if np.any(np.abs(action) > self.safety_limits['max_velocity']):
-            raise ValueError(f"Action exceeds max velocity limit of {self.safety_limits['max_velocity']}")
+        if np.any(np.abs(action) > self.safety_limits["max_velocity"]):
+            raise ValueError(
+                f"Action exceeds max velocity limit of {self.safety_limits['max_velocity']}"
+            )
 
         # Simulate command execution
         self.current_state += 0.01 * action  # Simple state update
@@ -73,6 +80,7 @@ class RLDeploymentTester:
     """
     Test class for validating RL policy deployment pipeline
     """
+
     def __init__(self):
         self.test_results = []
         self.test_passed = 0
@@ -82,9 +90,11 @@ class RLDeploymentTester:
         """
         Run comprehensive tests for the RL deployment pipeline
         """
-        print("="*80)
-        print("COMPREHENSIVE TEST: RL Policy Deployment Pipeline with Safety Validation")
-        print("="*80)
+        print("=" * 80)
+        print(
+            "COMPREHENSIVE TEST: RL Policy Deployment Pipeline with Safety Validation"
+        )
+        print("=" * 80)
 
         tests = [
             self.test_policy_exporter,
@@ -92,7 +102,7 @@ class RLDeploymentTester:
             self.test_deployment_manager,
             self.test_end_to_end_deployment,
             self.test_safety_constraints_validation,
-            self.test_robot_interface_integration
+            self.test_robot_interface_integration,
         ]
 
         for test_func in tests:
@@ -111,6 +121,7 @@ class RLDeploymentTester:
                 self.test_failed += 1
                 print(f"  ✗ {test_func.__name__} ERROR: {e}")
                 import traceback
+
                 traceback.print_exc()
                 self.test_results.append((test_func.__name__, f"ERROR: {e}"))
 
@@ -124,21 +135,24 @@ class RLDeploymentTester:
         print("  Testing PolicyExporter functionality...")
 
         # Create a temporary trained model for testing
-        with tempfile.NamedTemporaryFile(suffix='.pth', delete=False) as tmp_model:
+        with tempfile.NamedTemporaryFile(suffix=".pth", delete=False) as tmp_model:
             # Create a simple model for testing
             model = ActorCriticNetwork(state_dim=24, action_dim=7, hidden_dim=128)
-            torch.save({
-                'model_state_dict': model.state_dict(),
-                'state_dim': 24,
-                'action_dim': 7,
-                'hidden_dim': 128
-            }, tmp_model.name)
+            torch.save(
+                {
+                    "model_state_dict": model.state_dict(),
+                    "state_dim": 24,
+                    "action_dim": 7,
+                    "hidden_dim": 128,
+                },
+                tmp_model.name,
+            )
 
             # Test PolicyExporter
-            exporter = PolicyExporter(tmp_model.name, 'onnx')
+            exporter = PolicyExporter(tmp_model.name, "onnx")
 
             # Export to ONNX
-            with tempfile.NamedTemporaryFile(suffix='.onnx', delete=False) as tmp_onnx:
+            with tempfile.NamedTemporaryFile(suffix=".onnx", delete=False) as tmp_onnx:
                 sample_input = torch.randn(1, 24)
                 exported_path = exporter.export_to_onnx(tmp_onnx.name, sample_input)
 
@@ -150,8 +164,12 @@ class RLDeploymentTester:
 
             # Export to TensorRT (if available)
             try:
-                with tempfile.NamedTemporaryFile(suffix='.trt', delete=False) as tmp_trt:
-                    exported_trt_path = exporter.export_to_trt(tmp_trt.name, sample_input)
+                with tempfile.NamedTemporaryFile(
+                    suffix=".trt", delete=False
+                ) as tmp_trt:
+                    exported_trt_path = exporter.export_to_trt(
+                        tmp_trt.name, sample_input
+                    )
                     if exported_trt_path:
                         print(f"    ✓ TensorRT export successful: {exported_trt_path}")
                     else:
@@ -169,7 +187,7 @@ class RLDeploymentTester:
         print("  Testing SafetyValidator functionality...")
 
         # First, create an ONNX model to validate
-        with tempfile.NamedTemporaryFile(suffix='.onnx', delete=False) as tmp_onnx:
+        with tempfile.NamedTemporaryFile(suffix=".onnx", delete=False) as tmp_onnx:
             # Create a simple model and export to ONNX for testing
             model = ActorCriticNetwork(state_dim=24, action_dim=7, hidden_dim=64)
 
@@ -182,13 +200,13 @@ class RLDeploymentTester:
                 export_params=True,
                 opset_version=11,
                 do_constant_folding=True,
-                input_names=['input'],
-                output_names=['action_mean', 'value'],
+                input_names=["input"],
+                output_names=["action_mean", "value"],
                 dynamic_axes={
-                    'input': {0: 'batch_size'},
-                    'action_mean': {0: 'batch_size'},
-                    'value': {0: 'batch_size'}
-                }
+                    "input": {0: "batch_size"},
+                    "action_mean": {0: "batch_size"},
+                    "value": {0: "batch_size"},
+                },
             )
 
             # Test SafetyValidator
@@ -208,8 +226,12 @@ class RLDeploymentTester:
 
             # Test comprehensive safety check
             test_states = [np.random.randn(24) for _ in range(5)]
-            comprehensive_results = validator.run_comprehensive_safety_check(test_states)
-            print(f"    Comprehensive safety check: {comprehensive_results['overall_safe']}")
+            comprehensive_results = validator.run_comprehensive_safety_check(
+                test_states
+            )
+            print(
+                f"    Comprehensive safety check: {comprehensive_results['overall_safe']}"
+            )
 
         print("  ✓ SafetyValidator functionality tested successfully")
         return True
@@ -221,7 +243,7 @@ class RLDeploymentTester:
         print("  Testing DeploymentManager functionality...")
 
         # Create a temporary model file
-        with tempfile.NamedTemporaryFile(suffix='.onnx', delete=False) as tmp_model:
+        with tempfile.NamedTemporaryFile(suffix=".onnx", delete=False) as tmp_model:
             # Create a simple ONNX model for testing
             model = ActorCriticNetwork(state_dim=24, action_dim=7, hidden_dim=64)
             sample_input = torch.randn(1, 24)
@@ -232,12 +254,14 @@ class RLDeploymentTester:
                 export_params=True,
                 opset_version=11,
                 do_constant_folding=True,
-                input_names=['input'],
-                output_names=['action_mean', 'value']
+                input_names=["input"],
+                output_names=["action_mean", "value"],
             )
 
             # Test DeploymentManager
-            manager = DeploymentManager(robot_name="test_robot", deployment_target="local")
+            manager = DeploymentManager(
+                robot_name="test_robot", deployment_target="local"
+            )
 
             # Create test configuration
             config = {
@@ -247,17 +271,21 @@ class RLDeploymentTester:
                 "safety_constraints": {
                     "max_velocity": 0.5,
                     "max_acceleration": 1.0,
-                    "joint_limits": True
+                    "joint_limits": True,
                 },
                 "execution_parameters": {
                     "control_frequency": 50,
-                    "prediction_horizon": 10
-                }
+                    "prediction_horizon": 10,
+                },
             }
 
             # Prepare deployment package
-            deployment_package_path = manager.prepare_deployment_package(tmp_model.name, config)
-            if not deployment_package_path or not os.path.exists(deployment_package_path):
+            deployment_package_path = manager.prepare_deployment_package(
+                tmp_model.name, config
+            )
+            if not deployment_package_path or not os.path.exists(
+                deployment_package_path
+            ):
                 print("    ✗ Deployment package preparation failed")
                 return False
 
@@ -273,6 +301,7 @@ class RLDeploymentTester:
 
             # Clean up
             import shutil
+
             shutil.rmtree(deployment_package_path, ignore_errors=True)
 
         print("  ✓ DeploymentManager functionality tested successfully")
@@ -290,12 +319,15 @@ class RLDeploymentTester:
 
             # Create and save a test model
             model = ActorCriticNetwork(state_dim=24, action_dim=7, hidden_dim=128)
-            torch.save({
-                'model_state_dict': model.state_dict(),
-                'state_dim': 24,
-                'action_dim': 7,
-                'hidden_dim': 128
-            }, model_path)
+            torch.save(
+                {
+                    "model_state_dict": model.state_dict(),
+                    "state_dim": 24,
+                    "action_dim": 7,
+                    "hidden_dim": 128,
+                },
+                model_path,
+            )
 
             # Create deployment configuration
             config_path = os.path.join(tmp_dir, "deployment_config.json")
@@ -306,21 +338,21 @@ class RLDeploymentTester:
                 "safety_constraints": {
                     "max_velocity": 0.5,
                     "max_acceleration": 1.0,
-                    "joint_limits": True
-                }
+                    "joint_limits": True,
+                },
             }
-            with open(config_path, 'w') as f:
+            with open(config_path, "w") as f:
                 json.dump(config, f)
 
             # Test the deployment process
             try:
                 # Create a mock deployment node to test the process
-                with patch('rclpy.node.Node.__init__', return_value=None):
+                with patch("rclpy.node.Node.__init__", return_value=None):
                     # This is a simplified test - in a real scenario, we'd test the full node
                     print("    Simulating end-to-end deployment process...")
 
                     # Export model
-                    exporter = PolicyExporter(model_path, 'onnx')
+                    exporter = PolicyExporter(model_path, "onnx")
                     exporter.load_model()
 
                     onnx_path = os.path.join(tmp_dir, "exported_model.onnx")
@@ -336,10 +368,14 @@ class RLDeploymentTester:
                     validator.load_model()
 
                     test_states = [np.random.randn(24) for _ in range(3)]
-                    safety_results = validator.run_comprehensive_safety_check(test_states)
+                    safety_results = validator.run_comprehensive_safety_check(
+                        test_states
+                    )
 
-                    if not safety_results['overall_safe']:
-                        print(f"    ✗ Safety validation failed in end-to-end test: {safety_results['details']}")
+                    if not safety_results["overall_safe"]:
+                        print(
+                            f"    ✗ Safety validation failed in end-to-end test: {safety_results['details']}"
+                        )
                         return False
 
                     # Prepare deployment package
@@ -347,18 +383,22 @@ class RLDeploymentTester:
                     package_path = manager.prepare_deployment_package(onnx_path, config)
 
                     if not package_path or not os.path.exists(package_path):
-                        print("    ✗ Deployment package preparation failed in end-to-end test")
+                        print(
+                            "    ✗ Deployment package preparation failed in end-to-end test"
+                        )
                         return False
 
                     print("    ✓ End-to-end deployment process completed successfully")
 
                     # Clean up
                     import shutil
+
                     shutil.rmtree(package_path, ignore_errors=True)
 
             except Exception as e:
                 print(f"    ✗ End-to-end deployment test failed: {e}")
                 import traceback
+
                 traceback.print_exc()
                 return False
 
@@ -372,7 +412,7 @@ class RLDeploymentTester:
         print("  Testing safety constraints validation...")
 
         # Create a temporary ONNX model for testing
-        with tempfile.NamedTemporaryFile(suffix='.onnx', delete=False) as tmp_onnx:
+        with tempfile.NamedTemporaryFile(suffix=".onnx", delete=False) as tmp_onnx:
             model = ActorCriticNetwork(state_dim=24, action_dim=7, hidden_dim=64)
             sample_input = torch.randn(1, 24)
             torch.onnx.export(
@@ -382,8 +422,8 @@ class RLDeploymentTester:
                 export_params=True,
                 opset_version=11,
                 do_constant_folding=True,
-                input_names=['input'],
-                output_names=['action_mean', 'value']
+                input_names=["input"],
+                output_names=["action_mean", "value"],
             )
 
             # Test SafetyValidator with various safety scenarios
@@ -408,14 +448,18 @@ class RLDeploymentTester:
                     state = state * 2  # Potentially problematic state
                 test_states.append(state)
 
-            comprehensive_results = validator.run_comprehensive_safety_check(test_states)
+            comprehensive_results = validator.run_comprehensive_safety_check(
+                test_states
+            )
             print(f"    Comprehensive safety results: {comprehensive_results}")
 
             # Verify that the validation caught any potential issues
-            if comprehensive_results['overall_safe']:
+            if comprehensive_results["overall_safe"]:
                 print("    ✓ Safety constraints validation passed all tests")
             else:
-                print(f"    ○ Safety validation detected issues: {comprehensive_results['details']}")
+                print(
+                    f"    ○ Safety validation detected issues: {comprehensive_results['details']}"
+                )
                 # This is not necessarily a failure - safety validation should catch issues
 
         print("  ✓ Safety constraints validation tested successfully")
@@ -475,9 +519,9 @@ class RLDeploymentTester:
         """
         Print summary of all tests
         """
-        print("\n" + "="*80)
+        print("\n" + "=" * 80)
         print("RL POLICY DEPLOYMENT PIPELINE TEST SUMMARY")
-        print("="*80)
+        print("=" * 80)
         print(f"Total Tests: {len(self.test_results)}")
         print(f"Passed: {self.test_passed}")
         print(f"Failed: {self.test_failed}")
@@ -488,11 +532,13 @@ class RLDeploymentTester:
 
         if self.test_failed == 0:
             print("\n✓ ALL RL DEPLOYMENT PIPELINE TESTS PASSED")
-            print("  The deployment pipeline with safety constraints validation is working correctly.")
+            print(
+                "  The deployment pipeline with safety constraints validation is working correctly."
+            )
         else:
             print(f"\n✗ {self.test_failed} TEST(S) FAILED")
             print("  The deployment pipeline needs fixes before production use.")
-        print("="*80)
+        print("=" * 80)
 
 
 def main():
@@ -512,6 +558,7 @@ def main():
     except Exception as e:
         print(f"\n✗ Deployment pipeline test ERROR: {e}")
         import traceback
+
         traceback.print_exc()
         return 1
 

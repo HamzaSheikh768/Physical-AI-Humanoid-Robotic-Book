@@ -6,21 +6,22 @@ It includes utilities for loading robot models, configuring joints, and
 establishing initial states.
 """
 
-import omni
-from omni.isaac.core import World
-from omni.isaac.core.utils.stage import add_reference_to_stage
-from omni.isaac.core.utils.nucleus import get_assets_root_path
-from omni.isaac.core.utils.prims import get_prim_at_path
-from omni.isaac.core.robots import Robot
-from omni.isaac.core.utils.viewports import set_camera_view
-from omni.isaac.core.scenes.scene import Scene
-from omni.isaac.core.objects import DynamicCuboid
-from omni.isaac.core.utils.carb import set_carb_setting
-from omni.isaac.core.controllers import BaseController
-from omni.isaac.core.utils.rotations import euler_angles_to_quat
+import asyncio
+
 import carb
 import numpy as np
-import asyncio
+import omni
+from omni.isaac.core import World
+from omni.isaac.core.controllers import BaseController
+from omni.isaac.core.objects import DynamicCuboid
+from omni.isaac.core.robots import Robot
+from omni.isaac.core.scenes.scene import Scene
+from omni.isaac.core.utils.carb import set_carb_setting
+from omni.isaac.core.utils.nucleus import get_assets_root_path
+from omni.isaac.core.utils.prims import get_prim_at_path
+from omni.isaac.core.utils.rotations import euler_angles_to_quat
+from omni.isaac.core.utils.stage import add_reference_to_stage
+from omni.isaac.core.utils.viewports import set_camera_view
 
 
 class RobotSetup:
@@ -33,9 +34,12 @@ class RobotSetup:
         self.robots = {}
         self.robot_configs = {}
 
-    def add_franka_robot(self, prim_path: str = "/World/Franka",
-                        position: tuple = (0.0, 0.0, 0.0),
-                        orientation: tuple = (0.0, 0.0, 0.0, 1.0)):
+    def add_franka_robot(
+        self,
+        prim_path: str = "/World/Franka",
+        position: tuple = (0.0, 0.0, 0.0),
+        orientation: tuple = (0.0, 0.0, 0.0, 1.0),
+    ):
         """
         Add a Franka robot to the scene (using default Isaac assets)
 
@@ -57,12 +61,14 @@ class RobotSetup:
                         position=position,
                         orientation=orientation,
                         size=0.5,
-                        mass=10.0
+                        mass=10.0,
                     )
                 )
             else:
                 # Use Franka robot from Isaac Sim assets
-                franka_asset_path = assets_root_path + "/Isaac/Robots/Franka/franka_alt_fingers.usd"
+                franka_asset_path = (
+                    assets_root_path + "/Isaac/Robots/Franka/franka_alt_fingers.usd"
+                )
                 add_reference_to_stage(usd_path=franka_asset_path, prim_path=prim_path)
 
                 # Add the robot to the world
@@ -71,15 +77,15 @@ class RobotSetup:
                         prim_path=prim_path,
                         name="franka_robot",
                         position=position,
-                        orientation=orientation
+                        orientation=orientation,
                     )
                 )
 
             self.robots[prim_path] = robot
             self.robot_configs[prim_path] = {
-                'type': 'franka',
-                'position': position,
-                'orientation': orientation
+                "type": "franka",
+                "position": position,
+                "orientation": orientation,
             }
 
             return robot
@@ -94,15 +100,18 @@ class RobotSetup:
                     position=position,
                     orientation=orientation,
                     size=0.5,
-                    mass=10.0
+                    mass=10.0,
                 )
             )
             self.robots[prim_path] = robot
             return robot
 
-    def add_turtlebot3(self, prim_path: str = "/World/TurtleBot3",
-                      position: tuple = (0.0, 0.0, 0.0),
-                      orientation: tuple = (0.0, 0.0, 0.0, 1.0)):
+    def add_turtlebot3(
+        self,
+        prim_path: str = "/World/TurtleBot3",
+        position: tuple = (0.0, 0.0, 0.0),
+        orientation: tuple = (0.0, 0.0, 0.0, 1.0),
+    ):
         """
         Add a TurtleBot3 robot to the scene
 
@@ -123,13 +132,18 @@ class RobotSetup:
                         position=position,
                         orientation=orientation,
                         size=0.3,
-                        mass=5.0
+                        mass=5.0,
                     )
                 )
             else:
                 # Use TurtleBot3 from Isaac Sim assets
-                turtlebot3_asset_path = assets_root_path + "/Isaac/Robots/TurtleBot3/nav2 TurtleBot3 Bumperbot USD"
-                add_reference_to_stage(usd_path=turtlebot3_asset_path, prim_path=prim_path)
+                turtlebot3_asset_path = (
+                    assets_root_path
+                    + "/Isaac/Robots/TurtleBot3/nav2 TurtleBot3 Bumperbot USD"
+                )
+                add_reference_to_stage(
+                    usd_path=turtlebot3_asset_path, prim_path=prim_path
+                )
 
                 # Add the robot to the world
                 robot = self.world.scene.add(
@@ -137,15 +151,15 @@ class RobotSetup:
                         prim_path=prim_path,
                         name="turtlebot3_robot",
                         position=position,
-                        orientation=orientation
+                        orientation=orientation,
                     )
                 )
 
             self.robots[prim_path] = robot
             self.robot_configs[prim_path] = {
-                'type': 'turtlebot3',
-                'position': position,
-                'orientation': orientation
+                "type": "turtlebot3",
+                "position": position,
+                "orientation": orientation,
             }
 
             return robot
@@ -160,13 +174,15 @@ class RobotSetup:
                     position=position,
                     orientation=orientation,
                     size=0.3,
-                    mass=5.0
+                    mass=5.0,
                 )
             )
             self.robots[prim_path] = robot
             return robot
 
-    def configure_robot_joints(self, robot_prim_path: str, joint_positions: dict = None):
+    def configure_robot_joints(
+        self, robot_prim_path: str, joint_positions: dict = None
+    ):
         """
         Configure initial joint positions for a robot
 
@@ -214,7 +230,9 @@ class RobotSetup:
             config = self.robot_configs[robot_prim_path]
             # Reset position and orientation to initial values
             robot = self.robots[robot_prim_path]
-            robot.set_world_pose(position=config['position'], orientation=config['orientation'])
+            robot.set_world_pose(
+                position=config["position"], orientation=config["orientation"]
+            )
             print(f"Reset {robot_prim_path} to initial pose")
 
 
@@ -240,12 +258,12 @@ class BasicRobotController(BaseController):
         """
         # Process the command and return appropriate control actions
         actions = {}
-        if 'position' in command:
-            actions['position'] = command['position']
-        if 'velocity' in command:
-            actions['velocity'] = command['velocity']
-        if 'effort' in command:
-            actions['effort'] = command['effort']
+        if "position" in command:
+            actions["position"] = command["position"]
+        if "velocity" in command:
+            actions["velocity"] = command["velocity"]
+        if "effort" in command:
+            actions["effort"] = command["effort"]
 
         return actions
 
@@ -271,7 +289,7 @@ def setup_default_robot_scene():
     robot_setup.add_franka_robot(
         prim_path="/World/Franka",
         position=(0.0, 0.0, 0.0),
-        orientation=euler_angles_to_quat(np.array([0, 0, 0]))
+        orientation=euler_angles_to_quat(np.array([0, 0, 0])),
     )
 
     return world, robot_setup
@@ -282,7 +300,9 @@ def main():
     Main function for testing robot setup
     """
     print("Robot Setup for NVIDIA Isaac Sim")
-    print("This module provides utilities for setting up robots in Isaac Sim environments.")
+    print(
+        "This module provides utilities for setting up robots in Isaac Sim environments."
+    )
     print("For actual usage, import this module in your Isaac Sim application.")
 
 

@@ -8,38 +8,37 @@ It includes trajectory planning, inverse kinematics, and control interfaces
 for robotic arms.
 """
 
-import rclpy
-from rclpy.node import Node
-from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
-
-from geometry_msgs.msg import Pose, Point, Quaternion
-from std_msgs.msg import Header
-from sensor_msgs.msg import JointState
-from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
-from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryGoal
-from builtin_interfaces.msg import Duration
-
-from moveit_msgs.msg import MoveItErrorCodes, RobotTrajectory
-from moveit_msgs.srv import GetMotionPlan, GetPositionIK, GetPositionFK
-from moveit_msgs.action import MoveGroup
+import math
+import threading
+import time
+from enum import Enum
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
-import math
-from typing import List, Dict, Tuple, Optional
-from enum import Enum
-import time
-import threading
+import rclpy
+from builtin_interfaces.msg import Duration
+from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryGoal
+from geometry_msgs.msg import Point, Pose, Quaternion
 
 # Import common utilities
 from isaac_examples.common.isaac_ros_utils import (
-    create_pose,
     create_point,
-    create_vector3
+    create_pose,
+    create_vector3,
 )
+from moveit_msgs.action import MoveGroup
+from moveit_msgs.msg import MoveItErrorCodes, RobotTrajectory
+from moveit_msgs.srv import GetMotionPlan, GetPositionFK, GetPositionIK
+from rclpy.node import Node
+from rclpy.qos import HistoryPolicy, QoSProfile, ReliabilityPolicy
+from sensor_msgs.msg import JointState
+from std_msgs.msg import Header
+from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 
 
 class ArmState(Enum):
     """Enumeration of arm states"""
+
     IDLE = "idle"
     MOVING_TO_PRE_GRASP = "moving_to_pre_grasp"
     MOVING_TO_GRASP = "moving_to_grasp"
@@ -56,52 +55,56 @@ class ArmController(Node):
     """
 
     def __init__(self):
-        super().__init__('arm_controller')
+        super().__init__("arm_controller")
 
         # Declare parameters
-        self.declare_parameter('robot_description_param', 'robot_description')
-        self.declare_parameter('move_group_name', 'manipulator')
-        self.declare_parameter('end_effector_link', 'gripper_link')
-        self.declare_parameter('max_velocity_scaling_factor', 0.5)
-        self.declare_parameter('max_acceleration_scaling_factor', 0.5)
-        self.declare_parameter('gripper_open_position', 0.05)
-        self.declare_parameter('gripper_close_position', 0.0)
-        self.declare_parameter('approach_distance', 0.1)
-        self.declare_parameter('retract_distance', 0.1)
+        self.declare_parameter("robot_description_param", "robot_description")
+        self.declare_parameter("move_group_name", "manipulator")
+        self.declare_parameter("end_effector_link", "gripper_link")
+        self.declare_parameter("max_velocity_scaling_factor", 0.5)
+        self.declare_parameter("max_acceleration_scaling_factor", 0.5)
+        self.declare_parameter("gripper_open_position", 0.05)
+        self.declare_parameter("gripper_close_position", 0.0)
+        self.declare_parameter("approach_distance", 0.1)
+        self.declare_parameter("retract_distance", 0.1)
 
         # Get parameters
-        self.robot_description_param = self.get_parameter('robot_description_param').value
-        self.move_group_name = self.get_parameter('move_group_name').value
-        self.end_effector_link = self.get_parameter('end_effector_link').value
-        self.max_velocity_scaling = self.get_parameter('max_velocity_scaling_factor').value
-        self.max_acceleration_scaling = self.get_parameter('max_acceleration_scaling_factor').value
-        self.gripper_open_pos = self.get_parameter('gripper_open_position').value
-        self.gripper_close_pos = self.get_parameter('gripper_close_position').value
-        self.approach_distance = self.get_parameter('approach_distance').value
-        self.retract_distance = self.get_parameter('retract_distance').value
+        self.robot_description_param = self.get_parameter(
+            "robot_description_param"
+        ).value
+        self.move_group_name = self.get_parameter("move_group_name").value
+        self.end_effector_link = self.get_parameter("end_effector_link").value
+        self.max_velocity_scaling = self.get_parameter(
+            "max_velocity_scaling_factor"
+        ).value
+        self.max_acceleration_scaling = self.get_parameter(
+            "max_acceleration_scaling_factor"
+        ).value
+        self.gripper_open_pos = self.get_parameter("gripper_open_position").value
+        self.gripper_close_pos = self.get_parameter("gripper_close_position").value
+        self.approach_distance = self.get_parameter("approach_distance").value
+        self.retract_distance = self.get_parameter("retract_distance").value
 
         # Publishers
-        self.joint_trajectory_pub = self.create_publisher(JointTrajectory, 'joint_trajectory', 10)
-        self.gripper_command_pub = self.create_publisher(JointTrajectory, 'gripper_command', 10)
-        self.arm_state_pub = self.create_publisher(Header, 'arm_state', 10)
+        self.joint_trajectory_pub = self.create_publisher(
+            JointTrajectory, "joint_trajectory", 10
+        )
+        self.gripper_command_pub = self.create_publisher(
+            JointTrajectory, "gripper_command", 10
+        )
+        self.arm_state_pub = self.create_publisher(Header, "arm_state", 10)
 
         # Subscribers
         self.joint_state_sub = self.create_subscription(
-            JointState,
-            'joint_states',
-            self.joint_state_callback,
-            10
+            JointState, "joint_states", self.joint_state_callback, 10
         )
         self.grasp_pose_sub = self.create_subscription(
-            Pose,
-            'best_grasp',
-            self.grasp_pose_callback,
-            10
+            Pose, "best_grasp", self.grasp_pose_callback, 10
         )
 
         # Services
-        self.ik_service = self.create_client(GetPositionIK, 'compute_ik')
-        self.fk_service = self.create_client(GetPositionFK, 'compute_fk')
+        self.ik_service = self.create_client(GetPositionIK, "compute_ik")
+        self.fk_service = self.create_client(GetPositionFK, "compute_fk")
 
         # Internal state
         self.current_joint_positions = {}
@@ -114,15 +117,15 @@ class ArmController(Node):
 
         # Joint names for the arm (example - would be loaded from URDF)
         self.joint_names = [
-            'shoulder_pan_joint',
-            'shoulder_lift_joint',
-            'elbow_joint',
-            'wrist_1_joint',
-            'wrist_2_joint',
-            'wrist_3_joint'
+            "shoulder_pan_joint",
+            "shoulder_lift_joint",
+            "elbow_joint",
+            "wrist_1_joint",
+            "wrist_2_joint",
+            "wrist_3_joint",
         ]
 
-        self.get_logger().info('Arm Controller initialized')
+        self.get_logger().info("Arm Controller initialized")
 
     def joint_state_callback(self, joint_state_msg: JointState):
         """
@@ -142,15 +145,20 @@ class ArmController(Node):
         Args:
             grasp_pose_msg: Pose message for the grasp position
         """
-        self.get_logger().info('Received grasp pose, initiating manipulation sequence')
+        self.get_logger().info("Received grasp pose, initiating manipulation sequence")
 
         # Store the target grasp pose
         self.target_grasp_pose = grasp_pose_msg
 
         # Start manipulation sequence in a separate thread to avoid blocking
         with self.manipulation_lock:
-            if self.manipulation_thread is None or not self.manipulation_thread.is_alive():
-                self.manipulation_thread = threading.Thread(target=self.execute_manipulation_sequence)
+            if (
+                self.manipulation_thread is None
+                or not self.manipulation_thread.is_alive()
+            ):
+                self.manipulation_thread = threading.Thread(
+                    target=self.execute_manipulation_sequence
+                )
                 self.manipulation_thread.start()
 
     def execute_manipulation_sequence(self):
@@ -159,14 +167,14 @@ class ArmController(Node):
         """
         try:
             self.set_arm_state(ArmState.MOVING_TO_PRE_GRASP)
-            self.get_logger().info('Starting manipulation sequence')
+            self.get_logger().info("Starting manipulation sequence")
 
             # 1. Move to pre-grasp position (approach from safe distance)
             if self.target_grasp_pose:
                 pre_grasp_pose = self.calculate_pre_grasp_pose(self.target_grasp_pose)
                 success = self.move_to_pose(pre_grasp_pose)
                 if not success:
-                    self.get_logger().error('Failed to move to pre-grasp position')
+                    self.get_logger().error("Failed to move to pre-grasp position")
                     self.set_arm_state(ArmState.ERROR)
                     return
 
@@ -174,7 +182,7 @@ class ArmController(Node):
                 self.set_arm_state(ArmState.MOVING_TO_GRASP)
                 success = self.move_to_pose(self.target_grasp_pose)
                 if not success:
-                    self.get_logger().error('Failed to move to grasp position')
+                    self.get_logger().error("Failed to move to grasp position")
                     self.set_arm_state(ArmState.ERROR)
                     return
 
@@ -189,7 +197,7 @@ class ArmController(Node):
                 post_grasp_pose = self.calculate_post_grasp_pose(self.target_grasp_pose)
                 success = self.move_to_pose(post_grasp_pose)
                 if not success:
-                    self.get_logger().error('Failed to retract after grasp')
+                    self.get_logger().error("Failed to retract after grasp")
                     self.set_arm_state(ArmState.ERROR)
                     return
 
@@ -197,7 +205,7 @@ class ArmController(Node):
                 place_pose = self.calculate_place_pose()
                 success = self.move_to_pose(place_pose)
                 if not success:
-                    self.get_logger().error('Failed to move to place position')
+                    self.get_logger().error("Failed to move to place position")
                     self.set_arm_state(ArmState.ERROR)
                     return
 
@@ -211,14 +219,16 @@ class ArmController(Node):
                 home_pose = self.calculate_home_pose()
                 success = self.move_to_pose(home_pose)
                 if success:
-                    self.get_logger().info('Manipulation sequence completed successfully')
+                    self.get_logger().info(
+                        "Manipulation sequence completed successfully"
+                    )
                     self.set_arm_state(ArmState.IDLE)
                 else:
-                    self.get_logger().error('Failed to return to home position')
+                    self.get_logger().error("Failed to return to home position")
                     self.set_arm_state(ArmState.ERROR)
 
         except Exception as e:
-            self.get_logger().error(f'Error in manipulation sequence: {e}')
+            self.get_logger().error(f"Error in manipulation sequence: {e}")
             self.set_arm_state(ArmState.ERROR)
 
     def calculate_pre_grasp_pose(self, grasp_pose: Pose) -> Pose:
@@ -239,16 +249,19 @@ class ArmController(Node):
         # The orientation should have the gripper pointing downward
         # Move along the negative z-axis of the gripper frame
         import tf_transformations as tf
-        orientation = [grasp_pose.orientation.x, grasp_pose.orientation.y,
-                       grasp_pose.orientation.z, grasp_pose.orientation.w]
+
+        orientation = [
+            grasp_pose.orientation.x,
+            grasp_pose.orientation.y,
+            grasp_pose.orientation.z,
+            grasp_pose.orientation.w,
+        ]
         rotation_matrix = tf.quaternion_matrix(orientation)
 
         # The z-axis of the gripper frame in world coordinates
-        approach_direction = np.array([
-            rotation_matrix[0, 2],
-            rotation_matrix[1, 2],
-            rotation_matrix[2, 2]
-        ])
+        approach_direction = np.array(
+            [rotation_matrix[0, 2], rotation_matrix[1, 2], rotation_matrix[2, 2]]
+        )
 
         # Move away from the grasp position
         offset = approach_direction * self.approach_distance
@@ -273,16 +286,19 @@ class ArmController(Node):
 
         # For a top-down grasp, retract upward
         import tf_transformations as tf
-        orientation = [grasp_pose.orientation.x, grasp_pose.orientation.y,
-                       grasp_pose.orientation.z, grasp_pose.orientation.w]
+
+        orientation = [
+            grasp_pose.orientation.x,
+            grasp_pose.orientation.y,
+            grasp_pose.orientation.z,
+            grasp_pose.orientation.w,
+        ]
         rotation_matrix = tf.quaternion_matrix(orientation)
 
         # The z-axis of the gripper frame in world coordinates
-        retract_direction = np.array([
-            rotation_matrix[0, 2],
-            rotation_matrix[1, 2],
-            rotation_matrix[2, 2]
-        ])
+        retract_direction = np.array(
+            [rotation_matrix[0, 2], rotation_matrix[1, 2], rotation_matrix[2, 2]]
+        )
 
         # Move away from the grasp position
         offset = retract_direction * self.retract_distance
@@ -342,8 +358,10 @@ class ArmController(Node):
         Returns:
             True if movement successful, False otherwise
         """
-        self.get_logger().info(f'Moving to pose: ({target_pose.position.x:.3f}, '
-                              f'{target_pose.position.y:.3f}, {target_pose.position.z:.3f})')
+        self.get_logger().info(
+            f"Moving to pose: ({target_pose.position.x:.3f}, "
+            f"{target_pose.position.y:.3f}, {target_pose.position.z:.3f})"
+        )
 
         # In a real implementation, this would call MoveIt! or similar planning service
         # For this simulation, we'll generate a simple trajectory
@@ -370,7 +388,9 @@ class ArmController(Node):
         else:
             return False
 
-    def generate_simple_trajectory(self, start_positions: List[float], target_pose: Pose) -> Optional[JointTrajectory]:
+    def generate_simple_trajectory(
+        self, start_positions: List[float], target_pose: Pose
+    ) -> Optional[JointTrajectory]:
         """
         Generate a simple joint trajectory to reach the target pose
 
@@ -417,28 +437,30 @@ class ArmController(Node):
 
                 # Set time from start
                 point.time_from_start.sec = int(t * num_points * time_step)
-                point.time_from_start.nanosec = int((t * num_points * time_step - point.time_from_start.sec) * 1e9)
+                point.time_from_start.nanosec = int(
+                    (t * num_points * time_step - point.time_from_start.sec) * 1e9
+                )
 
                 trajectory.points.append(point)
 
             return trajectory
 
         except Exception as e:
-            self.get_logger().error(f'Error generating trajectory: {e}')
+            self.get_logger().error(f"Error generating trajectory: {e}")
             return None
 
     def close_gripper(self):
         """
         Close the gripper to grasp an object
         """
-        self.get_logger().info('Closing gripper')
+        self.get_logger().info("Closing gripper")
         self._send_gripper_command(self.gripper_close_pos)
 
     def open_gripper(self):
         """
         Open the gripper to release an object
         """
-        self.get_logger().info('Opening gripper')
+        self.get_logger().info("Opening gripper")
         self._send_gripper_command(self.gripper_open_pos)
 
     def _send_gripper_command(self, position: float):
@@ -450,7 +472,7 @@ class ArmController(Node):
         """
         try:
             trajectory = JointTrajectory()
-            trajectory.joint_names = ['gripper_joint']  # Example gripper joint name
+            trajectory.joint_names = ["gripper_joint"]  # Example gripper joint name
             point = JointTrajectoryPoint()
             point.positions = [position]
             point.velocities = [0.0]
@@ -459,7 +481,7 @@ class ArmController(Node):
             trajectory.points = [point]
             self.gripper_command_pub.publish(trajectory)
         except Exception as e:
-            self.get_logger().error(f'Error sending gripper command: {e}')
+            self.get_logger().error(f"Error sending gripper command: {e}")
 
     def set_arm_state(self, state: ArmState):
         """
@@ -473,13 +495,14 @@ class ArmController(Node):
         header.stamp = self.get_clock().now().to_msg()
         header.frame_id = f"arm_state_{state.value}"
         self.arm_state_pub.publish(header)
-        self.get_logger().info(f'Arm state set to: {state.value}')
+        self.get_logger().info(f"Arm state set to: {state.value}")
 
 
 class SimpleArmController:
     """
     Simplified arm controller for demonstration purposes
     """
+
     def __init__(self):
         self.current_joint_positions = [0.0] * 6  # Example 6-DOF arm
         self.object_grasped = False
@@ -494,8 +517,10 @@ class SimpleArmController:
         Returns:
             True if movement successful, False otherwise
         """
-        print(f"Moving arm to pose: ({target_pose.position.x:.3f}, "
-              f"{target_pose.position.y:.3f}, {target_pose.position.z:.3f})")
+        print(
+            f"Moving arm to pose: ({target_pose.position.x:.3f}, "
+            f"{target_pose.position.y:.3f}, {target_pose.position.z:.3f})"
+        )
 
         # Simulate movement time
         time.sleep(2.0)
@@ -607,5 +632,5 @@ def main(args=None):
         rclpy.shutdown()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

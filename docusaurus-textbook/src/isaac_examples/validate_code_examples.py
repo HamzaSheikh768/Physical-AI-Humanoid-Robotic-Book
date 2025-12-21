@@ -10,10 +10,10 @@ syntax errors, and structural consistency.
 
 import ast
 import os
-import sys
-from pathlib import Path
 import subprocess
+import sys
 import tempfile
+from pathlib import Path
 
 
 def validate_python_file(filepath):
@@ -27,25 +27,27 @@ def validate_python_file(filepath):
         Tuple of (is_valid, error_message)
     """
     try:
-        with open(filepath, 'r', encoding='utf-8') as f:
+        with open(filepath, "r", encoding="utf-8") as f:
             content = f.read()
 
         # Parse the file to check for syntax errors
         ast.parse(content)
 
         # Check for common issues
-        lines = content.split('\n')
+        lines = content.split("\n")
 
         # Check if it has ROS 2 structure
-        has_ros_imports = any('rclpy' in line for line in lines)
-        has_node_class = any('Node' in line and 'class' in line for line in lines)
-        has_main_function = any('def main' in line for line in lines)
-        has_ros_spin = any('rclpy.spin' in line for line in lines)
+        has_ros_imports = any("rclpy" in line for line in lines)
+        has_node_class = any("Node" in line and "class" in line for line in lines)
+        has_main_function = any("def main" in line for line in lines)
+        has_ros_spin = any("rclpy.spin" in line for line in lines)
 
         # Report findings
         issues = []
         if has_ros_imports and not (has_node_class and has_main_function):
-            issues.append("File has ROS imports but missing proper Node class or main function")
+            issues.append(
+                "File has ROS imports but missing proper Node class or main function"
+            )
 
         if has_ros_spin and not has_main_function:
             issues.append("File has rclpy.spin but missing main function structure")
@@ -66,10 +68,12 @@ def validate_all_examples():
     Validate all Python examples in the isaac_examples directory
     """
     print("Validating all Isaac code examples...")
-    print("="*60)
+    print("=" * 60)
 
     # Define the directory to check
-    examples_dir = Path("/mnt/e/Hackathon 1/Physical-AI-Humanoid-Robotic-Book/src/isaac_examples")
+    examples_dir = Path(
+        "/mnt/e/Hackathon 1/Physical-AI-Humanoid-Robotic-Book/src/isaac_examples"
+    )
 
     if not examples_dir.exists():
         print(f"Directory does not exist: {examples_dir}")
@@ -93,9 +97,9 @@ def validate_all_examples():
             print(f"  ✗ Error: {error_msg}")
             results.append((file_path, False, error_msg))
 
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("VALIDATION SUMMARY")
-    print("="*60)
+    print("=" * 60)
 
     total_files = len(results)
     valid_files = sum(1 for _, is_valid, _ in results if is_valid)
@@ -124,7 +128,7 @@ def validate_all_examples():
         "manipulation/object_manipulation_lab.py",
         "reinforcement_learning/rl_training.py",
         "reinforcement_learning/policy_deployment.py",
-        "reinforcement_learning/rl_lab.py"
+        "reinforcement_learning/rl_lab.py",
     ]
 
     print(f"\nCritical files check:")
@@ -143,7 +147,9 @@ def validate_all_examples():
 
     # Overall result
     overall_success = invalid_files == 0 and all_critical_exist
-    print(f"\nOverall validation result: {'✓ PASSED' if overall_success else '✗ FAILED'}")
+    print(
+        f"\nOverall validation result: {'✓ PASSED' if overall_success else '✗ FAILED'}"
+    )
 
     return overall_success
 
@@ -162,7 +168,7 @@ def check_imports():
         "torch",
         "numpy",
         "cv2",
-        "onnx"
+        "onnx",
     ]
 
     successful_imports = []
@@ -190,7 +196,9 @@ def check_imports():
             failed_imports.append((imp, str(e)))
             print(f"  ✗ {imp}: {e}")
 
-    print(f"\nImport check: {len(successful_imports)} successful, {len(failed_imports)} failed")
+    print(
+        f"\nImport check: {len(successful_imports)} successful, {len(failed_imports)} failed"
+    )
 
     return len(failed_imports) == 0
 
@@ -200,7 +208,7 @@ def main():
     Main function to run all validations
     """
     print("Isaac Examples Code Validation")
-    print("="*60)
+    print("=" * 60)
 
     # Validate all code examples
     code_validation_passed = validate_all_examples()
@@ -208,22 +216,34 @@ def main():
     # Check imports
     import_check_passed = check_imports()
 
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("FINAL VALIDATION RESULTS")
-    print("="*60)
-    print(f"Code syntax validation: {'✓ PASSED' if code_validation_passed else '✗ FAILED'}")
-    print(f"Import availability check: {'✓ PASSED' if import_check_passed else '✗ FAILED'}")
+    print("=" * 60)
+    print(
+        f"Code syntax validation: {'✓ PASSED' if code_validation_passed else '✗ FAILED'}"
+    )
+    print(
+        f"Import availability check: {'✓ PASSED' if import_check_passed else '✗ FAILED'}"
+    )
 
     overall_result = code_validation_passed and import_check_passed
 
-    print(f"\nOverall result: {'✓ ALL VALIDATIONS PASSED' if overall_result else '✗ SOME VALIDATIONS FAILED'}")
+    print(
+        f"\nOverall result: {'✓ ALL VALIDATIONS PASSED' if overall_result else '✗ SOME VALIDATIONS FAILED'}"
+    )
 
     if overall_result:
-        print("\nThe code examples appear to be syntactically correct and ready for simulation.")
-        print("Note: This validation checks syntax and structure. Actual runtime behavior")
+        print(
+            "\nThe code examples appear to be syntactically correct and ready for simulation."
+        )
+        print(
+            "Note: This validation checks syntax and structure. Actual runtime behavior"
+        )
         print("in the Isaac Sim environment should be tested separately.")
     else:
-        print("\nSome issues were detected. Please review the validation results above.")
+        print(
+            "\nSome issues were detected. Please review the validation results above."
+        )
 
     return 0 if overall_result else 1
 

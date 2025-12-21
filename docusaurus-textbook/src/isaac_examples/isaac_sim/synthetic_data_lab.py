@@ -6,23 +6,24 @@ to perception processing with Isaac ROS. It showcases how to create diverse trai
 datasets with domain randomization and process them through GPU-accelerated perception nodes.
 """
 
+import os
+import random
+from typing import Any, Dict, List, Tuple
+
+import carb
+import cv2
+import numpy as np
 import omni
 from omni.isaac.core import World
-from omni.isaac.core.utils.stage import add_reference_to_stage
+from omni.isaac.core.objects import DynamicCuboid, VisualCuboid
+from omni.isaac.core.scenes.scene import Scene
+from omni.isaac.core.utils.carb import set_carb_setting
 from omni.isaac.core.utils.nucleus import get_assets_root_path
 from omni.isaac.core.utils.prims import get_prim_at_path
-from omni.isaac.core.objects import DynamicCuboid, VisualCuboid
+from omni.isaac.core.utils.stage import add_reference_to_stage
 from omni.isaac.core.utils.viewports import set_camera_view
-from omni.isaac.core.scenes.scene import Scene
 from omni.isaac.sensor import Camera
-from omni.isaac.core.utils.carb import set_carb_setting
-import carb
-import numpy as np
-import random
-import cv2
 from PIL import Image
-import os
-from typing import List, Tuple, Dict, Any
 
 
 class SyntheticDataLab:
@@ -80,7 +81,7 @@ class SyntheticDataLab:
                 prim_path=camera_prim_path,
                 name="synthetic_data_camera",
                 position=[2.0, 0.0, 1.5],
-                look_at=[0.0, 0.0, 0.5]
+                look_at=[0.0, 0.0, 0.5],
             )
         )
 
@@ -111,9 +112,15 @@ class SyntheticDataLab:
         # In a real implementation, we would modify light properties
         # For this lab, we'll just log the randomization
         light_intensity = random.uniform(500, 2000)
-        light_color = [random.uniform(0.8, 1.2), random.uniform(0.8, 1.2), random.uniform(0.8, 1.2)]
+        light_color = [
+            random.uniform(0.8, 1.2),
+            random.uniform(0.8, 1.2),
+            random.uniform(0.8, 1.2),
+        ]
 
-        print(f"Applied lighting randomization: intensity={light_intensity:.2f}, color={light_color}")
+        print(
+            f"Applied lighting randomization: intensity={light_intensity:.2f}, color={light_color}"
+        )
 
     def randomize_background(self):
         """
@@ -141,7 +148,11 @@ class SyntheticDataLab:
             size = random.uniform(0.1, 0.4)
 
             # Random color
-            color = [random.uniform(0.1, 1.0), random.uniform(0.1, 1.0), random.uniform(0.1, 1.0)]
+            color = [
+                random.uniform(0.1, 1.0),
+                random.uniform(0.1, 1.0),
+                random.uniform(0.1, 1.0),
+            ]
 
             # Add visual cuboid to scene
             bg_obj = self.world.scene.add(
@@ -150,7 +161,7 @@ class SyntheticDataLab:
                     name=f"bg_obj_{i}",
                     position=[x, y, z],
                     size=size,
-                    color=np.array(color)
+                    color=np.array(color),
                 )
             )
             self.objects.append(bg_obj)
@@ -189,7 +200,11 @@ class SyntheticDataLab:
             size = random.uniform(0.1, 0.3)
 
             # Random color
-            color = [random.uniform(0.2, 0.9), random.uniform(0.2, 0.9), random.uniform(0.2, 0.9)]
+            color = [
+                random.uniform(0.2, 0.9),
+                random.uniform(0.2, 0.9),
+                random.uniform(0.2, 0.9),
+            ]
 
             # Add target object
             target_obj = self.world.scene.add(
@@ -199,7 +214,7 @@ class SyntheticDataLab:
                     position=[x, y, z],
                     size=size,
                     color=np.array(color),
-                    mass=random.uniform(0.1, 0.5)
+                    mass=random.uniform(0.1, 0.5),
                 )
             )
             self.target_objects.append(target_obj)
@@ -230,10 +245,10 @@ class SyntheticDataLab:
         self.save_data_sample(sample_id, rgb_image, depth_image, annotations)
 
         return {
-            'sample_id': sample_id,
-            'rgb_image': rgb_image,
-            'depth_image': depth_image,
-            'annotations': annotations
+            "sample_id": sample_id,
+            "rgb_image": rgb_image,
+            "depth_image": depth_image,
+            "annotations": annotations,
         }
 
     def get_object_annotations(self) -> List[Dict[str, Any]]:
@@ -252,11 +267,13 @@ class SyntheticDataLab:
 
                 # Create annotation
                 annotation = {
-                    'id': i,
-                    'class': 'target_object',
-                    'position': position,
-                    'orientation': orientation,
-                    'size': target_obj.get_size() if hasattr(target_obj, 'get_size') else 0.2
+                    "id": i,
+                    "class": "target_object",
+                    "position": position,
+                    "orientation": orientation,
+                    "size": target_obj.get_size()
+                    if hasattr(target_obj, "get_size")
+                    else 0.2,
                 }
                 annotations.append(annotation)
             except Exception as e:
@@ -264,8 +281,13 @@ class SyntheticDataLab:
 
         return annotations
 
-    def save_data_sample(self, sample_id: int, rgb_image: np.ndarray,
-                        depth_image: np.ndarray, annotations: List[Dict[str, Any]]):
+    def save_data_sample(
+        self,
+        sample_id: int,
+        rgb_image: np.ndarray,
+        depth_image: np.ndarray,
+        annotations: List[Dict[str, Any]],
+    ):
         """
         Save a data sample to disk
 
@@ -283,20 +305,29 @@ class SyntheticDataLab:
             rgb_img.save(rgb_path)
 
         # Save depth image
-        depth_path = os.path.join(self.output_dir, "depth", f"depth_{sample_id:04d}.png")
+        depth_path = os.path.join(
+            self.output_dir, "depth", f"depth_{sample_id:04d}.png"
+        )
         if depth_image is not None and len(depth_image) > 0:
             # Normalize depth for visualization
-            depth_normalized = ((depth_image - depth_image.min()) /
-                              (depth_image.max() - depth_image.min()) * 255).astype(np.uint8)
+            depth_normalized = (
+                (depth_image - depth_image.min())
+                / (depth_image.max() - depth_image.min())
+                * 255
+            ).astype(np.uint8)
             depth_img = Image.fromarray(depth_normalized)
             depth_img.save(depth_path)
 
         # Save annotations
-        labels_path = os.path.join(self.output_dir, "labels", f"labels_{sample_id:04d}.txt")
-        with open(labels_path, 'w') as f:
+        labels_path = os.path.join(
+            self.output_dir, "labels", f"labels_{sample_id:04d}.txt"
+        )
+        with open(labels_path, "w") as f:
             for annotation in annotations:
-                f.write(f"Object {annotation['id']}: pos={annotation['position']}, "
-                       f"orient={annotation['orientation']}, size={annotation['size']}\n")
+                f.write(
+                    f"Object {annotation['id']}: pos={annotation['position']}, "
+                    f"orient={annotation['orientation']}, size={annotation['size']}\n"
+                )
 
     def run_perception_pipeline(self, sample_id: int):
         """
@@ -312,7 +343,9 @@ class SyntheticDataLab:
 
         # Load the saved data
         rgb_path = os.path.join(self.output_dir, "images", f"rgb_{sample_id:04d}.png")
-        depth_path = os.path.join(self.output_dir, "depth", f"depth_{sample_id:04d}.png")
+        depth_path = os.path.join(
+            self.output_dir, "depth", f"depth_{sample_id:04d}.png"
+        )
 
         if os.path.exists(rgb_path) and os.path.exists(depth_path):
             # Simulate object detection
@@ -325,7 +358,9 @@ class SyntheticDataLab:
         else:
             print(f"  Data files not found for sample {sample_id}")
 
-    def simulate_object_detection(self, rgb_path: str, depth_path: str) -> List[Dict[str, Any]]:
+    def simulate_object_detection(
+        self, rgb_path: str, depth_path: str
+    ) -> List[Dict[str, Any]]:
         """
         Simulate object detection process
 
@@ -343,9 +378,13 @@ class SyntheticDataLab:
         # In reality, this would come from perception node output
         return [
             {
-                'class': 'target_object',
-                'position': [random.uniform(-1.0, 1.0), random.uniform(-1.0, 1.0), random.uniform(0.2, 0.8)],
-                'confidence': random.uniform(0.7, 0.95)
+                "class": "target_object",
+                "position": [
+                    random.uniform(-1.0, 1.0),
+                    random.uniform(-1.0, 1.0),
+                    random.uniform(0.2, 0.8),
+                ],
+                "confidence": random.uniform(0.7, 0.95),
             }
             for _ in range(random.randint(1, 3))
         ]
@@ -374,16 +413,18 @@ class SyntheticDataLab:
             # Reset the world for the next sample
             self.world.reset()
 
-        print(f"Dataset generation complete: {num_samples} samples saved to {self.output_dir}")
+        print(
+            f"Dataset generation complete: {num_samples} samples saved to {self.output_dir}"
+        )
 
     def run_lab_exercise(self):
         """
         Run the complete lab exercise demonstrating synthetic data generation
         and perception processing
         """
-        print("="*60)
+        print("=" * 60)
         print("SYNTHETIC DATA GENERATION AND PERCEPTION STACK LAB")
-        print("="*60)
+        print("=" * 60)
 
         # Setup the world
         print("\n1. Setting up Isaac Sim world...")
@@ -400,9 +441,15 @@ class SyntheticDataLab:
 
         print("\n4. Lab exercise complete!")
         print(f"   - Generated data saved to: {self.output_dir}")
-        print(f"   - Images: {len(os.listdir(os.path.join(self.output_dir, 'images')))} files")
-        print(f"   - Depth: {len(os.listdir(os.path.join(self.output_dir, 'depth')))} files")
-        print(f"   - Labels: {len(os.listdir(os.path.join(self.output_dir, 'labels')))} files")
+        print(
+            f"   - Images: {len(os.listdir(os.path.join(self.output_dir, 'images')))} files"
+        )
+        print(
+            f"   - Depth: {len(os.listdir(os.path.join(self.output_dir, 'depth')))} files"
+        )
+        print(
+            f"   - Labels: {len(os.listdir(os.path.join(self.output_dir, 'labels')))} files"
+        )
 
         print("\nLab Objectives Achieved:")
         print("  - Demonstrated synthetic data generation with domain randomization")
@@ -423,6 +470,7 @@ def main():
     except Exception as e:
         print(f"Error running lab: {e}")
         import traceback
+
         traceback.print_exc()
     finally:
         # Clean up

@@ -6402,8 +6402,8 @@ HRI systems must seamlessly integrate with ROS 2 infrastructure:
 4. **TF Integration**: Use ROS transform system for coordinate management
 5. **Logging**: Integrate with ROS logging for debugging and analysis
 
-The combination of Unity's visualization capabilities and ROS 2's robotics infrastructure enables sophisticated 
-human-robot interaction simulation that can significantly improve the safety and effectiveness of real-world HRI 
+The combination of Unity's visualization capabilities and ROS 2's robotics infrastructure enables sophisticated
+human-robot interaction simulation that can significantly improve the safety and effectiveness of real-world HRI
 systems.
 
 ---
@@ -6415,5 +6415,5 @@ systems.
 - Connection between simulation and real-world applications
 
 The simulation-first approach has been consistently applied throughout this chapter, ensuring that learners develop
-the mindset and skills necessary for safe, efficient, and effective robotics development. This methodology prepares 
+the mindset and skills necessary for safe, efficient, and effective robotics development. This methodology prepares
 them to work with real hardware while minimizing risks and maximizing learning opportunities.

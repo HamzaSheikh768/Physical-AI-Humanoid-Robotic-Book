@@ -8,49 +8,48 @@ for generating training data and training policies that can be deployed to real 
 The implementation includes simulation environment setup, policy training, and validation.
 """
 
-import rclpy
-from rclpy.node import Node
-from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
-
-from std_msgs.msg import Header, Float32, Int32
-from geometry_msgs.msg import Pose, Twist
-from sensor_msgs.msg import JointState, Image, CameraInfo
-from builtin_interfaces.msg import Time
+import os
+import pickle
+import random
+import threading
+import time
+from collections import deque
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
+import rclpy
 import torch
 import torch.nn as nn
-import torch.optim as optim
 import torch.nn.functional as F
+import torch.optim as optim
+from builtin_interfaces.msg import Time
+from geometry_msgs.msg import Pose, Twist
+from rclpy.node import Node
+from rclpy.qos import HistoryPolicy, QoSProfile, ReliabilityPolicy
+from sensor_msgs.msg import CameraInfo, Image, JointState
+from std_msgs.msg import Float32, Header, Int32
 from torch.distributions import Normal
-import random
-from collections import deque
-import time
-import os
-from typing import List, Dict, Tuple, Optional, Any
-import threading
-import pickle
 
 # Import Isaac Sim components
 try:
-    from omni.isaac.core import World
-    from omni.isaac.core.utils.stage import add_reference_to_stage
-    from omni.isaac.core.utils.prims import get_prim_at_path
-    from omni.isaac.core.utils.nucleus import get_assets_root_path
-    from omni.isaac.core.robots import Robot
-    from omni.isaac.core.objects import DynamicCuboid
-    from omni.isaac.core.prims import RigidPrim, ArticulationPrim
-    from omni.isaac.core.utils.viewports import set_camera_view
     import omni.replicator.core as rep
+    from omni.isaac.core import World
+    from omni.isaac.core.objects import DynamicCuboid
+    from omni.isaac.core.prims import ArticulationPrim, RigidPrim
+    from omni.isaac.core.robots import Robot
+    from omni.isaac.core.utils.nucleus import get_assets_root_path
+    from omni.isaac.core.utils.prims import get_prim_at_path
+    from omni.isaac.core.utils.stage import add_reference_to_stage
+    from omni.isaac.core.utils.viewports import set_camera_view
 except ImportError:
     print("Isaac Sim modules not available. Using mock implementations for testing.")
     World = None
 
 # Import common utilities
 from isaac_examples.common.isaac_ros_utils import (
-    create_pose,
     create_point,
-    get_transform
+    create_pose,
+    get_transform,
 )
 
 
@@ -58,6 +57,7 @@ class ActorCriticNetwork(nn.Module):
     """
     Actor-Critic neural network for reinforcement learning
     """
+
     def __init__(self, state_dim: int, action_dim: int, hidden_dim: int = 256):
         super(ActorCriticNetwork, self).__init__()
 
@@ -66,7 +66,7 @@ class ActorCriticNetwork(nn.Module):
             nn.Linear(state_dim, hidden_dim),
             nn.ReLU(),
             nn.Linear(hidden_dim, hidden_dim),
-            nn.ReLU()
+            nn.ReLU(),
         )
 
         # Actor (policy) network
@@ -76,7 +76,9 @@ class ActorCriticNetwork(nn.Module):
         # Critic (value) network
         self.critic = nn.Linear(hidden_dim, 1)
 
-    def forward(self, state: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    def forward(
+        self, state: torch.Tensor
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """
         Forward pass through the network
 
@@ -102,11 +104,18 @@ class ReplayBuffer:
     """
     Experience replay buffer for storing and sampling experiences
     """
+
     def __init__(self, capacity: int):
         self.buffer = deque(maxlen=capacity)
 
-    def push(self, state: np.ndarray, action: np.ndarray, reward: float,
-             next_state: np.ndarray, done: bool):
+    def push(
+        self,
+        state: np.ndarray,
+        action: np.ndarray,
+        reward: float,
+        next_state: np.ndarray,
+        done: bool,
+    ):
         """
         Add experience to buffer
 
@@ -120,8 +129,9 @@ class ReplayBuffer:
         experience = (state, action, reward, next_state, done)
         self.buffer.append(experience)
 
-    def sample(self, batch_size: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray,
-                                              np.ndarray, np.ndarray]:
+    def sample(
+        self, batch_size: int
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """
         Sample experiences from buffer
 
@@ -146,8 +156,16 @@ class PPOAgent:
     """
     Proximal Policy Optimization (PPO) agent implementation
     """
-    def __init__(self, state_dim: int, action_dim: int, lr: float = 3e-4,
-                 gamma: float = 0.99, eps_clip: float = 0.2, k_epochs: int = 4):
+
+    def __init__(
+        self,
+        state_dim: int,
+        action_dim: int,
+        lr: float = 3e-4,
+        gamma: float = 0.99,
+        eps_clip: float = 0.2,
+        k_epochs: int = 4,
+    ):
         self.gamma = gamma
         self.eps_clip = eps_clip
         self.k_epochs = k_epochs
@@ -177,9 +195,15 @@ class PPOAgent:
 
         return action.detach().cpu().numpy()[0], log_prob.detach().cpu().numpy()[0]
 
-    def update(self, states: torch.Tensor, actions: torch.Tensor,
-               log_probs: torch.Tensor, rewards: torch.Tensor,
-               next_states: torch.Tensor, dones: torch.Tensor):
+    def update(
+        self,
+        states: torch.Tensor,
+        actions: torch.Tensor,
+        log_probs: torch.Tensor,
+        rewards: torch.Tensor,
+        next_states: torch.Tensor,
+        dones: torch.Tensor,
+    ):
         """
         Update network parameters using PPO
 
@@ -202,7 +226,9 @@ class PPOAgent:
             discounted_rewards.insert(0, running_reward)
 
         discounted_rewards = torch.FloatTensor(discounted_rewards)
-        discounted_rewards = (discounted_rewards - discounted_rewards.mean()) / (discounted_rewards.std() + 1e-5)
+        discounted_rewards = (discounted_rewards - discounted_rewards.mean()) / (
+            discounted_rewards.std() + 1e-5
+        )
 
         for _ in range(self.k_epochs):
             # Get current policy values
@@ -221,7 +247,9 @@ class PPOAgent:
 
             # Calculate surrogates
             surr1 = ratios * advantages
-            surr2 = torch.clamp(ratios, 1 - self.eps_clip, 1 + self.eps_clip) * advantages
+            surr2 = (
+                torch.clamp(ratios, 1 - self.eps_clip, 1 + self.eps_clip) * advantages
+            )
 
             # Calculate losses
             actor_loss = -torch.min(surr1, surr2).mean()
@@ -241,6 +269,7 @@ class IsaacSimEnvironment:
     """
     Isaac Sim environment wrapper for reinforcement learning
     """
+
     def __init__(self, robot_name: str = "franka", task: str = "pick_and_place"):
         self.robot_name = robot_name
         self.task = task
@@ -274,7 +303,7 @@ class IsaacSimEnvironment:
                     name="franka_robot",
                     usd_path="/Isaac/Robots/Franka/franka_alt_fingers.usd",
                     position=[0, 0, 0],
-                    orientation=[0, 0, 0, 1]
+                    orientation=[0, 0, 0, 1],
                 )
             )
         else:
@@ -285,7 +314,7 @@ class IsaacSimEnvironment:
                     name="default_robot",
                     usd_path="/Isaac/Robots/UniversalRobots/UR10/ur10.usd",
                     position=[0, 0, 0],
-                    orientation=[0, 0, 0, 1]
+                    orientation=[0, 0, 0, 1],
                 )
             )
 
@@ -297,7 +326,7 @@ class IsaacSimEnvironment:
                     name=f"object_{i}",
                     position=[0.5 + i * 0.1, 0, 0.1],
                     size=0.05,
-                    color=np.random.rand(3)
+                    color=np.random.rand(3),
                 )
             )
             self.objects.append(obj)
@@ -318,7 +347,7 @@ class IsaacSimEnvironment:
             if self.robot is not None:
                 self.robot.set_world_poses(
                     positions=torch.tensor([[0.0, 0.0, 0.0]]),
-                    orientations=torch.tensor([[0.0, 0.0, 0.0, 1.0]])
+                    orientations=torch.tensor([[0.0, 0.0, 0.0, 1.0]]),
                 )
 
         # Return initial state (simplified for this example)
@@ -375,45 +404,48 @@ class RLTrainingNode(Node):
     """
     ROS 2 node for reinforcement learning training
     """
+
     def __init__(self):
-        super().__init__('rl_training_node')
+        super().__init__("rl_training_node")
 
         # Declare parameters
-        self.declare_parameter('robot_name', 'franka')
-        self.declare_parameter('task', 'pick_and_place')
-        self.declare_parameter('state_dim', 24)
-        self.declare_parameter('action_dim', 7)
-        self.declare_parameter('max_episodes', 1000)
-        self.declare_parameter('max_steps_per_episode', 1000)
-        self.declare_parameter('learning_rate', 3e-4)
-        self.declare_parameter('gamma', 0.99)
-        self.declare_parameter('batch_size', 64)
-        self.declare_parameter('replay_buffer_size', 10000)
-        self.declare_parameter('save_model_interval', 100)
-        self.declare_parameter('model_save_path', '/tmp/rl_models/')
+        self.declare_parameter("robot_name", "franka")
+        self.declare_parameter("task", "pick_and_place")
+        self.declare_parameter("state_dim", 24)
+        self.declare_parameter("action_dim", 7)
+        self.declare_parameter("max_episodes", 1000)
+        self.declare_parameter("max_steps_per_episode", 1000)
+        self.declare_parameter("learning_rate", 3e-4)
+        self.declare_parameter("gamma", 0.99)
+        self.declare_parameter("batch_size", 64)
+        self.declare_parameter("replay_buffer_size", 10000)
+        self.declare_parameter("save_model_interval", 100)
+        self.declare_parameter("model_save_path", "/tmp/rl_models/")
 
         # Get parameters
-        self.robot_name = self.get_parameter('robot_name').value
-        self.task = self.get_parameter('task').value
-        self.state_dim = self.get_parameter('state_dim').value
-        self.action_dim = self.get_parameter('action_dim').value
-        self.max_episodes = self.get_parameter('max_episodes').value
-        self.max_steps_per_episode = self.get_parameter('max_steps_per_episode').value
-        self.learning_rate = self.get_parameter('learning_rate').value
-        self.gamma = self.get_parameter('gamma').value
-        self.batch_size = self.get_parameter('batch_size').value
-        self.replay_buffer_size = self.get_parameter('replay_buffer_size').value
-        self.save_model_interval = self.get_parameter('save_model_interval').value
-        self.model_save_path = self.get_parameter('model_save_path').value
+        self.robot_name = self.get_parameter("robot_name").value
+        self.task = self.get_parameter("task").value
+        self.state_dim = self.get_parameter("state_dim").value
+        self.action_dim = self.get_parameter("action_dim").value
+        self.max_episodes = self.get_parameter("max_episodes").value
+        self.max_steps_per_episode = self.get_parameter("max_steps_per_episode").value
+        self.learning_rate = self.get_parameter("learning_rate").value
+        self.gamma = self.get_parameter("gamma").value
+        self.batch_size = self.get_parameter("batch_size").value
+        self.replay_buffer_size = self.get_parameter("replay_buffer_size").value
+        self.save_model_interval = self.get_parameter("save_model_interval").value
+        self.model_save_path = self.get_parameter("model_save_path").value
 
         # Create publishers for training metrics
-        self.episode_reward_pub = self.create_publisher(Float32, 'episode_reward', 10)
-        self.episode_length_pub = self.create_publisher(Int32, 'episode_length', 10)
-        self.training_status_pub = self.create_publisher(Header, 'training_status', 10)
+        self.episode_reward_pub = self.create_publisher(Float32, "episode_reward", 10)
+        self.episode_length_pub = self.create_publisher(Int32, "episode_length", 10)
+        self.training_status_pub = self.create_publisher(Header, "training_status", 10)
 
         # Initialize components
         self.environment = IsaacSimEnvironment(self.robot_name, self.task)
-        self.agent = PPOAgent(self.state_dim, self.action_dim, self.learning_rate, self.gamma)
+        self.agent = PPOAgent(
+            self.state_dim, self.action_dim, self.learning_rate, self.gamma
+        )
         self.replay_buffer = ReplayBuffer(self.replay_buffer_size)
 
         # Training metrics
@@ -425,21 +457,23 @@ class RLTrainingNode(Node):
         # Create model save directory
         os.makedirs(self.model_save_path, exist_ok=True)
 
-        self.get_logger().info('RL Training Node initialized')
-        self.get_logger().info(f'Training parameters: episodes={self.max_episodes}, '
-                              f'state_dim={self.state_dim}, action_dim={self.action_dim}')
+        self.get_logger().info("RL Training Node initialized")
+        self.get_logger().info(
+            f"Training parameters: episodes={self.max_episodes}, "
+            f"state_dim={self.state_dim}, action_dim={self.action_dim}"
+        )
 
     def start_training(self):
         """
         Start the reinforcement learning training process
         """
-        self.get_logger().info('Starting RL training...')
+        self.get_logger().info("Starting RL training...")
         self.training_active = True
 
         # Publish training start status
         status_header = Header()
         status_header.stamp = self.get_clock().now().to_msg()
-        status_header.frame_id = 'training_started'
+        status_header.frame_id = "training_started"
         self.training_status_pub.publish(status_header)
 
         # Start training in a separate thread
@@ -454,7 +488,9 @@ class RLTrainingNode(Node):
             if not self.training_active:
                 break
 
-            self.get_logger().info(f'Starting episode {episode + 1}/{self.max_episodes}')
+            self.get_logger().info(
+                f"Starting episode {episode + 1}/{self.max_episodes}"
+            )
 
             # Reset environment
             state = self.environment.reset()
@@ -500,19 +536,21 @@ class RLTrainingNode(Node):
             length_msg.data = episode_length
             self.episode_length_pub.publish(length_msg)
 
-            self.get_logger().info(f'Episode {episode + 1}: Reward={episode_reward:.2f}, '
-                                  f'Length={episode_length}')
+            self.get_logger().info(
+                f"Episode {episode + 1}: Reward={episode_reward:.2f}, "
+                f"Length={episode_length}"
+            )
 
             # Save model periodically
             if (episode + 1) % self.save_model_interval == 0:
                 self.save_model(episode + 1)
 
-        self.get_logger().info('RL training completed')
+        self.get_logger().info("RL training completed")
 
         # Publish training completion status
         status_header = Header()
         status_header.stamp = self.get_clock().now().to_msg()
-        status_header.frame_id = 'training_completed'
+        status_header.frame_id = "training_completed"
         self.training_status_pub.publish(status_header)
 
     def update_agent(self):
@@ -520,7 +558,9 @@ class RLTrainingNode(Node):
         Update the agent using experiences from the replay buffer
         """
         # Sample batch from replay buffer
-        states, actions, rewards, next_states, dones = self.replay_buffer.sample(self.batch_size)
+        states, actions, rewards, next_states, dones = self.replay_buffer.sample(
+            self.batch_size
+        )
 
         # Convert to tensors
         states = torch.FloatTensor(states)
@@ -545,18 +585,23 @@ class RLTrainingNode(Node):
         Args:
             episode: Current episode number for naming
         """
-        model_path = os.path.join(self.model_save_path, f'rl_model_episode_{episode}.pth')
+        model_path = os.path.join(
+            self.model_save_path, f"rl_model_episode_{episode}.pth"
+        )
 
         # Save model state
-        torch.save({
-            'episode': episode,
-            'model_state_dict': self.agent.network.state_dict(),
-            'optimizer_state_dict': self.agent.optimizer.state_dict(),
-            'episode_rewards': self.episode_rewards,
-            'episode_lengths': self.episode_lengths
-        }, model_path)
+        torch.save(
+            {
+                "episode": episode,
+                "model_state_dict": self.agent.network.state_dict(),
+                "optimizer_state_dict": self.agent.optimizer.state_dict(),
+                "episode_rewards": self.episode_rewards,
+                "episode_lengths": self.episode_lengths,
+            },
+            model_path,
+        )
 
-        self.get_logger().info(f'Model saved to {model_path}')
+        self.get_logger().info(f"Model saved to {model_path}")
 
     def load_model(self, model_path: str):
         """
@@ -566,18 +611,18 @@ class RLTrainingNode(Node):
             model_path: Path to the model file
         """
         checkpoint = torch.load(model_path)
-        self.agent.network.load_state_dict(checkpoint['model_state_dict'])
-        self.agent.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-        self.episode_rewards = checkpoint['episode_rewards']
-        self.episode_lengths = checkpoint['episode_lengths']
+        self.agent.network.load_state_dict(checkpoint["model_state_dict"])
+        self.agent.optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+        self.episode_rewards = checkpoint["episode_rewards"]
+        self.episode_lengths = checkpoint["episode_lengths"]
 
-        self.get_logger().info(f'Model loaded from {model_path}')
+        self.get_logger().info(f"Model loaded from {model_path}")
 
     def stop_training(self):
         """
         Stop the training process
         """
-        self.get_logger().info('Stopping RL training...')
+        self.get_logger().info("Stopping RL training...")
         self.training_active = False
 
         if self.training_thread and self.training_thread.is_alive():
@@ -589,7 +634,7 @@ class RLTrainingNode(Node):
         # Publish training stop status
         status_header = Header()
         status_header.stamp = self.get_clock().now().to_msg()
-        status_header.frame_id = 'training_stopped'
+        status_header.frame_id = "training_stopped"
         self.training_status_pub.publish(status_header)
 
 
@@ -609,12 +654,12 @@ def main(args=None):
         rclpy.spin(rl_training_node)
 
     except KeyboardInterrupt:
-        rl_training_node.get_logger().info('Interrupted by user')
+        rl_training_node.get_logger().info("Interrupted by user")
     finally:
         rl_training_node.stop_training()
         rl_training_node.destroy_node()
         rclpy.shutdown()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
