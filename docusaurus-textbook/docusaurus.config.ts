@@ -24,7 +24,7 @@ const config: Config = {
   },
 
   // Set the production url of your site here
-  url: "https://physical-ai-humanoid-robotic-book-r-nine.vercel.app",
+  url: "https://physical-ai-humanoid-robotic-book-phi.vercel.app/",
   // Set the /<baseUrl>/ pathname under which your site is served
   // For Vercel deployment, use "/"
   baseUrl: "/",
