@@ -8,8 +8,8 @@ class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
 
     # API Keys
-    cohere_api_key: str = "GoBhhgseT69BXCCgoLlQfeuSu2ElxjmSGqPETnq5"
-    gemini_api_key: str = "AIzaSyBInNIhTw_bNDBrZsJ8uavaKoWmgpHsFAE"
+    cohere_api_key: str = "your_api_key"
+    gemini_api_key: str = "your_api_key"
 
     # Database settings
     neon_postgres_url: str = "postgresql://neondb_owner:npg_lF7p6eSIxOQk@ep-wild-truth-a4b13qm7-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
