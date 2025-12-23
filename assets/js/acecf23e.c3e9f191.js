@@ -1,1 +1,0 @@
-"use strict";(globalThis.webpackChunkdocusaurus_textbook=globalThis.webpackChunkdocusaurus_textbook||[]).push([[1903],{1912:o=>{o.exports=JSON.parse('{"blogBasePath":"/Physical-AI-Humanoid-Robotic-Book/blog","blogTitle":"Blog","authorsListPath":"/Physical-AI-Humanoid-Robotic-Book/blog/authors"}')}}]);
