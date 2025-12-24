@@ -27,7 +27,7 @@ class EmbeddingService:
     async def generate_embedding(
         self,
         text: str,
-        model_name: str = "embed-english-v3.0",
+        model_name: str = "embed-multilingual-v3.0",
         input_type: str = "search_document",
     ) -> List[float]:
         """Generate embedding for the given text using Cohere."""
@@ -47,7 +47,7 @@ class EmbeddingService:
     async def generate_embeddings_batch(
         self,
         texts: List[str],
-        model_name: str = "embed-english-v3.0",
+        model_name: str = "embed-multilingual-v3.0",
         input_type: str = "search_document",
     ) -> List[List[float]]:
         """Generate embeddings for a batch of texts using Cohere."""
@@ -73,6 +73,7 @@ class EmbeddingService:
         chapter: str = "",
         section: str = "",
         metadata: Optional[dict] = None,
+        text_chunk: str = "",
     ) -> EmbeddingModel:
         """Create an embedding record in the database."""
         try:
@@ -102,6 +103,7 @@ class EmbeddingService:
                 chapter=chapter,
                 section=section,
                 metadata=metadata or {},
+                text_chunk=text_chunk,
             )
 
             rag_logger.log_embedding_storage(embedding_id, content_id, model_name)
@@ -130,10 +132,11 @@ class EmbeddingService:
                 embedding_record = await self.create_embedding_record(
                     content_id=content.content_id,
                     embedding=embedding,
-                    model_name="embed-english-v3.0",
+                    model_name="embed-multilingual-v3.0",
                     module=content.module,
                     chapter=content.chapter,
                     section=content.section,
+                    text_chunk=chunk.text_chunk,  # Pass the actual chunk text
                     metadata={
                         "chunk_index": chunk.chunk_index,
                         "total_chunks": len(chunks),

@@ -86,7 +86,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ initialOpen = false }) => {
       // Add assistant response
       const assistantMessage = SessionManager.addMessage({
         sender: 'assistant',
-        content: response.answer,
+        content: response.answer || response.response_id || 'No response available',
         status: 'delivered',
       });
 
@@ -154,7 +154,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ initialOpen = false }) => {
       // Add assistant response
       const assistantMessage = SessionManager.addMessage({
         sender: 'assistant',
-        content: response.answer,
+        content: response.explanation || response.response_id || 'No response available',
         status: 'delivered',
       });
 

@@ -1,4 +1,3 @@
-import { auth } from './better-auth-client';
 
 // This middleware is for API routes and works with the request/response pattern
 // In Docusaurus, API routes are handled differently than in Next.js
@@ -15,21 +14,29 @@ export const checkUserAccess = (session: any, requiredPermissions?: string[]) =>
   return true;
 };
 
-// Function to get session from request
+// Function to get session from request (using backend auth API)
 export const getSessionFromRequest = async (req: any) => {
   try {
-    // Get session from request using Better Auth
-    const response = await fetch(`${process.env.BASE_URL || 'http://localhost:3000'}/api/auth/session`, {
+    // Get session from request using backend auth API
+    // This assumes the request has an Authorization header with Bearer token
+    const authHeader = req.headers?.authorization || req.headers?.Authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return null;
+    }
+
+    const token = authHeader.substring(7); // Remove 'Bearer ' prefix
+
+    const response = await fetch(`${process.env.CHAT_API_URL || 'http://localhost:8000'}/auth/me`, {
       method: 'GET',
       headers: {
+        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
-        ...req.headers
       }
     });
 
     if (response.ok) {
-      const sessionData = await response.json();
-      return sessionData;
+      const userData = await response.json();
+      return userData; // Return user data as session equivalent
     }
     return null;
   } catch (error) {
@@ -38,20 +45,32 @@ export const getSessionFromRequest = async (req: any) => {
   }
 };
 
-// Function to protect API routes
+// Function to protect API routes (using backend auth API)
 export const protectApiRoute = async (req: any, res: any) => {
   try {
-    const response = await fetch(`${process.env.BASE_URL || 'http://localhost:3000'}/api/auth/session`, {
+    const authHeader = req.headers?.authorization || req.headers?.Authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      res.status(401).json({
+        authenticated: false,
+        error: 'Unauthorized',
+        message: 'Please sign in to access this resource'
+      });
+      return null;
+    }
+
+    const token = authHeader.substring(7); // Remove 'Bearer ' prefix
+
+    const response = await fetch(`${process.env.CHAT_API_URL || 'http://localhost:8000'}/auth/me`, {
       method: 'GET',
       headers: {
+        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
-        ...req.headers
       }
     });
 
     if (response.ok) {
-      const sessionData = await response.json();
-      return sessionData;
+      const userData = await response.json();
+      return userData; // Return user data as session equivalent
     }
 
     res.status(401).json({

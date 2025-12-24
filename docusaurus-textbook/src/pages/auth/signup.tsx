@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import Layout from '@theme/Layout';
-import { auth } from '../../services/auth/better-auth-client';
 
 function SignupPage() {
   const [formData, setFormData] = useState({
@@ -28,18 +27,47 @@ function SignupPage() {
     setError(null);
 
     try {
-      const response = await fetch('/api/auth/signup', {
+      // Use the backend auth register endpoint
+      // Note: Backend doesn't handle the additional fields in the same way, so we'll register first
+      const registerResponse = await fetch('/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
       });
 
-      const data = await response.json();
+      if (!registerResponse.ok) {
+        const errorData = await registerResponse.json();
+        throw new Error(errorData.detail || errorData.error || 'Signup failed');
+      }
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Signup failed');
+      const registerData = await registerResponse.json();
+
+      // Store the access token from registration
+      localStorage.setItem('access_token', registerData.access_token);
+
+      // Now create the user profile with additional data
+      const profileResponse = await fetch('/auth/profile', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${registerData.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          software_background: formData.softwareBackground,
+          hardware_experience: formData.hardwareExperience,
+          learning_track: formData.learningTrack,
+          skill_level: formData.skillLevel,
+        }),
+      });
+
+      if (!profileResponse.ok) {
+        console.warn('Profile creation failed, but user registration succeeded');
+        // We'll still continue as the user is registered
       }
 
       // Wait a brief moment to ensure session is established

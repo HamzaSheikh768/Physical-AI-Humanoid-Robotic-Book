@@ -68,3 +68,12 @@ secrets.json
 
 # Coverage
 .coverage*
+
+# Migrations
+migrations/__pycache__/
+migrations/*.pyc
+migrations/*.pyo   
+migrations/*.pyd
+migrations/*.swp
+migrations/*~   
+

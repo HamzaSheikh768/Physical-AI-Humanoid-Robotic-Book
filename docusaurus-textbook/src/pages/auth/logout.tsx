@@ -16,21 +16,13 @@ function LogoutPage() {
       // Since we're in a page component, we need to get the context differently
       // We'll make the API call directly instead
       try {
-        const response = await fetch('/api/auth/logout', {
-          method: 'POST',
-        });
+        // Clear the stored access token (this is the "logout" for JWT)
+        localStorage.removeItem('access_token');
 
-        if (response.ok) {
-          // Redirect to sign-in page after a short delay
-          setTimeout(() => {
-            window.location.href = '/auth/signin';
-          }, 1500);
-        } else {
-          // If logout fails, still redirect to sign-in
-          setTimeout(() => {
-            window.location.href = '/auth/signin';
-          }, 1500);
-        }
+        // Redirect to sign-in page after a short delay
+        setTimeout(() => {
+          window.location.href = '/auth/signin';
+        }, 1500);
       } catch (error) {
         console.error('Logout error:', error);
         // Redirect to sign-in even if there's an error

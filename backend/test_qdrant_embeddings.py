@@ -69,9 +69,17 @@ async def test_embedding_storage():
 
         # Count total embeddings in collection
         print("5. Counting embeddings in collection...")
-        # Note: For Qdrant Cloud, we can't use the count method directly without more setup
-        # So we'll just verify the search worked
-        print("   ✅ Search functionality verified")
+        stats = await qdrant_client.get_collection_statistics()
+        print(f"   ✅ Collection stats: {stats['points_count']} points, vector size: {stats['vector_size']}")
+        print()
+
+        # Verification test
+        print("6. Verifying embedding insertion...")
+        verification_result = await qdrant_client.verify_embedding_insertion(stored_id)
+        if verification_result:
+            print(f"   ✅ Embedding {stored_id} successfully verified in Qdrant")
+        else:
+            print(f"   ❌ Embedding {stored_id} not found in Qdrant")
         print()
 
         print("🎉 All embedding storage tests passed!")

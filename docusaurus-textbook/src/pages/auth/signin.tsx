@@ -23,19 +23,27 @@ function SigninPage() {
     setError(null);
 
     try {
-      const response = await fetch('/api/auth/signin', {
+      // Use the backend auth token endpoint
+      const response = await fetch('/auth/token', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded', // Backend expects form data for login
         },
-        body: JSON.stringify(formData),
+        body: new URLSearchParams({
+          username: formData.email, // Backend expects 'username' for email
+          password: formData.password
+        }),
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Signin failed');
+      }
 
       const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Signin failed');
-      }
+      // Store the access token
+      localStorage.setItem('access_token', data.access_token);
 
       // Wait a brief moment to ensure session is established
       await new Promise(resolve => setTimeout(resolve, 300));

@@ -223,6 +223,10 @@ See `.specify/memory/constitution.md` for code quality, testing, performance, se
 - Neon Postgres (metadata), Qdrant Cloud (vector embeddings), GitHub Secrets (configuration) (001-cicd-deployment)
 - TypeScript 5.0+ (for Docusaurus compatibility) + Better Auth, Docusaurus v3, React 18+ (007-user-auth-better-auth)
 - User data and metadata stored via Better Auth with cookie-based sessions (007-user-auth-better-auth)
+- TypeScript 5.0+ (for Docusaurus compatibility), React 18+ + Docusaurus v3 (classic theme), Better Auth, React (client-side auth state management) (001-navbar-auth-buttons)
+- N/A (client-side auth state management only) (001-navbar-auth-buttons)
+- Python 3.12 (as per constitution and project requirements) + FastAPI, Uvicorn, Cohere API, Qdrant Cloud, Context7 MCP server, Neon Postgres (001-backend-rag-fix)
+- Qdrant Cloud (vector embeddings), Neon Postgres (metadata), local file system (book content) (001-backend-rag-fix)
 
 ## Recent Changes
 - 001-intro-physical-ai: Added Markdown/MDX for Docusaurus documentation framework + Docusaurus documentation system, TypeScript for customization if needed

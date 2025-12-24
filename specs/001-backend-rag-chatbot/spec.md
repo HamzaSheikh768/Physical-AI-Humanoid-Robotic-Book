@@ -19,6 +19,7 @@ Develop the **backend API** for the RAG chatbot that:
 - Handles `/query` and `/text-selection-query` endpoints
 - Processes book content and queries using **Cohere embeddings**
 - Stores/retrieves data from Neon Postgres + Qdrant
+- Ingests content from the deployed Docusaurus textbook site
 
 ---
 
@@ -28,6 +29,8 @@ Develop the **backend API** for the RAG chatbot that:
 - Cohere embedding generation for book content
 - Vector search in Qdrant
 - RAG orchestration with OpenAI ChatKit
+- Content ingestion via web scraping from Docusaurus site
+- Caching of embeddings to reduce API calls and handle rate limits
 
 ---
 
@@ -36,6 +39,8 @@ Develop the **backend API** for the RAG chatbot that:
 - API keys in `.env`
 - Modular, type-annotated, clean code
 - Scalable to multiple concurrent requests
+- 99.9% uptime with 4-hour recovery time
+- Graceful degradation when external services fail
 
 ---
 
@@ -72,6 +77,16 @@ Copy code
 - Clean, maintainable backend code
 2. /sp.specify.frontend
 Focus: Docusaurus integration + Chat widget"
+
+## Clarifications
+
+### Session 2025-12-24
+
+- Q: How should textbook content be ingested into the system? → A: Via web scraping from Docusaurus site
+- Q: How should system handle API rate limits? → A: Cache embeddings to reduce API calls
+- Q: What uptime/recovery expectations? → A: 99.9% uptime with 4-hour recovery
+- Q: How to handle external service failures? → A: Graceful degradation with reduced functionality
+- Q: Expected content volumes? → A: Thousands of pages
 
 ## User Scenarios & Testing *(mandatory)*
 

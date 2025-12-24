@@ -19,9 +19,9 @@ const config: Config = {
   favicon: "img/robot-favicon.svg",
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
-  future: {
-    v4: true, // Improve compatibility with the upcoming Docusaurus v4
-  },
+  // future: {
+  //   v4: true, // Improve compatibility with the upcoming Docusaurus v4
+  // },
 
   // Set the production url of your site here
   url: "https://physical-ai-humanoid-robotic-book-phi.vercel.app/",
@@ -82,6 +82,12 @@ const config: Config = {
         theme: {
           customCss: "./src/css/custom.css",
         },
+        sitemap: {
+          changefreq: 'weekly',
+          priority: 0.5,
+          ignorePatterns: ['/tags/**'],
+          filename: 'sitemap.xml',
+        },
       } satisfies Preset.Options,
     ],
   ],
@@ -89,6 +95,7 @@ const config: Config = {
   stylesheets: [
     "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap",
     "/css/chat.css",
+    "/css/auth-navbar.css",
   ],
   themeConfig: {
     // Replace with your project's social card
@@ -110,6 +117,11 @@ const config: Config = {
           label: "TextBook",
         },
         // { to: "/blog", label: "Blog", position: "left" },
+        {
+          type: 'custom-navbarAuth',
+          position: 'right', // or 'left' based on your preference
+          // Additional props can be added here
+        },
         {
           href: "https://github.com/HamzaSheikh768/Physical-AI-Humanoid-Robotic-Book",
           label: "GitHub",

@@ -105,7 +105,7 @@ Examples of foundational tasks (adjust based on your project):
 
 ## Phase 5: User Story 3 - Content Embedding and Storage (Priority: P3)
 
-**Goal**: System processes textbook content to generate embeddings using Cohere, store in Qdrant for retrieval, and maintain metadata in Neon Postgres
+**Goal**: System processes textbook content to generate embeddings using Cohere, store in Qdrant for retrieval, and maintain metadata in Neon Postgres. Implements web scraping from Docusaurus site, 1024-dimensional vectors with embed-multilingual-v3.0 model, and caching for rate limits.
 
 **Independent Test**: Can be fully tested by processing textbook content and verifying that embeddings are properly generated and stored in both Qdrant and Postgres.
 
@@ -119,10 +119,15 @@ Examples of foundational tasks (adjust based on your project):
 - [X] T028 [P] [US3] Create Textbook Content model in backend/models/content.py
 - [X] T029 [P] [US3] Create Embedding model in backend/models/embedding.py
 - [X] T030 [US3] Implement embedding service in backend/services/embedding_service.py
-- [X] T031 [US3] Implement content processing pipeline (depends on T028, T029, T008)
+- [X] T031 [US3] Implement content processing pipeline with web scraping from Docusaurus site (depends on T028, T029, T008)
 - [X] T032 [US3] Add content storage in Neon Postgres (depends on T006)
-- [X] T033 [US3] Add embeddings storage in Qdrant (depends on T007)
-- [X] T034 [US3] Implement content indexing workflow
+- [X] T033 [US3] Add embeddings storage in Qdrant with 1024-dimension validation (depends on T007)
+- [X] T034 [US3] Implement content indexing workflow with verification methods
+- [X] T035 [US3] Add embedding caching mechanism to reduce API calls and handle rate limits
+- [X] T036 [US3] Implement 512-token chunking with 50-token overlap in backend/utils/chunking.py
+- [X] T037 [US3] Add runtime validation for 1024-dimensional vectors in backend/embeddings/cohere_embed.py
+- [X] T038 [US3] Implement async initialization with wait=True for upsert operations in backend/vectorstore/qdrant_client.py
+- [X] T039 [US3] Add comprehensive logging for embedding generation and storage operations
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -142,6 +147,11 @@ Examples of foundational tasks (adjust based on your project):
 - [X] T038 [P] Additional unit tests (if requested) in backend/tests/unit/
 - [X] T039 Security hardening (rate limiting, input validation)
 - [X] T040 Run quickstart.md validation
+- [X] T041 Implement verification methods to confirm embeddings are properly inserted in Qdrant
+- [X] T042 Add collection statistics functionality to monitor Points count in Qdrant Cloud
+- [X] T043 Implement graceful degradation when external services fail
+- [X] T044 Add comprehensive error handling with detailed logging
+- [X] T045 Ensure 99.9% uptime with 4-hour recovery time requirements
 
 ---
 

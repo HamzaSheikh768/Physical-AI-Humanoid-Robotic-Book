@@ -47,7 +47,7 @@ async def test_qdrant_connection():
         test_embedding_id = f"test_embedding_{uuid4().hex[:8]}"
         test_embedding = [
             0.1
-        ] * 768  # 768-dimensional vector for multilingual-v2.0 model
+        ] * 1024  # 1024-dimensional vector for multilingual-v3.0 model
 
         await qdrant_client.store_embedding(
             embedding_id=test_embedding_id,
