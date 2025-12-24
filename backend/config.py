@@ -20,15 +20,30 @@ class Settings(BaseSettings):
     # MCP Server settings (optional)
     mcp_server_url: Optional[str] = Field(None, description="Context7 MCP server URL")
 
+    # Additional settings from .env file
+    qdrant_collection: str = Field(default="book_content", description="Qdrant collection name")
+    neon_postgres_url: Optional[str] = Field(None, description="Neon Postgres connection URL")
+    secret_key: Optional[str] = Field(None, description="Secret key for authentication")
+    better_auth_url: Optional[str] = Field(None, description="Better Auth URL")
+    auth_secret: Optional[str] = Field(None, description="Auth secret")
+    vercel_deployment_url: Optional[str] = Field(None, description="Vercel deployment URL")
+    frontend_url: Optional[str] = Field(None, description="Frontend URL")
+    uvicorn_host: str = Field(default="0.0.0.0", description="Uvicorn host")
+    uvicorn_port: int = Field(default=8000, description="Uvicorn port")
+    cohere_api_key: Optional[str] = Field(None, description="Cohere API key (for backward compatibility)")
+
     # Application settings
     app_name: str = "RAG Backend Service"
     debug: bool = False
     environment: str = "development"
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        case_sensitive = True
+    model_config = {
+        "env_file": ".env",
+        "env_file_encoding": "utf-8",
+        "case_sensitive": False,
+        "populate_by_name": True,
+        "extra": "ignore"  # Ignore extra environment variables
+    }
 
 def get_settings() -> Settings:
     """Get application settings with validation."""

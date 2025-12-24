@@ -37,9 +37,9 @@ from backend.utils.health_monitor import get_health_monitor, setup_default_healt
 try:
     from services.mcp_service import initialize_mcp_service, shutdown_mcp_service
     MCP_AVAILABLE = True
-    logger.info("MCP service module loaded successfully")
+    logging.getLogger(__name__).info("MCP service module loaded successfully")
 except ImportError:
-    logger.info("MCP service module not found, skipping MCP initialization")
+    logging.getLogger(__name__).info("MCP service module not found, skipping MCP initialization")
     MCP_AVAILABLE = False
     def initialize_mcp_service():
         pass

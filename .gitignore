@@ -16,6 +16,12 @@ coverage/
 *.swo
 *~
 
+# Vercel deployment files
+.vercel/
+backend/.vercel
+docusaurus-textbook/.vercel
+
+
 # Environment variables
 backend/.venv
 backend/__pycache__/
@@ -33,7 +39,8 @@ backend/.env.test.local
 backend/.env.production.local
 backend/.env.example
 backend/.env
-.env.local
+docusaurus-textbook/.env.local
+docusaurus-textbook/
 .env.development.local
 .env.test.local
 .env.production.local
@@ -73,3 +80,7 @@ __pycache__/
 .pytype/
 .pyre//
 .pyre_configuration/
+.pyre_configuration.local/
+.ipynb_checkpoints
+*.pyc
+*.pyo

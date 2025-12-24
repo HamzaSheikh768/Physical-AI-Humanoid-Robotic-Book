@@ -1,5 +1,4 @@
 {
-<<<<<<< HEAD
   "framework": "docusaurus",
   "builds": [
     {
@@ -7,15 +6,6 @@
       "use": "@vercel/static-build",
       "config": {
         "distDir": "build"
-=======
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "buildCommand": "npm run build",
-        "outputDirectory": "build"
->>>>>>> 143a70c (Deploy Docusaurus site)
       }
     }
   ],
@@ -24,12 +14,8 @@
       "src": "/(.*)",
       "dest": "/index.html"
     }
-<<<<<<< HEAD
   ],
   "github": {
     "enabled": true
   }
-=======
-  ]
->>>>>>> 143a70c (Deploy Docusaurus site)
 }
