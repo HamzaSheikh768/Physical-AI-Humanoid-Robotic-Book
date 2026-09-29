@@ -1,17 +1,13 @@
 import React from 'react';
-import OriginalNavbar from '@theme-original/Navbar';
+import OriginalFooter from '@theme-original/Footer';
 import { useLocation } from '@docusaurus/router';
 
-export default function Navbar(props) {
+export default function Footer() {
   const { pathname } = useLocation();
 
   if (pathname === '/') {
     return null;
   }
 
-  return (
-    <>
-      <OriginalNavbar {...props} />
-    </>
-  );
+  return <OriginalFooter />;
 }

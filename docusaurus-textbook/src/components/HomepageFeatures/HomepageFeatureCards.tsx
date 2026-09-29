@@ -11,7 +11,7 @@ const HomepageFeatureCards: React.FC<HomepageFeatureCardsProps> = ({
   layout = {
     cards: require('./data').featureCardsData,
     layoutType: 'grid',
-    maxCardsPerRow: 3
+    maxCardsPerRow: 4
   }
 }) => {
   const { cards, layoutType = 'grid', maxCardsPerRow = 3 } = layout;
@@ -23,9 +23,17 @@ const HomepageFeatureCards: React.FC<HomepageFeatureCardsProps> = ({
       role="region"
     >
       <div className={styles.container}>
-        <h2 id="features-title" className={styles.sectionTitle} tabIndex={-1}>
-          Key Features
-        </h2>
+        <div className={styles.sectionHeading}>
+          <div>
+            <p className={styles.sectionEyebrow}>THE LEARNING PATH</p>
+            <h2 id="features-title" className={styles.sectionTitle} tabIndex={-1}>
+              Four disciplines. One intelligent machine.
+            </h2>
+          </div>
+          <p className={styles.sectionDescription}>
+            Follow the ideas, tools, and systems that bring humanoid robotics to life.
+          </p>
+        </div>
         <div
           className={styles.grid}
           style={{ gridTemplateColumns: `repeat(${maxCardsPerRow}, 1fr)` }}

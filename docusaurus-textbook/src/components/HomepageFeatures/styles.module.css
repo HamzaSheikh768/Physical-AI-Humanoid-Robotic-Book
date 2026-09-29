@@ -1,196 +1,222 @@
 .featuresSection {
-  padding: 4rem 0;
   width: 100%;
+  padding: clamp(4rem, 8vw, 7rem) 0 3rem;
 }
 
 .container {
+  width: min(1220px, calc(100% - 3rem));
   margin: 0 auto;
-  padding: 0 1rem;
-  max-width: 1200px;
+}
+
+.sectionHeading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.sectionEyebrow {
+  margin: 0 0 0.7rem;
+  color: #718a37;
+  font-size: 0.68rem;
+  font-weight: 750;
+  letter-spacing: 0.14em;
 }
 
 .sectionTitle {
-  text-align: center;
-  margin-bottom: 3rem;
-  font-size: 2rem;
-  font-weight: 600;
-  color: var(--ifm-heading-color);
+  max-width: 42rem;
+  margin: 0;
+  color: #102a3b;
+  font-size: clamp(1.8rem, 4vw, 3.1rem);
+  font-weight: 750;
+  letter-spacing: -0.06em;
+  line-height: 1.1;
+}
+
+.sectionDescription {
+  max-width: 19rem;
+  margin: 0 0 0.15rem;
+  color: #61737d;
+  font-size: 0.9rem;
+  line-height: 1.7;
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
-  align-items: start;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 1rem;
+}
+
+.grid > [role='listitem'] {
+  min-width: 0;
 }
 
 .featureCard {
-  background: var(--ifm-card-background-color, #fff);
-  border: 1px solid var(--ifm-color-emphasis-200);
-  border-radius: 8px;
-  padding: 1.5rem;
-  text-align: center;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-  height: 100%;
   display: flex;
+  min-height: 100%;
   flex-direction: column;
-  align-items: center;
+  overflow: hidden;
+  border: 1px solid #e1e6de;
+  border-radius: 0.65rem;
+  background: #fff;
+  padding: 1.5rem;
+  color: #102a3b;
+  text-decoration: none;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
 }
 
 .featureCard:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-  border-color: var(--ifm-color-emphasis-400);
-  cursor: pointer;
+  border-color: #bdccaa;
+  box-shadow: 0 14px 32px rgb(16 42 59 / 8%);
+  color: #102a3b;
+  text-decoration: none;
+  transform: translateY(-4px);
+}
+
+.featureCard:focus-visible {
+  outline: 3px solid #718a37;
+  outline-offset: 3px;
 }
 
 .featureImage {
-  margin-bottom: 1.5rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 120px;
+  display: grid;
+  min-height: 12rem;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 0.45rem;
+  background: #f2f4ed;
+  margin-bottom: 1.3rem;
 }
 
 .featureImage img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-  transition: opacity 0.2s ease;
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
+  display: block;
+  width: 100%;
+  height: 12rem;
+  object-fit: cover;
+  transition: transform 280ms ease;
+}
+
+.featureCard:hover .featureImage img {
+  transform: scale(1.035);
 }
 
 .featureTitle {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin: 0 0 1rem 0;
-  color: var(--ifm-heading-color);
-  line-height: 1.4;
-  /* Ensure sufficient contrast ratio */
-  color: var(--ifm-color-emphasis-400);
+  margin: 0 0 0.65rem;
+  color: #102a3b;
+  font-size: 1.2rem;
+  font-weight: 750;
+  letter-spacing: -0.04em;
+  line-height: 1.3;
 }
 
 .featureDescription {
-  font-size: 1rem;
-  color: var(--ifm-font-color-base);
-  margin: 0 0 1.5rem 0;
-  line-height: 1.6;
-  flex-grow: 1;
-  /* Ensure sufficient contrast ratio */
-  color: var(--ifm-color-emphasis-400);
+  flex: 1 1 auto;
+  margin: 0 0 1.25rem;
+  color: #61737d;
+  font-size: 0.88rem;
+  line-height: 1.75;
 }
 
 .featureLink {
-  display: inline-block;
-  padding: 0.5rem 1.5rem;
-  background-color: var(--ifm-color-primary);
-  color: white;
-  text-decoration: none;
-  border-radius: 4px;
-  font-weight: 500;
-  transition: background-color 0.2s ease, transform 0.1s ease;
-  align-self: center;
-  text-align: center;
-  min-width: 120px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  align-self: flex-start;
+  color: #536d2b;
+  font-size: 0.81rem;
+  font-weight: 750;
 }
 
-.featureLink:hover {
-  background-color: var(--ifm-color-primary-dark);
-  transform: translateY(-2px);
-  text-decoration: none;
+.featureLink::after {
+  content: '→';
+  transition: transform 150ms ease;
 }
 
-.featureLink:focus {
-  outline: 2px solid var(--ifm-color-primary);
-  outline-offset: 2px;
+.featureCard:hover .featureLink::after {
+  transform: translateX(3px);
 }
 
-/* Responsive adjustments */
 @media (max-width: 996px) {
   .grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .sectionTitle {
-    font-size: 1.75rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 700px) {
   .featuresSection {
-    padding: 2rem 0;
+    padding-top: 3.5rem;
   }
 
-  .sectionTitle {
-    font-size: 1.5rem;
-    margin-bottom: 2rem;
+  .container {
+    width: calc(100% - 2rem);
+  }
+
+  .sectionHeading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.75rem;
   }
 
   .grid {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 0.85rem;
   }
 
   .featureCard {
-    padding: 1.25rem;
+    padding: 1rem;
+  }
+
+  .featureImage,
+  .featureImage img {
+    min-height: 11rem;
+    height: 11rem;
   }
 }
 
-/* Accessibility improvements */
-@media (prefers-reduced-motion: reduce) {
-  .featureCard,
-  .featureCard:hover,
-  .featureLink,
-  .featureLink:hover {
-    transition: none;
-    transform: none;
-  }
+html[data-theme='dark'] .sectionTitle {
+  color: #f0f4ee;
 }
 
-@media (prefers-contrast: high) {
-  .featureCard {
-    border: 2px solid var(--ifm-color-emphasis-400);
-  }
-
-  .featureTitle {
-    color: var(--ifm-heading-color);
-  }
-
-  .featureDescription {
-    color: var(--ifm-font-color-base);
-  }
+html[data-theme='dark'] .sectionDescription {
+  color: #aebcba;
 }
 
-/* Handle browser reduced color/contrast settings */
-@media (prefers-contrast: low) {
-  .featureCard {
-    background: var(--ifm-color-emphasis-100);
-    border-color: var(--ifm-color-emphasis-200);
-  }
-}
-
-/* Focus management for keyboard navigation */
-.featureCard:focus-within {
-  outline: 2px solid var(--ifm-color-primary);
-  outline-offset: 2px;
-}
-
-/* Dark mode compatibility */
 html[data-theme='dark'] .featureCard {
-  background: var(--ifm-card-background-color, #242526);
-  border-color: var(--ifm-color-emphasis-300);
+  border-color: #344249;
+  background: #19272d;
+  color: #f0f4ee;
 }
 
 html[data-theme='dark'] .featureCard:hover {
-  border-color: var(--ifm-color-emphasis-500);
+  border-color: #637c43;
+  color: #f0f4ee;
+}
+
+html[data-theme='dark'] .featureImage {
+  background: #202f32;
 }
 
 html[data-theme='dark'] .featureTitle {
-  color: var(--ifm-color-emphasis-100);
+  color: #f0f4ee;
 }
 
 html[data-theme='dark'] .featureDescription {
-  color: var(--ifm-color-emphasis-200);
+  color: #b3c0be;
+}
+
+html[data-theme='dark'] .featureLink {
+  color: #c3e18b;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .featureCard,
+  .featureImage img,
+  .featureLink::after {
+    transition: none;
+  }
 }
