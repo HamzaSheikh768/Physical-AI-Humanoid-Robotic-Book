@@ -3,29 +3,38 @@ import type { FeatureCard } from './types';
 export const featureCardsData: FeatureCard[] = [
   {
     id: 'feature-1',
-    title: 'Physical AI Integration',
-    description: 'Learn how to bridge the digital brain with the physical form using advanced AI techniques that enable robots to learn, move, and intelligently perform complex tasks.',
-    imageUrl: '/img/feature-1.svg',
-    linkUrl: '/docs/Introduction',
+    title: 'The Robot Operating System',
+    description: 'Build your foundation in ROS 2, nodes, topics, and services—the building blocks that let intelligent robot systems communicate and act.',
+    imageUrl: '/img/module-ros.svg',
+    linkUrl: '/docs/Module-1-ROS2/Nodes-Topics-Services',
     linkText: 'Explore Tutorials',
     order: 1
   },
   {
     id: 'feature-2',
-    title: 'ROS 2 & NVIDIA Isaac',
-    description: 'Master ROS 2 fundamentals and NVIDIA Isaac platform to create sophisticated robotic systems that bring simulations to life in real-world applications.',
-    imageUrl: '/img/feature-2.svg',
-    linkUrl: '/docs/Setup-Guide',
+    title: 'Simulation & Digital Twins',
+    description: 'Create virtual robotics worlds, test ideas safely, and build a bridge between high-fidelity simulation and physical machines.',
+    imageUrl: '/img/module-simulation.svg',
+    linkUrl: '/docs/Module-2-Digital-Twin/Gazebo-Setup-and-Simulation',
     linkText: 'Explore Tutorials',
     order: 2
   },
   {
     id: 'feature-3',
-    title: 'Embodied Intelligence',
-    description: 'Discover perception, planning, and action systems that transform knowledge into intelligent, autonomous humanoids capable of thriving in the real world.',
-    imageUrl: '/img/feature-3.svg',
-    linkUrl: '/docs/Conclusion',
+    title: 'The AI Robot Brain',
+    description: 'Connect perception, planning, and action with modern AI tools to give robots the context to navigate and interact with the world.',
+    imageUrl: '/img/module-intelligence.svg',
+    linkUrl: '/docs/Module-3-AI-Robot-Brain/NVIDIA-Isaac-Platform',
     linkText: 'Explore Tutorials',
     order: 3
+  },
+  {
+    id: 'feature-4',
+    title: 'Vision, Language & Action',
+    description: 'Explore how vision-language-action models turn perception and natural language into purposeful movement in humanoid robots.',
+    imageUrl: '/img/module-vla.svg',
+    linkUrl: '/docs/Module-4-Vision-Language-Action/Humanoid-Kinematics-and-Locomotion',
+    linkText: 'Explore Tutorials',
+    order: 4
   }
 ];

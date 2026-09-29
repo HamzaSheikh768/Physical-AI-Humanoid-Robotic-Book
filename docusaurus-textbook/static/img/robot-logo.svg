@@ -1,22 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="180" height="40" viewBox="0 0 180 40">
-  <!-- Background -->
-  <rect width="180" height="40" fill="white"/>
-
-  <!-- Simple robot icon -->
-  <g transform="translate(5, 5)">
-    <!-- Robot head -->
-    <rect x="0" y="0" width="20" height="15" rx="3" fill="#4F46E5"/>
-    <!-- Robot eyes -->
-    <circle cx="5" cy="5" r="1.5" fill="white"/>
-    <circle cx="15" cy="5" r="1.5" fill="white"/>
-    <!-- Robot body -->
-    <rect x="2" y="15" width="16" height="15" rx="2" fill="#4F46E5"/>
-    <!-- Body details -->
-    <rect x="6" y="18" width="8" height="8" rx="1" fill="#6366F1" opacity="0.3"/>
-  </g>
-
-  <!-- Text -->
-  <text x="35" y="20" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#1F2937">PHYSICAL AI</text>
-  <text x="35" y="32" font-family="Arial, sans-serif" font-size="10" font-weight="600" fill="#4F46E5">Humanoid Robotics</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
+  <rect x="2" y="2" width="44" height="44" rx="13" fill="#122D3D"/>
+  <path d="M15 27.5 24 11l9 16.5v8H15v-8Z" fill="#ADD846"/>
+  <path d="M19.5 28.5h9" stroke="#122D3D" stroke-width="2.4" stroke-linecap="round"/>
+  <circle cx="20.5" cy="23" r="1.6" fill="#122D3D"/>
+  <circle cx="27.5" cy="23" r="1.6" fill="#122D3D"/>
+  <path d="M22 11V7m4 4V7" stroke="#ADD846" stroke-width="1.7" stroke-linecap="round"/>
 </svg>
