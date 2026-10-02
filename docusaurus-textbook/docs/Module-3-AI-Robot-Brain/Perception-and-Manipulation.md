@@ -1,3 +1,11 @@
+---
+title: '09 - Perception and Manipulation Intelligence'
+sidebar_position: 9
+---
+import TranslationButton from '@site/src/components/TranslationButton/TranslationButton';
+
+<TranslationButton chapterId="module-3-perception-manipulation" />
+
 # 09 - Perception and Manipulation Intelligence
 
 ## Introduction

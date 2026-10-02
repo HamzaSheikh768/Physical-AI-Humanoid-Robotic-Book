@@ -1,0 +1,91 @@
+/* NavbarAuth.module.css */
+.navbarAuthContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Ensure proper spacing between search and auth buttons */
+.navbarAuthButtons {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: 1.5rem; /* Required spacing from spec */
+}
+
+/* For mobile responsiveness */
+@media (max-width: 996px) {
+  .navbarAuthButtons {
+    flex-direction: row;
+    gap: 0.25rem;
+    margin-left: 0.5rem; /* Adjust spacing for mobile */
+  }
+}
+
+/* Ensure Sign In appears to the left of Sign Up (DOM order) */
+.signInButton {
+  order: 1; /* Sign In comes first */
+}
+
+.signUpButton {
+  order: 2; /* Sign Up comes second */
+}
+
+/* Primary button styling for Sign Up - more prominent */
+.signUpButton {
+  background: var(--ifm-color-primary);
+  border: 1px solid var(--ifm-color-primary);
+  color: white;
+  font-weight: 600; /* More prominent font weight */
+  min-width: 80px; /* Ensure adequate touch target size */
+}
+
+.signUpButton:hover {
+  background: var(--ifm-color-primary-dark);
+  border-color: var(--ifm-color-primary-dark);
+  transform: translateY(-1px); /* Slight lift effect */
+}
+
+/* Secondary button styling for Sign In - less prominent */
+.signInButton {
+  background: transparent;
+  border: 1px solid var(--ifm-color-primary);
+  color: var(--ifm-color-primary);
+  font-weight: 500; /* Less prominent font weight */
+  min-width: 80px; /* Ensure adequate touch target size */
+}
+
+.signInButton:hover {
+  background: var(--ifm-color-primary);
+  color: white;
+  transform: translateY(-1px); /* Slight lift effect */
+}
+
+/* Accessibility focus indicators - WCAG AA compliance */
+.navbarAuthButtons button:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+  border-radius: 4px; /* Visual indicator for focus */
+}
+
+/* Error state styling */
+.navbarAuthError {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+}
+
+.errorText {
+  color: #e3342f; /* Red color for error */
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* Loading state styling */
+.navbarAuthLoading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+}

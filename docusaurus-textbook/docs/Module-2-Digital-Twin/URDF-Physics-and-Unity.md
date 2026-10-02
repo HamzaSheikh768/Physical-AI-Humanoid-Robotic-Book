@@ -2,6 +2,9 @@
 title: Chapter 07 — URDF, Physics, and Unity
 sidebar_position: 7
 ---
+import TranslationButton from '@site/src/components/TranslationButton/TranslationButton';
+
+<TranslationButton chapterId="module-2-urdf-physics-unity" />
 
 # Chapter 07 — URDF, Physics, and Unity
 

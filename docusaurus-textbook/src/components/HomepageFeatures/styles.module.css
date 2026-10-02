@@ -19,7 +19,7 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 2rem;
   align-items: start;
 }
@@ -40,9 +40,11 @@
 
 .featureCard:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-  border-color: var(--ifm-color-emphasis-400);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15), 0 0 15px rgba(37, 99, 235, 0.3); /* Blue glow effect */
+  border-color: var(--ifm-color-primary);
   cursor: pointer;
+  position: relative;
+  z-index: 1;
 }
 
 .featureImage {
@@ -108,6 +110,16 @@
 }
 
 /* Responsive adjustments */
+@media (max-width: 1200px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .sectionTitle {
+    font-size: 1.75rem;
+  }
+}
+
 @media (max-width: 996px) {
   .grid {
     grid-template-columns: repeat(2, 1fr);

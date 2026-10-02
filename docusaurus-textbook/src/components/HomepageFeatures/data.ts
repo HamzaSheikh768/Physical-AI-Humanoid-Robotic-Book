@@ -3,8 +3,8 @@ import type { FeatureCard } from './types';
 export const featureCardsData: FeatureCard[] = [
   {
     id: 'feature-1',
-    title: 'Physical AI Integration',
-    description: 'Learn how to bridge the digital brain with the physical form using advanced AI techniques that enable robots to learn, move, and intelligently perform complex tasks.',
+    title: 'AI Physical Humanoid Robotics',
+    description: 'Learn how to build intelligent humanoid robots with cutting-edge AI. Master the integration of AI algorithms with physical robotic systems to create truly autonomous humanoids.',
     imageUrl: '/img/feature-1.svg',
     linkUrl: '/docs/Introduction',
     linkText: 'Explore Tutorials',
@@ -12,8 +12,8 @@ export const featureCardsData: FeatureCard[] = [
   },
   {
     id: 'feature-2',
-    title: 'ROS 2 & NVIDIA Isaac',
-    description: 'Master ROS 2 fundamentals and NVIDIA Isaac platform to create sophisticated robotic systems that bring simulations to life in real-world applications.',
+    title: 'Agentic AI',
+    description: 'Understand autonomous agents that can reason, plan, and take actions independently. Learn how to build AI systems that exhibit goal-directed behavior and decision-making capabilities.',
     imageUrl: '/img/feature-2.svg',
     linkUrl: '/docs/Setup-Guide',
     linkText: 'Explore Tutorials',
@@ -21,11 +21,20 @@ export const featureCardsData: FeatureCard[] = [
   },
   {
     id: 'feature-3',
-    title: 'Embodied Intelligence',
-    description: 'Discover perception, planning, and action systems that transform knowledge into intelligent, autonomous humanoids capable of thriving in the real world.',
+    title: 'Python & TypeScript',
+    description: 'Master the essential programming languages for AI and robotics development. Learn how to leverage Python for AI/ML and TypeScript for robust, scalable applications.',
     imageUrl: '/img/feature-3.svg',
     linkUrl: '/docs/Conclusion',
     linkText: 'Explore Tutorials',
     order: 3
+  },
+  {
+    id: 'feature-4',
+    title: 'Production-ready AI Systems',
+    description: 'Deploy and scale AI systems in real-world environments. Learn best practices for building robust, reliable, and maintainable AI applications.',
+    imageUrl: '/img/feature-4.svg',
+    linkUrl: '/docs/Conclusion',
+    linkText: 'Explore Tutorials',
+    order: 4
   }
 ];

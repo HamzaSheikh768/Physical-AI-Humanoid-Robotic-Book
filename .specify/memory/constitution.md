@@ -136,3 +136,167 @@ Use Spec-Kit Plus commands (/sp.specify, /sp.plan, /sp.tasks) for specification 
 Constitution supersedes all other practices. Amendments require documentation via /sp.constitution command. All content must comply with this constitution. Changes to scope, tools, or structure require updating /sp.constitution, /sp.specify, and /sp.plan.
 
 **Version**: 1.2.0 | **Ratified**: 2025-12-14 | **Last Amended**: 2025-12-18
+
+# Project Constitution
+
+**Version:** 1.0.0
+**Ratification Date:** 2025-12-27
+**Last Amended Date:** 2025-12-27
+
+## Core Principles
+
+### Principle 1: User Empowerment Through Personalization
+User empowerment through personalization options at chapter starts. The system MUST provide personalization controls to users at the beginning of each chapter. This enables users to customize their learning experience according to their preferences and needs.
+
+### Principle 2: Multilingual Accessibility
+Multilingual accessibility with on-demand translation to Urdu. The platform MUST support on-demand translation features, specifically to Urdu, to ensure content accessibility for diverse user groups. Translation accuracy MUST be verified against standard linguistic sources.
+
+### Principle 3: Intuitive Interface Design
+Intuitive interface using buttons for feature activation. The system MUST implement standardized button placement and functionality for feature activation, specifically positioned at the beginning of each chapter to ensure user-friendly navigation and feature discovery.
+
+### Principle 4: Privacy Respect for Customizations
+Privacy respect for logged-in user customizations. The system MUST ensure that user personalization preferences are stored securely and respect user privacy, particularly for authenticated users whose customizations need to persist across sessions.
+
+## Key Standards
+
+### Standard 1: Authentication Requirements
+Personalization must be available only to authenticated users. The system MUST verify user authentication status before enabling personalization features to ensure proper access control and data privacy.
+
+### Standard 2: Translation Quality Assurance
+Translation accuracy to Urdu verified against standard linguistic sources. All translation functionality MUST be validated against recognized linguistic standards to ensure accuracy and cultural appropriateness.
+
+### Standard 3: Feature Placement Consistency
+Button placement standardized at the beginning of each chapter. All interactive features MUST be positioned consistently at the beginning of each chapter to maintain predictable user experience.
+
+### Standard 4: Seamless User Experience
+Feature implementation must ensure seamless user experience without page reloads. All interactive features MUST function without requiring full page reloads to maintain smooth user interaction and reduce latency.
+
+### Standard 5: Cross-Platform Compatibility
+Compatibility across web and mobile platforms. The system MUST function consistently across different platforms and devices to ensure universal accessibility.
+
+## Constraints
+
+### Constraint 1: Personalization Scope Limitation
+Personalization limited to text content modifications. The system MUST restrict personalization features to text-based content modifications and not extend to structural or navigational changes.
+
+### Constraint 2: Translation Language Scope
+Translation support initially for Urdu only. The system MUST focus translation capabilities on Urdu language support initially, with potential for expansion in future versions.
+
+### Constraint 3: Content Length Limitations
+Maximum chapter length: 10,000 words per chapter. The system MUST enforce content length limitations to ensure optimal performance and user engagement.
+
+### Constraint 4: Data Privacy Compliance
+User data storage compliant with GDPR. All user data handling MUST comply with General Data Protection Regulation requirements to ensure legal compliance and user privacy.
+
+### Constraint 5: Development Timeline
+Development timeline: 3-6 months. The project MUST be completed within the specified timeframe to meet stakeholder expectations and market demands.
+
+## Success Criteria
+
+### Criterion 1: User Satisfaction with Personalization
+90% user satisfaction in personalization usability tests. The system MUST achieve a minimum 90% satisfaction rating in usability tests related to personalization features.
+
+### Criterion 2: Translation Accuracy Verification
+Accurate Urdu translations confirmed by native speakers. All translated content MUST be verified by native Urdu speakers to ensure linguistic and cultural accuracy.
+
+### Criterion 3: Feature Functionality Reliability
+Zero critical bugs in button functionality. The system MUST have zero critical bugs in button functionality to ensure reliable user interaction.
+
+### Criterion 4: Authentication System Deployment
+Successful deployment with logged user authentication. The system MUST successfully implement and deploy user authentication functionality to enable personalized experiences.
+
+### Criterion 5: Feature Integration Quality
+Positive feedback on feature integration in chapters. The system MUST receive positive user feedback regarding the integration and usability of features within chapters.
+
+## Additional Technical Principles
+
+### Principle 5: Open Source and Community Collaboration
+The project MUST embrace open source principles and encourage community collaboration. All code contributions MUST follow established coding standards and undergo proper review processes to maintain quality and consistency.
+
+### Principle 6: AI and Robotics Integration Standards
+AI and robotics integration MUST follow industry best practices and safety standards. The system MUST ensure that all AI models and robotics simulations are properly validated and tested before deployment.
+
+### Principle 7: Scalable Architecture Design
+The system MUST be designed with scalability in mind. Architecture decisions MUST consider future growth, performance requirements, and the ability to handle increasing user loads and content complexity.
+
+### Principle 8: Documentation and Knowledge Sharing
+Comprehensive documentation MUST be maintained for all system components. Knowledge sharing practices MUST be established to ensure project continuity and onboarding of new contributors.
+
+## Development Standards
+
+### Standard 6: Code Quality and Testing
+All code MUST include appropriate unit tests with minimum 80% coverage. Code quality MUST be maintained through automated linting, code reviews, and continuous integration practices.
+
+### Standard 7: Security and Safety Protocols
+Security and safety protocols MUST be implemented throughout the system. All AI and robotics components MUST undergo security reviews and safety validation before deployment.
+
+### Standard 8: Performance Optimization
+Performance optimization MUST be a priority throughout development. System response times MUST meet defined SLAs and resource utilization MUST be optimized for efficiency.
+
+### Standard 9: Cross-Platform Development
+Cross-platform development practices MUST be followed to ensure compatibility across different operating systems, hardware configurations, and deployment environments.
+
+### Standard 10: Continuous Integration and Deployment
+Continuous integration and deployment practices MUST be implemented. All changes MUST pass automated testing before being merged and deployed to production environments.
+
+## Additional Constraints
+
+### Constraint 6: Hardware Compatibility
+The system MUST be compatible with common robotics hardware platforms including ROS 2, NVIDIA Isaac, and Gazebo simulator. Hardware-specific implementations MUST maintain abstraction layers for portability.
+
+### Constraint 7: Performance Requirements
+System performance MUST meet defined benchmarks including response times under 2 seconds for user interactions and simulation updates at minimum 30 FPS for real-time applications.
+
+### Constraint 8: Resource Limitations
+The system MUST operate within defined resource constraints including memory usage under 4GB for core applications and CPU utilization under 80% during normal operations.
+
+### Constraint 9: Dependency Management
+External dependencies MUST be carefully managed and regularly updated. All dependencies MUST be vetted for security vulnerabilities and licensing compliance.
+
+### Constraint 10: Data Storage Limits
+Data storage MUST be optimized with defined limits for user data, simulation logs, and model storage to ensure system scalability and performance.
+
+## Additional Success Criteria
+
+### Criterion 6: Technical Implementation Quality
+95% code coverage in automated tests. The system MUST maintain high code quality standards with comprehensive test coverage and continuous integration metrics.
+
+### Criterion 7: System Performance
+Sub-2 second response times for all user interactions. The system MUST meet defined performance benchmarks consistently under normal load conditions.
+
+### Criterion 8: Community Engagement
+Active community participation with 50+ contributors within 6 months. The project MUST foster community engagement through clear documentation and contribution guidelines.
+
+### Criterion 9: Hardware Integration Success
+Successful integration with 3+ major robotics platforms. The system MUST demonstrate compatibility with key robotics frameworks and hardware platforms.
+
+### Criterion 10: Educational Impact
+Measurable educational outcomes with 80%+ user completion rates for learning modules. The system MUST demonstrate effectiveness in achieving educational objectives.
+
+## Governance
+
+### Amendment Procedure
+Changes to this constitution require explicit approval from project stakeholders and MUST be documented with proper versioning and change logs.
+
+### Versioning Policy
+This constitution follows semantic versioning principles where major versions indicate significant principle changes, minor versions indicate new principles or standards, and patch versions indicate clarifications or corrections.
+
+### Compliance Review
+Regular compliance reviews MUST be conducted to ensure ongoing adherence to all constitutional principles, standards, and constraints.
+
+## Implementation Guidelines
+
+### Guideline 1: Progressive Enhancement
+All features MUST be implemented using progressive enhancement principles. Core functionality MUST be available to all users regardless of their device capabilities, with enhanced features added based on capability detection.
+
+### Guideline 2: Accessibility Standards
+All user interfaces MUST comply with WCAG 2.1 AA accessibility standards. The system MUST be usable by individuals with disabilities and support assistive technologies.
+
+### Guideline 3: Internationalization Support
+The system MUST be designed with internationalization in mind from the ground up. All user-facing text MUST be externalized and support multiple language translations beyond Urdu.
+
+### Guideline 4: Performance Budgets
+Performance budgets MUST be established and monitored for all system components. Page load times MUST not exceed 3 seconds on 3G connections, and interactive elements MUST respond within 100 milliseconds.
+
+### Guideline 5: Data Privacy by Design
+Privacy considerations MUST be integrated into all system designs from the initial planning phase. All data collection MUST follow privacy-by-design principles and provide users with clear control over their personal information.

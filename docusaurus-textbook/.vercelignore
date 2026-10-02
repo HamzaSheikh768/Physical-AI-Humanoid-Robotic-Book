@@ -1,0 +1,9 @@
+.env
+.env.*
+*.log
+db.sqlite
+node_modules/
+.git/
+.docusaurus/
+build/
+coverage/

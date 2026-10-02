@@ -1,6 +1,6 @@
 import React from 'react';
 import type { CardLayout } from './types';
-import FeatureCard from './FeatureCard';
+import FeatureCard from '@site/src/components/FeatureCard';
 import styles from './styles.module.css';
 
 interface HomepageFeatureCardsProps {
@@ -11,10 +11,10 @@ const HomepageFeatureCards: React.FC<HomepageFeatureCardsProps> = ({
   layout = {
     cards: require('./data').featureCardsData,
     layoutType: 'grid',
-    maxCardsPerRow: 3
+    maxCardsPerRow: 4
   }
 }) => {
-  const { cards, layoutType = 'grid', maxCardsPerRow = 3 } = layout;
+  const { cards, layoutType = 'grid', maxCardsPerRow = 4 } = layout;
 
   return (
     <section
@@ -33,7 +33,10 @@ const HomepageFeatureCards: React.FC<HomepageFeatureCardsProps> = ({
         >
           {cards.map((card) => (
             <div role="listitem" key={card.id}>
-              <FeatureCard card={card} />
+              <FeatureCard
+                title={card.title}
+                description={card.description}
+              />
             </div>
           ))}
         </div>

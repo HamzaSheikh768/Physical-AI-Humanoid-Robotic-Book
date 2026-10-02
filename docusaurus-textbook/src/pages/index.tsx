@@ -4,35 +4,7 @@ import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
 import HomepageFeatureCards from '@site/src/components/HomepageFeatures/HomepageFeatureCards';
-import Heading from '@theme/Heading';
-
-import styles from './index.module.css';
-
-function HomepageHeader() {
-  const {siteConfig} = useDocusaurusContext();
-  return (
-    <header className={clsx('hero hero--primary', styles.heroBanner)}>
-      <div className="container">
-        <Heading as="h1" className="hero__title">
-          {siteConfig.title}
-        </Heading>
-        <p className="hero__subtitle">{siteConfig.tagline}</p>
-        <div className={styles.buttons}>
-          <Link
-            className="button button--primary button--lg"
-            to="/docs/Introduction">
-            Learning Start 🚀
-          </Link>
-          <Link
-            className="button button--secondary button--lg"
-            to="/docs/Overview-Module-and-Chapter">
-            Explore Modules 📚
-          </Link>
-        </div>
-      </div>
-    </header>
-  );
-}
+import HeroSection from '@site/src/components/AnimatedHeroSection';
 
 export default function Home(): ReactNode {
   const {siteConfig} = useDocusaurusContext();
@@ -40,7 +12,16 @@ export default function Home(): ReactNode {
     <Layout
       title={`${siteConfig.title}`}
       description="Description will go into a meta tag in <head />">
-      <HomepageHeader />
+      <HeroSection
+        title="PHYSICAL AI & HUMANOID ROBOTICS"
+        subtitle="Complete Guide TextBook - Bridging the digital brain with the physical form, Humanoids learning, moving, and intelligently performing"
+        primaryButtonText="Start Learning →"
+        primaryButtonLink="/docs/Introduction"
+        secondaryButtonText="Explore Modules 📚"
+        secondaryButtonLink="/docs/Overview-Module-and-Chapter"
+        imageUrl="/img/book.png"
+        imageAlt="Physical AI & Humanoid Robotics TextBook"
+      />
       <main>
         <HomepageFeatureCards />
       </main>

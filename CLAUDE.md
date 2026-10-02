@@ -223,6 +223,10 @@ See `.specify/memory/constitution.md` for code quality, testing, performance, se
 - Neon Postgres (metadata), Qdrant Cloud (vector embeddings), GitHub Secrets (configuration) (001-cicd-deployment)
 - TypeScript 5.0+ (for Docusaurus compatibility) + Better Auth, Docusaurus v3, React 18+ (007-user-auth-better-auth)
 - User data and metadata stored via Better Auth with cookie-based sessions (007-user-auth-better-auth)
+- TypeScript 5.0+, React 18+, CSS Modules, CSS Grid/Flexbox + Docusaurus v3, React 18+, Node.js 18+, CSS Modules (009-ai-book-landing)
+- TypeScript 5.0+ (for Docusaurus compatibility), React 18+ + Docusaurus v3, React 18+, Node.js 18+, CSS Modules (010-ui-system-upgrade)
+- N/A (static content only) (010-ui-system-upgrade)
+- TypeScript 5.0+ (for Docusaurus compatibility), React 18+ + Docusaurus v3, React, Framer Motion (mandatory as per spec), Better Auth (012-auth-ux-redesign)
 
 ## Recent Changes
 - 001-intro-physical-ai: Added Markdown/MDX for Docusaurus documentation framework + Docusaurus documentation system, TypeScript for customization if needed

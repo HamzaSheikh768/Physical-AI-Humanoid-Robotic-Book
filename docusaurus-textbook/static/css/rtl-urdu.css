@@ -1,0 +1,65 @@
+/* RTL support for Urdu locale */
+html[dir="rtl"] body {
+  direction: rtl;
+  text-align: right;
+}
+
+html[dir="rtl"] .navbar__items {
+  flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .navbar__items--right {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+html[dir="rtl"] .navbar__toggle {
+  margin-left: 0.5rem;
+  margin-right: 0;
+}
+
+html[dir="rtl"] .menu {
+  padding-left: 0;
+  padding-right: 0.5rem;
+}
+
+html[dir="rtl"] .pagination-nav__link--next .pagination-nav__label {
+  flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .pagination-nav__link--prev .pagination-nav__sublabel,
+html[dir="rtl"] .pagination-nav__link--next .pagination-nav__sublabel {
+  flex-direction: row-reverse;
+}
+
+/* Additional RTL styles for better Urdu text rendering */
+html[dir="rtl"] .navbar__item {
+  margin-left: 0.5rem;
+  margin-right: 0;
+}
+
+html[dir="rtl"] .navbar__item:last-child {
+  margin-right: 0.5rem;
+  margin-left: 0;
+}
+
+/* Fix for dropdown menus in RTL */
+html[dir="rtl"] .dropdown__menu {
+  text-align: right;
+}
+
+html[dir="rtl"] .dropdown__link {
+  text-align: right;
+}
+
+/* RTL support for docs sidebar */
+html[dir="rtl"] .sidebar {
+  padding-right: 0;
+  padding-left: 1rem;
+}
+
+/* RTL for search bar if present */
+html[dir="rtl"] .navbar__search {
+  margin-left: 0;
+  margin-right: 0.5rem;
+}

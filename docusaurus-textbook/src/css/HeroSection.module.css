@@ -1,0 +1,206 @@
+/* HeroSection.module.css */
+.heroBanner {
+  padding: 0.25rem 0 3rem 0;
+  text-align: center;
+  position: relative;
+  background-color: var(--hero-background, #000000); /* True black background */
+  color: var(--text-secondary, #94a3b8);
+  width: 100%;
+  margin: 0 auto;
+}
+
+@media screen and (max-width: 996px) {
+  .heroBanner {
+    padding: 0.1rem 0 2rem 0;
+  }
+}
+
+.heroGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+@media screen and (min-width: 997px) {
+  .heroGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.textContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  justify-content: center;
+  text-align: center;
+}
+
+@media screen and (max-width: 996px) {
+  .textContent {
+    text-align: center;
+  }
+}
+
+.title {
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: var(--text-primary, #e2e8f0);
+  margin: 0 0 1rem 0;
+  line-height: 1.2;
+  display: block;
+  text-align: center;
+}
+
+.titleText {
+  color: var(--text-primary, #e2e8f0);
+  display: inline;
+}
+
+.titleBlue {
+  color: #2563eb; /* Blue color for Physical AI */
+  margin: 0 0.25rem;
+  display: inline;
+}
+
+@media screen and (max-width: 996px) {
+  .title {
+    font-size: 2.25rem;
+  }
+
+  .titleBlue {
+    display: inline;
+  }
+}
+
+.subtitle {
+  font-size: 1.25rem;
+  color: var(--text-secondary, #94a3b8);
+  margin: 0 0 1.5rem 0;
+  line-height: 1.5;
+}
+
+@media screen and (max-width: 996px) {
+  .subtitle {
+    font-size: 1.1rem;
+  }
+}
+
+.buttons {
+  display: flex;
+  gap: 1rem;
+  align-self: center;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+  justify-content: center;
+}
+
+@media screen and (max-width: 996px) {
+  .buttons {
+    justify-content: center;
+  }
+}
+
+.primaryButton {
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  border: none;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all var(--ifm-transition-medium);
+  text-decoration: none;
+  display: inline-block;
+  min-width: 180px;
+  text-align: center;
+  justify-content: center;
+}
+
+.primaryButton:hover,
+.primaryButton.hovered {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+  text-decoration: none;
+}
+
+.secondaryButton {
+  background: transparent;
+  border: 2px solid var(--ifm-color-primary);
+  color: var(--ifm-color-primary);
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all var(--ifm-transition-medium);
+  text-decoration: none;
+  display: inline-block;
+  min-width: 180px;
+  text-align: center;
+  justify-content: center;
+}
+
+.secondaryButton:hover,
+.secondaryButton.hovered {
+  background-color: var(--ifm-color-primary);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
+  text-decoration: none;
+}
+
+.imageContent {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.heroImage {
+  max-width: 100%;
+  height: auto;
+  max-height: 700px;
+  object-fit: contain;
+  border-radius: 0.5rem;
+  box-shadow: var(--ifm-global-shadow);
+  animation: float 6s ease-in-out infinite;
+  transition: transform 0.3s ease;
+}
+
+.heroImage:hover {
+  transform: scale(1.03);
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 576px) {
+  .buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .primaryButton,
+  .secondaryButton {
+    width: 100%;
+    max-width: 200px;
+  }
+
+  .title {
+    font-size: 1.75rem;
+  }
+}

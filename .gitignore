@@ -40,6 +40,7 @@ Thumbs.db
 # Docusaurus cache
 .docusaurus/
 .cache/
+.codex-npm-cache/
 
 # OS generated files
 .DS_Store

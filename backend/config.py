@@ -44,6 +44,7 @@ class Settings(BaseSettings):
         env_file = ".env"
         env_file_encoding = "utf-8"
         case_sensitive = False
+        extra = "allow"  # Allow extra fields from .env that aren't defined in the model
 
 
 # Global settings instance - will be initialized when get_settings is called

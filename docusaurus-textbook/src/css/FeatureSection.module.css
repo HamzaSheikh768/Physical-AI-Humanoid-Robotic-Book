@@ -1,0 +1,95 @@
+/* Feature Section Styles */
+.featureSection {
+  padding: 2rem;
+  background-color: var(--ifm-color-emphasis-0);
+  color: white;
+}
+
+.featureGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Fade-in animation for feature cards */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.featureGrid > * {
+  opacity: 0;
+  animation: fadeIn 0.6s forwards;
+  animation-fill-mode: forwards;
+}
+
+.featureGrid > *:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.featureGrid > *:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.featureGrid > *:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.featureGrid > *:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+/* Ensure animation works for any number of cards */
+.featureGrid > *:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+.featureGrid > *:nth-child(6) {
+  animation-delay: 0.6s;
+}
+
+.featureGrid > *:nth-child(7) {
+  animation-delay: 0.7s;
+}
+
+.featureGrid > *:nth-child(8) {
+  animation-delay: 0.8s;
+}
+
+/* Mobile styles */
+@media (max-width: 767px) {
+  .featureSection {
+    padding: 1rem;
+  }
+
+  .featureGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+}
+
+/* Tablet styles */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .featureGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+    padding: 0 1.5rem;
+  }
+}
+
+/* Desktop styles */
+@media (min-width: 1024px) {
+  .featureGrid {
+    grid-template-columns: repeat(4, 1fr);
+    padding: 0 2rem;
+  }
+}

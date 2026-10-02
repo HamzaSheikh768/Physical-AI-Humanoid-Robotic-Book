@@ -1,3 +1,11 @@
+---
+title: '10 - Reinforcement Learning and Sim-to-Real Transfer'
+sidebar_position: 10
+---
+import TranslationButton from '@site/src/components/TranslationButton/TranslationButton';
+
+<TranslationButton chapterId="module-3-reinforcement-learning" />
+
 # 10 - Reinforcement Learning and Sim-to-Real Transfer
 
 ## Introduction
