@@ -107,7 +107,6 @@ const config: Config = {
   stylesheets: [
     "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap",
     "/css/chat.css",
-    "/css/auth-navbar.css",
     "/css/rtl-urdu.css",
     "/css/translation-button.css",
   ],
