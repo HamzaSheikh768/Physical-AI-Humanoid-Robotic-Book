@@ -29,6 +29,10 @@ class Settings(BaseSettings):
 
     # Application settings
     app_name: str = "RAG Chatbot API"
+    environment: str = Field(
+        default="development",
+        validation_alias=AliasChoices("APP_ENV", "ENVIRONMENT"),
+    )
     debug: bool = False
     max_query_length: int = 1000
     max_context_length: int = 2000

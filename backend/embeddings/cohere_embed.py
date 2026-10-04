@@ -1,6 +1,8 @@
 """Cohere embedding service for the RAG Chatbot API."""
 
 import logging
+import hashlib
+import math
 from typing import Any, Dict, List
 
 import cohere
@@ -19,9 +21,29 @@ class CohereEmbeddingService:
         self.client = cohere.Client(settings.cohere_api_key)
         self.model = settings.cohere_model
 
+    @staticmethod
+    def _test_embedding(text: str, dimensions: int = 1024) -> List[float]:
+        """Create a stable local vector for isolated test environments."""
+        values: List[float] = []
+        seed = text.encode("utf-8")
+        counter = 0
+        while len(values) < dimensions:
+            digest = hashlib.sha256(seed + counter.to_bytes(4, "big")).digest()
+            values.extend((byte / 127.5) - 1.0 for byte in digest)
+            counter += 1
+        vector = values[:dimensions]
+        norm = math.sqrt(sum(value * value for value in vector)) or 1.0
+        return [value / norm for value in vector]
+
+    @staticmethod
+    def _is_test_environment() -> bool:
+        return get_settings().environment.lower() in {"test", "testing"}
+
     def generate_embeddings(self, texts: List[str]) -> List[List[float]]:
         """Generate embeddings for a list of texts using Cohere."""
         try:
+            if self._is_test_environment():
+                return [self._test_embedding(text) for text in texts]
             response = self.client.embed(
                 texts=texts,
                 model=self.model,
@@ -35,6 +57,8 @@ class CohereEmbeddingService:
     def generate_query_embedding(self, query: str) -> List[float]:
         """Generate embedding for a single query using Cohere."""
         try:
+            if self._is_test_environment():
+                return self._test_embedding(query)
             response = self.client.embed(
                 texts=[query],
                 model=self.model,
@@ -110,6 +134,8 @@ class CohereEmbeddingService:
     ) -> List[float]:
         """Internal synchronous method to generate a single embedding."""
         try:
+            if self._is_test_environment():
+                return self._test_embedding(text)
             model = model_name or self.model
             response = self.client.embed(
                 texts=[text],
@@ -145,6 +171,8 @@ class CohereEmbeddingService:
     ) -> List[List[float]]:
         """Internal synchronous method to generate embeddings batch."""
         try:
+            if self._is_test_environment():
+                return [self._test_embedding(text) for text in texts]
             model = model_name or self.model
             response = self.client.embed(
                 texts=texts,

@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PYTHONPATH: ${{ github.workspace }}
+      APP_ENV: test
       DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/test_db
       QDRANT_URL: http://localhost:6333
       COHERE_API_KEY: ${{ secrets.COHERE_API_KEY }}
