@@ -6,6 +6,198 @@ description: Deep dive into ROS 2 internal architecture, DDS communication layer
 
 # ROS 2 Architecture
 
+import TranslationButton from '@site/src/components/TranslationButton/TranslationButton';
+
+<TranslationButton chapterId="module1-ros2-architecture" content={`# ROS 2 Architecture
+
+## Introduction to ROS 2 Internal Design
+
+ROS 2 represents a significant architectural evolution from ROS 1, fundamentally redesigned to address the needs of production robotics systems. The primary architectural change centers on the adoption of Data Distribution Service (DDS) as the underlying communication layer, providing enterprise-grade features including real-time performance, fault tolerance, and security.
+
+### Core Architectural Principles
+
+**Distributed System Design**: Unlike ROS 1's centralized master architecture, ROS 2 employs a fully distributed system where nodes can discover each other without a central coordinator. This eliminates the single point of failure present in ROS 1.
+
+**Quality of Service (QoS) Controls**: ROS 2 provides fine-grained control over communication characteristics, allowing developers to specify reliability, durability, ordering, and other properties based on application requirements.
+
+**Security-First Design**: Security is built into the architecture from the ground up, supporting authentication, encryption, and access control policies essential for production deployment.
+
+**Real-time Capabilities**: Through DDS integration, ROS 2 supports real-time communication patterns with predictable timing characteristics crucial for safety-critical robotic applications.
+
+## DDS Integration and Communication Layer
+
+Data Distribution Service (DDS) serves as the foundation for ROS 2's communication layer, implementing the Publish-Subscribe pattern with advanced features for distributed systems. DDS provides a rich set of Quality of Service policies that control how data is exchanged between participants.
+
+### DDS Concepts in ROS 2
+
+**Domain Participant**: Represents an application participating in a DDS domain. Each ROS 2 node contains a Domain Participant that manages the node's communication resources.
+
+**Topic**: Defines the data type and name used for communication. Maps directly to ROS 2 topics with type checking enforced at the DDS level.
+
+**Publisher/Subscriber**: DDS entities that send and receive data on topics. ROS 2 publishers and subscribers map to these DDS entities.
+
+**DataWriter/DataReader**: Low-level DDS entities that handle the actual data transmission and reception, implementing the QoS policies.
+
+### QoS Policies
+
+**Reliability Policy**:
+- RELIABLE: Guarantees delivery of all samples (equivalent to ROS 1 latching)
+- BEST_EFFORT: No delivery guarantee but lower latency
+
+**Durability Policy**:
+- TRANSIENT_LOCAL: Historical data maintained for late-joining subscribers
+- VOLATILE: Only new data sent to subscribers
+
+**History Policy**:
+- KEEP_LAST: Maintain most recent N samples
+- KEEP_ALL: Maintain all samples (memory intensive)
+
+**Deadline Policy**: Defines maximum interval between sample deliveries
+
+**Liveliness Policy**: Monitors participant availability and responsiveness
+
+## Client Library Architecture (RCL)
+
+The ROS Client Library (RCL) provides a thin wrapper around DDS implementations, abstracting the complexity of DDS while preserving its capabilities. This architecture enables multiple DDS vendors to be supported transparently.
+
+### RCL Components
+
+**rcl**: Core C library providing the fundamental ROS 2 API
+**rmw**: ROS Middleware Interface abstracting DDS vendor specifics
+**rosidl**: Interface definition and code generation system
+**rclcpp/rclpy**: C++ and Python client libraries built on rcl
+
+## Node Architecture
+
+ROS 2 nodes are implemented as standalone processes with their own Domain Participant. Nodes can contain multiple publishers, subscribers, services, and actions, each with independent QoS configurations.
+
+### Node Lifecycle
+
+**Unconfigured**: Node created but not yet configured
+**Inactive**: Node configured but not running
+**Active**: Node running and processing callbacks
+**Finalized**: Node destroyed and resources released
+
+This lifecycle management enables complex system behaviors including delayed initialization, resource management, and graceful shutdown procedures.
+
+## Communication Patterns
+
+### Topics (Publish-Subscribe)
+
+The publish-subscribe pattern remains the primary communication mechanism in ROS 2, enhanced with QoS controls for real-world applications.
+
+**Implementation Details**:
+- Publishers and subscribers negotiate compatible QoS profiles
+- Incompatible QoS settings result in communication failure with warnings
+- Built-in type checking prevents type mismatches at compile time
+
+### Services (Request-Reply)
+
+Services provide synchronous request-reply communication, now with QoS controls for reliability and timing.
+
+**Enhanced Features**:
+- Asynchronous service handling to prevent blocking
+- Timeout controls for request handling
+- Improved error reporting and handling
+
+### Actions (Goal-Fedback-Result)
+
+Actions provide asynchronous goal-oriented communication with feedback, ideal for long-running operations.
+
+**Architecture Components**:
+- Action Client: Initiates goals and monitors progress
+- Action Server: Executes goals and provides feedback
+- Goal Handle: Manages individual goal lifecycle
+- Feedback and Result messages with timestamps
+
+## Parameter System
+
+The parameter system provides dynamic configuration for nodes with type safety and introspection capabilities.
+
+### Parameter Features
+
+**Type Safety**: Compile-time type checking for parameter declarations
+**Dynamic Reconfiguration**: Parameters can be modified at runtime
+**Hierarchical Namespaces**: Organized parameter organization
+**Parameter Descriptions**: Metadata for parameter validation and documentation
+
+## Real-time Considerations
+
+ROS 2's architecture supports real-time applications through careful design choices:
+
+### Memory Allocation
+
+**Avoid Static Allocation**: Dynamic allocation occurs primarily during setup
+**Predictable Allocation Patterns**: Memory usage patterns are more predictable
+**Real-time Safe Operations**: Critical paths avoid dynamic allocation
+
+### Thread Safety
+
+**Lock-Free Data Structures**: Where possible, atomic operations replace mutexes
+**Minimal Critical Sections**: Reduced contention for shared resources
+**Deterministic Behavior**: Predictable execution times for time-critical operations
+
+## Security Architecture
+
+### Authentication
+
+**Identity Verification**: Nodes must prove their identity before joining the system
+**Certificate-Based**: PKI system for identity management
+**Secure Discovery**: Prevent unauthorized nodes from discovering system topology
+
+### Encryption
+
+**Transport Encryption**: Data encrypted in transit between nodes
+**Message Encryption**: Optional end-to-end message encryption
+**Key Management**: Secure key distribution and rotation
+
+### Access Control
+
+**Role-Based Access**: Different nodes have different privileges
+**Topic-Level Permissions**: Fine-grained access control for individual topics
+**Audit Logging**: Detailed logging of security-relevant events
+
+## Integration with Hardware Abstraction
+
+ROS 2's architecture supports hardware abstraction layers that provide uniform interfaces to diverse hardware implementations.
+
+### Hardware Interface Patterns
+
+**Generic Sensor Interface**: Uniform access to diverse sensor types
+**Actuator Abstraction**: Consistent control interface for different actuators
+**Device Discovery**: Automatic detection and configuration of connected devices
+
+## Performance Characteristics
+
+### Latency Considerations
+
+**Intra-process Communication**: Zero-copy communication between components in the same process
+**Inter-process Communication**: Optimized serialization for cross-process data exchange
+**Network Communication**: Tunable parameters for network performance optimization
+
+### Throughput Capabilities
+
+**High-Bandwidth Data Streams**: Support for sensor data like cameras and lidars
+**Batch Processing**: Efficient handling of multiple messages
+**Backpressure Handling**: Graceful degradation under heavy loads
+
+## Migration from ROS 1
+
+### Key Differences
+
+**Master Elimination**: Distributed discovery replaces centralized master
+**Typed Messages**: Strong typing instead of runtime type checking
+**Namespaces**: Improved namespace handling and scoping
+**Time Handling**: More sophisticated time and clock management
+
+### Migration Strategies
+
+**Hybrid Systems**: ROS 1/ROS 2 bridges for gradual migration
+**Parallel Development**: Maintaining both versions during transition
+**Component Replacement**: Gradual replacement of components rather than complete rewrites
+
+This architectural foundation enables ROS 2 to support the demanding requirements of production robotic systems while maintaining the flexibility and ease of use that made ROS 1 successful in research environments.`} />
+
 ## Introduction to ROS 2 Internal Design
 
 The architecture of ROS 2 represents a fundamental rethinking of the Robot Operating System to address the limitations of ROS 1 while maintaining its core strengths. ROS 2 was designed from the ground up to be production-ready, with improved security, real-time capabilities, and distributed computing support. Understanding the internal architecture of ROS 2 is crucial for developing robust, scalable robotic systems that can operate reliably in real-world environments.

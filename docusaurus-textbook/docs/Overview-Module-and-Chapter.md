@@ -6,6 +6,116 @@ description: Comprehensive overview of the four-module robotics curriculum struc
 
 # Curriculum, Modules, and Chapter Overview
 
+import TranslationButton from '@site/src/components/TranslationButton/TranslationButton';
+
+<TranslationButton chapterId="overview-modules" content={`# Curriculum, Modules, and Chapter Overview
+
+This document provides a comprehensive overview of the four-module robotics curriculum structure, explaining how modules progress from foundational concepts to advanced integration, and how they connect to real-world robotic capabilities. The curriculum is designed with a capstone-first approach, where students understand the complete system they'll build from the beginning. This approach ensures that students appreciate the relevance of each foundational concept as they progress through the modules, understanding how each piece contributes to the larger robotic system they will ultimately develop.
+
+## Course Structure and Pedagogy
+
+### Capstone-First Learning Approach
+
+The curriculum employs a capstone-first pedagogical approach that inverts traditional learning progressions. Rather than starting with basic concepts and gradually building toward complex applications, students first understand the complete system they will develop. This approach provides immediate context for each foundational concept, making learning more engaging and purposeful.
+
+The capstone project—a fully functional humanoid robot capable of understanding natural language commands and executing complex manipulation and navigation tasks—serves as the North Star for all learning activities. Each module, chapter, and exercise connects directly to this ultimate goal, ensuring students understand the relevance and application of each concept.
+
+### Four-Module Progression
+
+The curriculum is structured into four interconnected modules that build upon each other:
+
+**Module 1 - ROS 2 Foundation**: Establishes the distributed computing framework that enables complex robotic systems. Students learn to create modular, communicating components that form the backbone of the humanoid robot system.
+
+**Module 2 - Digital Twin and Simulation**: Develops expertise in creating realistic simulation environments that accelerate development and testing while bridging the sim-to-real gap through domain randomization and system identification.
+
+**Module 3 - AI Robot Brain**: Integrates perception, cognition, and action systems that enable the humanoid robot to understand its environment, reason about tasks, and execute appropriate responses.
+
+**Module 4 - Vision-Language-Action Integration**: Combines all components into a unified system that can understand natural language commands, perceive its environment, and execute complex tasks safely and effectively.
+
+## Module 1: ROS 2 Foundation
+
+### Introduction to Physical AI and Embodied Intelligence
+
+This chapter establishes the intellectual foundation of Physical AI, defining core concepts and explaining why humanoid robots are central to future AI systems. Students explore the fundamental differences between digital AI systems that operate in virtual environments and Physical AI systems that interact directly with the physical world.
+
+### ROS 2 Architecture and Components
+
+Students master the Robot Operating System 2, learning to design distributed systems that enable complex robotic behaviors through modular, communicating components. This foundation enables the scalable, maintainable systems required for humanoid robotics.
+
+### Advanced ROS 2 Patterns
+
+Building on the foundation, students explore advanced patterns including action servers for long-running tasks, parameter servers for configuration management, and lifecycle nodes for complex system management.
+
+## Module 2: Digital Twin and Simulation
+
+### NVIDIA Isaac Platform and Simulation
+
+This module introduces students to NVIDIA Isaac Sim, a high-fidelity simulation environment that enables accelerated development and testing of complex humanoid robots. Students learn to create realistic simulation environments that bridge the gap between virtual development and real-world deployment.
+
+### Gazebo Integration and Physics Simulation
+
+Students learn to integrate Gazebo physics simulation with ROS 2, creating realistic environments for testing robot behaviors. This includes understanding physics parameters, sensor simulation, and environment modeling.
+
+### Sim-to-Real Transfer Techniques
+
+Advanced techniques for transferring behaviors from simulation to reality, including domain randomization, system identification, and controller adaptation, ensure successful deployment of simulation-developed behaviors on real robots.
+
+## Module 3: AI Robot Brain
+
+### Vision and Perception Systems
+
+Students develop sophisticated vision systems that enable robots to understand their environment. This includes object detection, pose estimation, scene understanding, and multi-modal sensor fusion.
+
+### Language Understanding and Planning
+
+Natural language processing systems that enable robots to understand human commands and translate them into executable action plans. Students learn to integrate language understanding with environmental context for appropriate robot responses.
+
+### Decision Making and Control
+
+Advanced control systems that enable robots to make appropriate decisions based on environmental context, safety considerations, and task requirements. This includes both reactive and deliberative planning approaches.
+
+## Module 4: Vision-Language-Action Integration
+
+### Humanoid Kinematics and Locomotion
+
+Understanding the mechanical and control principles that enable humanoid robots to move and interact with the world like humans. This includes kinematic chains, inverse kinematics, and dynamic locomotion control.
+
+### Manipulation and Dexterity
+
+Advanced manipulation systems that enable humanoid robots to perform complex tasks requiring dexterity and fine motor control. Students learn about grasp planning, force control, and adaptive manipulation strategies.
+
+### Conversational Robotics and Interaction
+
+Integration of all systems into a unified conversational robot that can engage in natural, context-aware conversations that bridge human intentions and robotic actions.
+
+## Capstone Integration
+
+### Autonomous Humanoid System
+
+The capstone project integrates all concepts into a comprehensive autonomous humanoid robot system. Students combine perception, cognition, and action systems to create a robot capable of understanding natural language commands, perceiving its environment, and executing complex tasks safely.
+
+### Real-World Deployment Considerations
+
+Advanced topics including safety systems, error recovery, human-robot interaction protocols, and deployment strategies ensure successful real-world operation of humanoid robots.
+
+## Learning Objectives
+
+Upon completion of this curriculum, students will be able to:
+
+- Design and implement distributed robotic systems using ROS 2
+- Create and utilize high-fidelity simulation environments for robot development
+- Integrate perception, cognition, and action systems for autonomous operation
+- Implement natural language interfaces for human-robot interaction
+- Apply sim-to-real transfer techniques for successful deployment
+- Understand the complete pipeline from human command to robotic action
+- Appreciate the challenges and opportunities of Physical AI and humanoid robotics
+
+## Assessment and Evaluation
+
+Student progress is evaluated through a combination of module-specific projects, integration challenges, and the comprehensive capstone project. Each assessment reinforces the capstone-first approach by connecting specific skills to the ultimate goal of autonomous humanoid operation.
+
+The curriculum emphasizes practical, hands-on learning with immediate application of concepts to the capstone system. This approach ensures students develop both theoretical understanding and practical skills necessary for success in Physical AI and humanoid robotics.`} />
+
 This document provides a comprehensive overview of the four-module robotics curriculum structure, explaining how modules progress from foundational concepts to advanced integration, and how they connect to real-world robotic capabilities. The curriculum is designed with a capstone-first approach, where students understand the complete system they'll build from the beginning. This approach ensures that students appreciate the relevance of each foundational concept as they progress through the modules, understanding how each piece contributes to the larger robotic system they will ultimately develop.
 
 The curriculum has been carefully structured to balance theoretical understanding with practical application, ensuring students not only learn the concepts but also gain hands-on experience implementing them. Each module builds systematically on previous knowledge while introducing new challenges and capabilities, creating a learning journey that progresses from basic robotic communication to advanced cognitive systems.

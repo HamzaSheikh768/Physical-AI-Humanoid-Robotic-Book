@@ -1,135 +1,139 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Layout from '@theme/Layout';
-import { ProtectedRoute } from '../services/auth/protected-route';
+import { motion } from 'framer-motion';
+import { staggerContainer, staggerChild } from '../animations/variants';
+import AnimatedDashboardLayout from '../components/auth/AnimatedDashboardLayout';
+import DashboardCard from '../components/auth/DashboardCard';
+import styles from '../components/auth/auth.module.css';
 
-function DashboardPage() {
-  const [isClient, setIsClient] = useState(false);
-  const [userData, setUserData] = useState(null);
-  const [loading, setLoading] = useState(true);
+const DashboardPage = () => {
+  // Check if user is authenticated using localStorage
+  const isAuthenticated = typeof window !== 'undefined' && localStorage.getItem('authToken') !== null;
 
-  useEffect(() => {
-    setIsClient(true);
-
-    // Fetch user data directly instead of using the hook to avoid SSR issues
-    const fetchUserData = async () => {
-      try {
-        const response = await fetch('/api/auth/session');
-        const data = await response.json();
-
-        if (data.authenticated && data.user) {
-          setUserData(data.user);
-        }
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (isClient) {
-      fetchUserData();
-    } else {
-      setLoading(false);
+  if (!isAuthenticated) {
+    // Redirect to login if not authenticated
+    if (typeof window !== 'undefined') {
+      window.location.href = '/login';
     }
-  }, [isClient]);
-
-  // Check if profile is incomplete
-  const isProfileIncomplete = !userData?.softwareBackground && !userData?.hardwareExperience;
-
-  // Show loading state during SSR and initial client load
-  if (!isClient || loading) {
     return (
-      <Layout title="Dashboard" description="Your personalized dashboard">
-        <ProtectedRoute>
-          <div className="container margin-vert--lg">
-            <div className="row">
-              <div className="col col--8 col--offset-2">
-                <div className="card">
-                  <div className="card__header">
-                    <h2>Loading Dashboard...</h2>
-                  </div>
-                  <div className="card__body">
-                    <p>Loading your personalized dashboard...</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+      <Layout title="Redirecting..." description="Redirecting to login">
+        <div className={styles.authContainer}>
+          <div style={{ textAlign: 'center' }}>
+            <p style={{ fontSize: '1.125rem', color: '#94a3b8' }}>Redirecting to login...</p>
           </div>
-        </ProtectedRoute>
+        </div>
       </Layout>
     );
   }
 
+  const userName = typeof window !== 'undefined' ? localStorage.getItem('userName') || 'User' : 'User';
+
   return (
-    <Layout title="Dashboard" description="Your personalized dashboard">
-      <ProtectedRoute>
-        <div className="container margin-vert--lg">
-          <div className="row">
-            <div className="col col--8 col--offset-2">
-              <div className="card">
-                <div className="card__header">
-                  <h2>Welcome{userData?.name ? ` ${userData.name.split(' ')[0]}` : ''}!</h2>
-                </div>
-                <div className="card__body">
-                  {isProfileIncomplete && (
-                    <div className="alert alert--warning margin-bottom--lg" role="alert">
-                      <h4>Complete Your Profile</h4>
-                      <p>Your profile is not yet complete. Consider updating your background information to get the most personalized experience.</p>
-                      <a href="/auth/signup" className="button button--primary button--sm">
-                        Update Profile
-                      </a>
-                    </div>
-                  )}
+    <Layout title="Dashboard" description="User dashboard">
+      <motion.div
+        variants={staggerContainer}
+        initial="initial"
+        animate="animate"
+      >
+        <AnimatedDashboardLayout
+          header={
+            <motion.div variants={staggerChild} className="text--center padding--md">
+              <motion.h1 variants={staggerChild} className="text--bold">
+                Welcome, {userName}!
+              </motion.h1>
+              <motion.p variants={staggerChild} className="text--normal">
+                Your personalized dashboard
+              </motion.p>
+            </motion.div>
+          }
+        >
+          <motion.div variants={staggerContainer} className="row margin-bottom--lg">
+            <motion.div variants={staggerChild} className="col col--6">
+              <DashboardCard
+                title="Profile"
+                subtitle="View your account information"
+              >
+                <motion.button
+                  className="button button--primary button--block"
+                  onClick={() => {
+                    // Show profile details
+                    const userEmail = localStorage.getItem('userEmail') || localStorage.getItem('email') || 'Not provided';
+                    const hardwareExperience = localStorage.getItem('hardwareExperience') || 'Not provided';
+                    const learningTrack = localStorage.getItem('learningTrack') || 'Not provided';
+                    const skillLevel = localStorage.getItem('skillLevel') || 'Not provided';
 
-                  <div className="margin-bottom--lg">
-                    <h3>Profile Information</h3>
-                    <div className="row">
-                      <div className="col col--6">
-                        <p><strong>Email:</strong> {userData?.email}</p>
-                        <p><strong>Name:</strong> {userData?.name || 'Not provided'}</p>
-                      </div>
-                      <div className="col col--6">
-                        <p><strong>Member since:</strong> {userData ? new Date(userData.createdAt).toLocaleDateString() : ''}</p>
-                      </div>
-                    </div>
-                  </div>
+                    let trackText = 'Not provided';
+                    switch(learningTrack) {
+                      case 'software':
+                        trackText = 'Software Only (AI, simulation, control, backend systems)';
+                        break;
+                      case 'hardware':
+                        trackText = 'Hardware Only (electronics, embedded systems, physical robotics)';
+                        break;
+                      case 'full-robotics':
+                        trackText = 'Full Robotics (end-to-end integration of software and hardware)';
+                        break;
+                      default:
+                        trackText = learningTrack;
+                    }
 
-                  <div className="margin-bottom--lg">
-                    <h3>Background Information</h3>
-                    <div className="row">
-                      <div className="col col--6">
-                        <p><strong>Software Background:</strong></p>
-                        <p className="text--gray">{userData?.softwareBackground || 'Not provided'}</p>
-                      </div>
-                      <div className="col col--6">
-                        <p><strong>Hardware Experience:</strong></p>
-                        <p className="text--gray">{userData?.hardwareExperience || 'Not provided'}</p>
-                      </div>
-                    </div>
+                    let levelText = 'Not provided';
+                    switch(skillLevel) {
+                      case 'beginner':
+                        levelText = 'Beginner – limited or introductory experience';
+                        break;
+                      case 'intermediate':
+                        levelText = 'Intermediate – practical project experience';
+                        break;
+                      case 'advanced':
+                        levelText = 'Advanced – professional or research-level experience';
+                        break;
+                      default:
+                        levelText = skillLevel;
+                    }
 
-                    <div className="row margin-top--md">
-                      <div className="col col--6">
-                        <p><strong>Learning Track:</strong> {userData?.learningTrack || 'Not provided'}</p>
-                      </div>
-                      <div className="col col--6">
-                        <p><strong>Skill Level:</strong> {userData?.skillLevel || 'Not provided'}</p>
-                      </div>
-                    </div>
-                  </div>
+                    alert(`Profile Information:\nName: ${userName}\nEmail: ${userEmail}\n\nHardware/Robotics Experience: ${hardwareExperience}\n\nLearning Track: ${trackText}\n\nSkill Level: ${levelText}`);
+                  }}
+                >
+                  View Profile
+                </motion.button>
+              </DashboardCard>
+            </motion.div>
 
-                  <div className="margin-top--lg">
-                    <a href="/auth/logout" className="button button--outline button--secondary">
-                      Sign Out
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </ProtectedRoute>
+            <motion.div variants={staggerChild} className="col col--6">
+              <DashboardCard
+                title="Settings"
+                subtitle="Edit your profile information"
+              >
+                <motion.button
+                  className="button button--primary button--block"
+                  onClick={() => {
+                    // Redirect to profile editing page (we'll create this)
+                    window.location.href = '/profile';
+                  }}
+                >
+                  Edit Profile
+                </motion.button>
+              </DashboardCard>
+            </motion.div>
+          </motion.div>
+
+          <motion.div variants={staggerChild} className="card__footer text--center padding--md">
+            <motion.button
+              onClick={() => {
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('userName');
+                window.location.href = '/';
+              }}
+              className="button button--outline button--secondary"
+            >
+              Sign Out
+            </motion.button>
+          </motion.div>
+        </AnimatedDashboardLayout>
+      </motion.div>
     </Layout>
   );
-}
+};
 
 export default DashboardPage;

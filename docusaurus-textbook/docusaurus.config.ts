@@ -13,10 +13,10 @@ try {
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
-  title: "Physical AI & Humanoid Robotics",
+  title: "Physical AI & Humanoid Robotics: Complete Guide TextBook",
   tagline:
-    "A practical textbook for building intelligent robots with ROS 2, simulation, and embodied AI.",
-  favicon: "img/robot-favicon.svg",
+    "Bridging the digital brain with the physical form, Humanoids learning, moving, and intelligently performing, From ROS 2 to NVIDIA Isaac, simulations come alive, Master embodied AI and guide robots to thrive in the real world, Explore perception, planning, and action with cutting-edge AI, Transform knowledge into intelligent, autonomous humanoids.",
+  favicon: "img/robot-favicon.png",
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
@@ -29,7 +29,7 @@ const config: Config = {
   // For Vercel deployment, use "/"
   baseUrl: "/",
 
-// GitHub pages deployment config.
+  // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
   organizationName: "sheikhhamza", // Usually your GitHub org/user name.
   projectName: "Physical AI & Humanoid Robotic Book", // Usually your repo name.
@@ -38,6 +38,8 @@ const config: Config = {
   customFields: {
     //Backend API Url
     CHAT_API_URL: process.env.CHAT_API_URL || 'http://localhost:8000',
+    // Translation API URL
+    TRANSLATION_API_URL: process.env.TRANSLATION_API_URL || 'http://localhost:3001/api/translate',
   },
 
   // GitHub pages deployment config removed for Vercel deployment
@@ -50,7 +52,17 @@ const config: Config = {
   // may want to replace "en" with "zh-Hans".
   i18n: {
     defaultLocale: "en",
-    locales: ["en"],
+    locales: ["en", "ur"],
+    localeConfigs: {
+      en: {
+        label: "English",
+        direction: "ltr",
+      },
+      ur: {
+        label: "اردو",
+        direction: "rtl",
+      },
+    },
   },
 
   presets: [
@@ -82,21 +94,32 @@ const config: Config = {
         theme: {
           customCss: "./src/css/custom.css",
         },
+        sitemap: {
+          changefreq: 'weekly',
+          priority: 0.5,
+          ignorePatterns: ['/tags/**'],
+          filename: 'sitemap.xml',
+        },
       } satisfies Preset.Options,
     ],
   ],
 
-  stylesheets: ["/css/chat.css"],
+  stylesheets: [
+    "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap",
+    "/css/chat.css",
+    "/css/rtl-urdu.css",
+    "/css/translation-button.css",
+  ],
   themeConfig: {
     // Replace with your project's social card
-    image: "img/robotics-social-card.svg",
+    image: "img/docusaurus-social-card.jpg",
     colorMode: {
       respectPrefersColorScheme: true,
     },
     navbar: {
-      title: "Physical AI & Humanoid Robotics",
+      title: "Physical AI & Humanoid Robotic",
       logo: {
-        alt: "Physical AI and Humanoid Robotics",
+        alt: "Physical AI & Humanoid Robotic Book Logo",
         src: "img/robot-logo.svg",
       },
       items: [
@@ -107,6 +130,11 @@ const config: Config = {
           label: "TextBook",
         },
         // { to: "/blog", label: "Blog", position: "left" },
+        {
+          type: 'custom-NavbarAuth',
+          position: 'right', // or 'left' based on your preference
+          // Additional props can be added here
+        },
         {
           href: "https://github.com/HamzaSheikh768/Physical-AI-Humanoid-Robotic-Book",
           label: "GitHub",

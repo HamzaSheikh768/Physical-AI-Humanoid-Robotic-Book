@@ -1,20 +1,8 @@
 {
-  "framework": "docusaurus",
-  "builds": [
-    {
-      "src": "docusaurus-textbook/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "build"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ],
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm --prefix docusaurus-textbook run build",
+  "installCommand": "npm --prefix docusaurus-textbook ci",
+  "outputDirectory": "docusaurus-textbook/build",
   "github": {
     "enabled": true
   }

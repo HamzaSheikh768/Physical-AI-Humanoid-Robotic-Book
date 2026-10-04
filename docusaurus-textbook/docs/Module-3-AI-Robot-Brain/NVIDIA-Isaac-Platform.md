@@ -3,6 +3,9 @@ sidebar_position: 8
 title: '08 - NVIDIA Isaac Platform'
 description: 'Comprehensive guide to the NVIDIA Isaac platform for robotics simulation, perception, and acceleration'
 ---
+import TranslationButton from '@site/src/components/TranslationButton/TranslationButton';
+
+<TranslationButton chapterId="module-3-nvidia-isaac-platform" />
 
 # NVIDIA Isaac Platform: Core Infrastructure for Robotics AI
 

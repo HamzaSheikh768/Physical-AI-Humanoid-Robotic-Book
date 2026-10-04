@@ -154,7 +154,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ initialOpen = false }) => {
       // Add assistant response
       const assistantMessage = SessionManager.addMessage({
         sender: 'assistant',
-        content: response.answer,
+        content: response.explanation,
         status: 'delivered',
       });
 

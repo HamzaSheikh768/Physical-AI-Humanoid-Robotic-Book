@@ -1,7 +1,8 @@
 import React from 'react';
-import type { CardLayout } from './types';
-import FeatureCard from './FeatureCard';
+import type {CardLayout} from './types';
+import FeatureCard from '@site/src/components/FeatureCard';
 import styles from './styles.module.css';
+import {featureCardsData} from './data';
 
 interface HomepageFeatureCardsProps {
   layout?: CardLayout;
@@ -9,12 +10,12 @@ interface HomepageFeatureCardsProps {
 
 const HomepageFeatureCards: React.FC<HomepageFeatureCardsProps> = ({
   layout = {
-    cards: require('./data').featureCardsData,
+    cards: featureCardsData,
     layoutType: 'grid',
-    maxCardsPerRow: 4
-  }
+    maxCardsPerRow: 4,
+  },
 }) => {
-  const { cards, layoutType = 'grid', maxCardsPerRow = 3 } = layout;
+  const {cards} = layout;
 
   return (
     <section
@@ -23,25 +24,25 @@ const HomepageFeatureCards: React.FC<HomepageFeatureCardsProps> = ({
       role="region"
     >
       <div className={styles.container}>
-        <div className={styles.sectionHeading}>
-          <div>
-            <p className={styles.sectionEyebrow}>THE LEARNING PATH</p>
-            <h2 id="features-title" className={styles.sectionTitle} tabIndex={-1}>
-              Four disciplines. One intelligent machine.
-            </h2>
-          </div>
+        <div className={styles.sectionIntro}>
+          <p className={styles.sectionEyebrow}>Inside the book</p>
+          <h2 id="features-title" className={styles.sectionTitle} tabIndex={-1}>
+            From first principles to field-ready systems.
+          </h2>
           <p className={styles.sectionDescription}>
-            Follow the ideas, tools, and systems that bring humanoid robotics to life.
+            A structured path through the tools, ideas, and engineering decisions that make embodied intelligence work in the real world.
           </p>
         </div>
-        <div
-          className={styles.grid}
-          style={{ gridTemplateColumns: `repeat(${maxCardsPerRow}, 1fr)` }}
-          role="list"
-        >
-          {cards.map((card) => (
+        <div className={styles.grid} role="list">
+          {cards.map((card, index) => (
             <div role="listitem" key={card.id}>
-              <FeatureCard card={card} />
+              <FeatureCard
+                title={card.title}
+                description={card.description}
+                href={card.linkUrl}
+                linkText={card.linkText}
+                index={index + 1}
+              />
             </div>
           ))}
         </div>

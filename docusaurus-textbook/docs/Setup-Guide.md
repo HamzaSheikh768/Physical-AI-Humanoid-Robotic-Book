@@ -6,6 +6,262 @@ sidebar_position: 2
 
 # Technical Setup & Lab Architecture Guide
 
+import TranslationButton from '@site/src/components/TranslationButton/TranslationButton';
+
+<TranslationButton chapterId="setup-guide" content={`# Technical Setup & Lab Architecture Guide
+
+This guide defines all infrastructure requirements for the Physical AI & Humanoid Robotics course, covering software stack, hardware requirements, and architectural decisions needed for successful course execution.
+
+## Infrastructure Requirements
+
+### Software Stack
+
+The course requires a comprehensive software stack to support Physical AI and Humanoid Robotics development:
+
+**Development Environment:**
+- Ubuntu 22.04 LTS (recommended for compatibility)
+- Python 3.12+ with virtual environment support
+- Node.js 18+ for Docusaurus documentation
+- Git version control system
+- Docker for containerization (optional but recommended)
+
+**Robotics Framework:**
+- ROS 2 Humble Hawksbill (latest LTS version)
+- Gazebo Garden simulation environment
+- NVIDIA Isaac Sim for high-fidelity physics simulation
+- OpenCV for computer vision processing
+- PCL (Point Cloud Library) for 3D perception
+
+**AI and Machine Learning:**
+- PyTorch 2.0+ with CUDA support
+- TensorFlow 2.13+ for specific applications
+- Transformers library for NLP tasks
+- OpenAI Gym for reinforcement learning
+- NumPy, SciPy, and Pandas for data processing
+
+**Development Tools:**
+- VS Code with robotics extensions
+- Git for version control
+- Docker for containerization
+- JupyterLab for interactive development
+- CMake for building C++ components
+
+### Hardware Specifications
+
+**Minimum Requirements:**
+- CPU: Intel i7-12700K or AMD Ryzen 7 5800X
+- RAM: 32GB DDR4
+- GPU: NVIDIA RTX 3080 (10GB VRAM) or equivalent
+- Storage: 1TB NVMe SSD
+- Network: Gigabit Ethernet, Wi-Fi 6
+
+**Recommended Requirements:**
+- CPU: Intel i9-13900K or AMD Ryzen 9 7950X
+- RAM: 64GB DDR5
+- GPU: NVIDIA RTX 4090 (24GB VRAM) or RTX 6000 Ada
+- Storage: 2TB+ NVMe SSD
+- Network: 10GbE for multi-robot setups
+
+### Network Architecture
+
+**Local Development Network:**
+- Isolated development subnet (192.168.1.x)
+- DHCP server for automatic IP assignment
+- DNS resolution for robot names
+- Firewall rules for ROS 2 communication
+
+**Simulation Environment:**
+- Dedicated GPU node for Isaac Sim
+- Shared storage for simulation assets
+- High-bandwidth connection for streaming
+- Backup system for simulation worlds
+
+## Installation Process
+
+### Prerequisites
+
+Before beginning the installation, ensure your system meets the minimum requirements and prepare the environment:
+
+1. **System Preparation:**
+   - Update Ubuntu packages: \`sudo apt update && sudo apt upgrade\`
+   - Install build essentials: \`sudo apt install build-essential\`
+   - Install Python development headers: \`sudo apt install python3-dev\`
+
+2. **User Configuration:**
+   - Create dedicated robotics user account
+   - Configure SSH access for remote development
+   - Set up sudo access for development tasks
+
+3. **Network Configuration:**
+   - Configure static IP addresses for development machines
+   - Set up DNS resolution for robot names
+   - Configure firewall for ROS 2 traffic
+
+### ROS 2 Installation
+
+1. **Set up locale:**
+   \`\`\`
+   sudo locale-gen en_US.UTF-8
+   sudo update-locale LANG=en_US.UTF-8
+   \`\`\`
+
+2. **Add ROS 2 repository:**
+   \`\`\`
+   sudo apt update && sudo apt install curl gnupg
+   curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key | sudo gpg --dearmor -o /usr/share/keyrings/ros-archive-keyring.gpg
+   echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
+   \`\`\`
+
+3. **Install ROS 2 packages:**
+   \`\`\`
+   sudo apt update
+   sudo apt install ros-humble-desktop-full
+   sudo apt install python3-colcon-common-extensions
+   sudo apt install python3-rosdep python3-vcstool
+   \`\`\`
+
+4. **Initialize rosdep:**
+   \`\`\`
+   sudo rosdep init
+   rosdep update
+   \`\`\`
+
+### Simulation Environment Setup
+
+1. **Install Gazebo Garden:**
+   \`\`\`
+   sudo apt install gazebo
+   sudo apt install libgazebo-dev
+   \`\`\`
+
+2. **NVIDIA Isaac Sim Installation:**
+   - Download Isaac Sim from NVIDIA Developer portal
+   - Extract to dedicated directory (e.g., \`~/isaac-sim\`)
+   - Configure environment variables and dependencies
+   - Test with sample scenes
+
+3. **GPU Acceleration Setup:**
+   - Install latest NVIDIA drivers
+   - Configure CUDA toolkit (version compatible with Isaac Sim)
+   - Test GPU acceleration with sample applications
+
+### Development Environment Configuration
+
+1. **Python Virtual Environment:**
+   \`\`\`
+   python3 -m venv ~/robotics-env
+   source ~/robotics-env/bin/activate
+   pip install --upgrade pip setuptools
+   \`\`\`
+
+2. **Course Dependencies:**
+   \`\`\`
+   pip install -r requirements.txt
+   pip install colcon-bundle
+   pip install ros2bag
+   \`\`\`
+
+3. **VS Code Extensions:**
+   - ROS 2 Extension Pack
+   - Python Extension Pack
+   - C++ Extension Pack
+   - GitLens
+   - Docker Extension
+
+## Testing the Setup
+
+### Basic ROS 2 Test
+
+Verify ROS 2 installation with a simple publisher-subscriber test:
+
+\`\`\`bash
+# Terminal 1
+source /opt/ros/humble/setup.bash
+ros2 run demo_nodes_cpp talker
+
+# Terminal 2
+source /opt/ros/humble/setup.bash
+ros2 run demo_nodes_py listener
+\`\`\`
+
+### Simulation Test
+
+Launch a basic Gazebo simulation to verify graphics acceleration:
+
+\`\`\`bash
+source /opt/ros/humble/setup.bash
+gz sim
+\`\`\`
+
+### Isaac Sim Test
+
+Launch Isaac Sim and verify GPU acceleration with a sample scene:
+
+\`\`\`bash
+cd ~/isaac-sim
+./python.sh -m omni.isaac.kit
+\`\`\`
+
+## Troubleshooting Common Issues
+
+### GPU Acceleration Problems
+
+**Symptoms:**
+- Slow rendering in simulation
+- CUDA errors during training
+- GPU not detected by Isaac Sim
+
+**Solutions:**
+- Verify NVIDIA driver installation: \`nvidia-smi\`
+- Check CUDA version compatibility
+- Configure X server for GPU access
+- Restart graphics drivers if necessary
+
+### ROS 2 Network Issues
+
+**Symptoms:**
+- Nodes unable to discover each other
+- Topic communication failures
+- Parameter service timeouts
+
+**Solutions:**
+- Check RMW implementation: \`echo $RMW_IMPLEMENTATION\`
+- Verify network configuration
+- Configure firewalls for ROS 2 ports
+- Test with localhost first
+
+### Python Package Conflicts
+
+**Symptoms:**
+- Import errors in Python scripts
+- Version conflicts between packages
+- Missing dependencies
+
+**Solutions:**
+- Use virtual environments consistently
+- Pin package versions in requirements.txt
+- Check for conflicting installations
+- Reinstall packages in clean environment
+
+## Maintenance and Updates
+
+### Regular Maintenance Tasks
+
+- Update system packages monthly
+- Update ROS 2 packages as needed
+- Clean up unused Docker containers
+- Backup simulation environments
+- Monitor disk space usage
+
+### Version Management
+
+- Maintain version lock files for reproducible environments
+- Test updates in isolated environments first
+- Document version requirements for each module
+- Plan update schedules around course delivery
+
+This setup guide provides the foundation for successful completion of the Physical AI and Humanoid Robotics curriculum. Proper installation and configuration of this infrastructure will ensure smooth operation throughout the course.`} />
+
 This guide defines all infrastructure requirements for the Physical AI & Humanoid Robotics course, covering software stack, hardware requirements, and architectural decisions needed for successful course execution.
 
 ## Software Stack Overview

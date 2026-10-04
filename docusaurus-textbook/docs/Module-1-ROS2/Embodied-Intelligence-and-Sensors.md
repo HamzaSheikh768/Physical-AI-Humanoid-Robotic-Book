@@ -3,6 +3,9 @@ title: Embodied Intelligence and Sensors
 sidebar_position: 2
 description: Understanding embodied intelligence principles and sensor integration in ROS 2 for Physical AI systems
 ---
+import TranslationButton from '@site/src/components/TranslationButton/TranslationButton';
+
+<TranslationButton chapterId="module-1-embodied-intelligence" />
 
 # Embodied Intelligence and Sensors
 

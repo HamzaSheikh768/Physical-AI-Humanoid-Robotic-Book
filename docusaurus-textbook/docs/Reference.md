@@ -1,8 +1,12 @@
+import TranslationButton from '@site/src/components/TranslationButton/TranslationButton';
+
 ---
 sidebar_position: 4
 title: '04 - Reference'
 description: 'Comprehensive technical reference for ROS 2, Gazebo, Unity, Isaac, VLA systems, and hardware/software configuration tables'
 ---
+
+<TranslationButton chapterId="reference-guide" />
 
 # Reference Guide: Physical AI Development Frameworks
 

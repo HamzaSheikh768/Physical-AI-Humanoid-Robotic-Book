@@ -3,6 +3,9 @@ sidebar_position: 11
 title: '11 - Humanoid Kinematics and Locomotion'
 description: 'Comprehensive guide to humanoid robot kinematics, locomotion, and motion control for Vision-Language-Action systems'
 ---
+import TranslationButton from '@site/src/components/TranslationButton/TranslationButton';
+
+<TranslationButton chapterId="module-4-humanoid-kinematics" />
 
 # Module 4: Humanoid Kinematics and Locomotion
 
