@@ -3,10 +3,6 @@ sidebar_position: 13
 title: '13 - Conversational Robotics'
 description: 'Comprehensive guide to natural language processing, dialogue management, and multimodal interaction for Vision-Language-Action systems'
 ---
-import TranslationButton from '@site/src/components/TranslationButton/TranslationButton';
-
-<TranslationButton chapterId="module-4-conversational-robotics" />
-
 # Module 4: Conversational Robotics
 
 ## Introduction

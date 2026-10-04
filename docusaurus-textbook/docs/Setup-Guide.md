@@ -6,10 +6,6 @@ sidebar_position: 2
 
 # Technical Setup & Lab Architecture Guide
 
-import TranslationButton from '@site/src/components/TranslationButton/TranslationButton';
-
-<TranslationButton chapterId="setup-guide" content={`# Technical Setup & Lab Architecture Guide
-
 This guide defines all infrastructure requirements for the Physical AI & Humanoid Robotics course, covering software stack, hardware requirements, and architectural decisions needed for successful course execution.
 
 ## Infrastructure Requirements
@@ -83,9 +79,9 @@ The course requires a comprehensive software stack to support Physical AI and Hu
 Before beginning the installation, ensure your system meets the minimum requirements and prepare the environment:
 
 1. **System Preparation:**
-   - Update Ubuntu packages: \`sudo apt update && sudo apt upgrade\`
-   - Install build essentials: \`sudo apt install build-essential\`
-   - Install Python development headers: \`sudo apt install python3-dev\`
+   - Update Ubuntu packages: `sudo apt update && sudo apt upgrade`
+   - Install build essentials: `sudo apt install build-essential`
+   - Install Python development headers: `sudo apt install python3-dev`
 
 2. **User Configuration:**
    - Create dedicated robotics user account
@@ -100,43 +96,43 @@ Before beginning the installation, ensure your system meets the minimum requirem
 ### ROS 2 Installation
 
 1. **Set up locale:**
-   \`\`\`
+   ```
    sudo locale-gen en_US.UTF-8
    sudo update-locale LANG=en_US.UTF-8
-   \`\`\`
+   ```
 
 2. **Add ROS 2 repository:**
-   \`\`\`
+   ```
    sudo apt update && sudo apt install curl gnupg
    curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key | sudo gpg --dearmor -o /usr/share/keyrings/ros-archive-keyring.gpg
    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
-   \`\`\`
+   ```
 
 3. **Install ROS 2 packages:**
-   \`\`\`
+   ```
    sudo apt update
    sudo apt install ros-humble-desktop-full
    sudo apt install python3-colcon-common-extensions
    sudo apt install python3-rosdep python3-vcstool
-   \`\`\`
+   ```
 
 4. **Initialize rosdep:**
-   \`\`\`
+   ```
    sudo rosdep init
    rosdep update
-   \`\`\`
+   ```
 
 ### Simulation Environment Setup
 
 1. **Install Gazebo Garden:**
-   \`\`\`
+   ```
    sudo apt install gazebo
    sudo apt install libgazebo-dev
-   \`\`\`
+   ```
 
 2. **NVIDIA Isaac Sim Installation:**
    - Download Isaac Sim from NVIDIA Developer portal
-   - Extract to dedicated directory (e.g., \`~/isaac-sim\`)
+   - Extract to dedicated directory (e.g., `~/isaac-sim`)
    - Configure environment variables and dependencies
    - Test with sample scenes
 
@@ -148,18 +144,18 @@ Before beginning the installation, ensure your system meets the minimum requirem
 ### Development Environment Configuration
 
 1. **Python Virtual Environment:**
-   \`\`\`
+   ```
    python3 -m venv ~/robotics-env
    source ~/robotics-env/bin/activate
    pip install --upgrade pip setuptools
-   \`\`\`
+   ```
 
 2. **Course Dependencies:**
-   \`\`\`
+   ```
    pip install -r requirements.txt
    pip install colcon-bundle
    pip install ros2bag
-   \`\`\`
+   ```
 
 3. **VS Code Extensions:**
    - ROS 2 Extension Pack
@@ -174,7 +170,7 @@ Before beginning the installation, ensure your system meets the minimum requirem
 
 Verify ROS 2 installation with a simple publisher-subscriber test:
 
-\`\`\`bash
+```bash
 # Terminal 1
 source /opt/ros/humble/setup.bash
 ros2 run demo_nodes_cpp talker
@@ -182,25 +178,25 @@ ros2 run demo_nodes_cpp talker
 # Terminal 2
 source /opt/ros/humble/setup.bash
 ros2 run demo_nodes_py listener
-\`\`\`
+```
 
 ### Simulation Test
 
 Launch a basic Gazebo simulation to verify graphics acceleration:
 
-\`\`\`bash
+```bash
 source /opt/ros/humble/setup.bash
 gz sim
-\`\`\`
+```
 
 ### Isaac Sim Test
 
 Launch Isaac Sim and verify GPU acceleration with a sample scene:
 
-\`\`\`bash
+```bash
 cd ~/isaac-sim
 ./python.sh -m omni.isaac.kit
-\`\`\`
+```
 
 ## Troubleshooting Common Issues
 
@@ -212,7 +208,7 @@ cd ~/isaac-sim
 - GPU not detected by Isaac Sim
 
 **Solutions:**
-- Verify NVIDIA driver installation: \`nvidia-smi\`
+- Verify NVIDIA driver installation: `nvidia-smi`
 - Check CUDA version compatibility
 - Configure X server for GPU access
 - Restart graphics drivers if necessary
@@ -225,7 +221,7 @@ cd ~/isaac-sim
 - Parameter service timeouts
 
 **Solutions:**
-- Check RMW implementation: \`echo $RMW_IMPLEMENTATION\`
+- Check RMW implementation: `echo $RMW_IMPLEMENTATION`
 - Verify network configuration
 - Configure firewalls for ROS 2 ports
 - Test with localhost first
@@ -260,7 +256,7 @@ cd ~/isaac-sim
 - Document version requirements for each module
 - Plan update schedules around course delivery
 
-This setup guide provides the foundation for successful completion of the Physical AI and Humanoid Robotics curriculum. Proper installation and configuration of this infrastructure will ensure smooth operation throughout the course.`} />
+This setup guide provides the foundation for successful completion of the Physical AI and Humanoid Robotics curriculum. Proper installation and configuration of this infrastructure will ensure smooth operation throughout the course.
 
 This guide defines all infrastructure requirements for the Physical AI & Humanoid Robotics course, covering software stack, hardware requirements, and architectural decisions needed for successful course execution.
 

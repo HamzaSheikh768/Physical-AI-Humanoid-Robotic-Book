@@ -6,10 +6,6 @@ description: System composition and deployment using ROS 2 packages, launch file
 
 # ROS 2 Packages and Launch Files
 
-import TranslationButton from '@site/src/components/TranslationButton/TranslationButton';
-
-<TranslationButton chapterId="module1-packages-launch" content={`# ROS 2 Packages and Launch Files
-
 ## Introduction to ROS 2 Package Structure
 
 ROS 2 packages form the fundamental organizational unit for robotic software, encapsulating functionality into modular, reusable components. Understanding package structure is essential for creating maintainable, scalable robotic systems that can be easily shared and deployed across different environments.
@@ -228,7 +224,7 @@ Design packages to work across different platforms and architectures, using cond
 
 Maintain backward compatibility when possible, and clearly document breaking changes in new versions.
 
-Understanding ROS 2 packages and launch files is crucial for creating well-structured, maintainable robotic systems. These concepts enable the development of modular, reusable components that can be easily integrated into complex robotic applications. Proper use of these tools leads to more reliable, scalable, and maintainable robotic systems.`} />
+Understanding ROS 2 packages and launch files is crucial for creating well-structured, maintainable robotic systems. These concepts enable the development of modular, reusable components that can be easily integrated into complex robotic applications. Proper use of these tools leads to more reliable, scalable, and maintainable robotic systems.
 
 ## Introduction to ROS 2 Package Structure
 

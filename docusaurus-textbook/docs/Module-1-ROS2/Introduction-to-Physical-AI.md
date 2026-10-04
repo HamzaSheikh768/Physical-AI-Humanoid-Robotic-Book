@@ -6,10 +6,6 @@ description: Introduction to Physical AI concepts and ROS 2 as the robotic middl
 
 # Introduction to Physical AI and ROS 2 Foundations
 
-import TranslationButton from '@site/src/components/TranslationButton/TranslationButton';
-
-<TranslationButton chapterId="module1-intro-physical-ai" content={`# Introduction to Physical AI and ROS 2 Foundations
-
 ## Physical AI vs Digital AI
 
 Physical AI represents a fundamental paradigm shift from traditional digital AI systems that operate solely in virtual environments to AI systems that interact directly with and operate within the physical world. Unlike conventional AI that processes data in abstract digital spaces, Physical AI integrates three critical capabilities: sensing, decision-making, and actuation, creating a complete loop of perception, cognition, and action in real-world environments.
@@ -116,7 +112,7 @@ The field of Physical AI continues to evolve rapidly, with several emerging tren
 
 The integration of these technologies with ROS 2's robust middleware will enable increasingly capable and autonomous robotic systems that can operate effectively in complex, dynamic environments.
 
-This introduction establishes the foundational concepts of Physical AI and ROS 2 that will be explored in greater detail throughout this module. Understanding these concepts is essential for developing sophisticated robotic systems that can operate effectively in the physical world.`} />
+This introduction establishes the foundational concepts of Physical AI and ROS 2 that will be explored in greater detail throughout this module. Understanding these concepts is essential for developing sophisticated robotic systems that can operate effectively in the physical world.
 
 ## Physical AI vs Digital AI
 

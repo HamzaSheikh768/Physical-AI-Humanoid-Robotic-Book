@@ -3,10 +3,6 @@ sidebar_position: 12
 title: '12 - Manipulation and Human-Robot Interaction'
 description: 'Comprehensive guide to dexterous manipulation, interaction protocols, and safety systems for Vision-Language-Action systems'
 ---
-import TranslationButton from '@site/src/components/TranslationButton/TranslationButton';
-
-<TranslationButton chapterId="module-4-manipulation-interaction" />
-
 # Module 4: Manipulation and Human-Robot Interaction
 
 ## Introduction

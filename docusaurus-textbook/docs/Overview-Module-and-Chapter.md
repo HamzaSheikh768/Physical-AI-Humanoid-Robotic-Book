@@ -6,10 +6,6 @@ description: Comprehensive overview of the four-module robotics curriculum struc
 
 # Curriculum, Modules, and Chapter Overview
 
-import TranslationButton from '@site/src/components/TranslationButton/TranslationButton';
-
-<TranslationButton chapterId="overview-modules" content={`# Curriculum, Modules, and Chapter Overview
-
 This document provides a comprehensive overview of the four-module robotics curriculum structure, explaining how modules progress from foundational concepts to advanced integration, and how they connect to real-world robotic capabilities. The curriculum is designed with a capstone-first approach, where students understand the complete system they'll build from the beginning. This approach ensures that students appreciate the relevance of each foundational concept as they progress through the modules, understanding how each piece contributes to the larger robotic system they will ultimately develop.
 
 ## Course Structure and Pedagogy
@@ -114,7 +110,7 @@ Upon completion of this curriculum, students will be able to:
 
 Student progress is evaluated through a combination of module-specific projects, integration challenges, and the comprehensive capstone project. Each assessment reinforces the capstone-first approach by connecting specific skills to the ultimate goal of autonomous humanoid operation.
 
-The curriculum emphasizes practical, hands-on learning with immediate application of concepts to the capstone system. This approach ensures students develop both theoretical understanding and practical skills necessary for success in Physical AI and humanoid robotics.`} />
+The curriculum emphasizes practical, hands-on learning with immediate application of concepts to the capstone system. This approach ensures students develop both theoretical understanding and practical skills necessary for success in Physical AI and humanoid robotics.
 
 This document provides a comprehensive overview of the four-module robotics curriculum structure, explaining how modules progress from foundational concepts to advanced integration, and how they connect to real-world robotic capabilities. The curriculum is designed with a capstone-first approach, where students understand the complete system they'll build from the beginning. This approach ensures that students appreciate the relevance of each foundational concept as they progress through the modules, understanding how each piece contributes to the larger robotic system they will ultimately develop.
 

@@ -38,8 +38,6 @@ const config: Config = {
   customFields: {
     //Backend API Url
     CHAT_API_URL: process.env.CHAT_API_URL || 'http://localhost:8000',
-    // Translation API URL
-    TRANSLATION_API_URL: process.env.TRANSLATION_API_URL || 'http://localhost:3001/api/translate',
   },
 
   // GitHub pages deployment config removed for Vercel deployment
@@ -52,17 +50,7 @@ const config: Config = {
   // may want to replace "en" with "zh-Hans".
   i18n: {
     defaultLocale: "en",
-    locales: ["en", "ur"],
-    localeConfigs: {
-      en: {
-        label: "English",
-        direction: "ltr",
-      },
-      ur: {
-        label: "اردو",
-        direction: "rtl",
-      },
-    },
+    locales: ["en"],
   },
 
   presets: [
@@ -107,8 +95,6 @@ const config: Config = {
   stylesheets: [
     "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap",
     "/css/chat.css",
-    "/css/rtl-urdu.css",
-    "/css/translation-button.css",
   ],
   themeConfig: {
     // Replace with your project's social card
@@ -136,10 +122,6 @@ const config: Config = {
           position: "right",
           label: "TextBook",
         },
-        {
-          type: "localeDropdown",
-          position: "right",
-        },
         // { to: "/blog", label: "Blog", position: "left" },
         {
           type: 'custom-NavbarAuth',
@@ -147,8 +129,7 @@ const config: Config = {
           // Additional props can be added here
         },
         {
-          href: "https://github.com/HamzaSheikh768/Physical-AI-Humanoid-Robotic-Book",
-          label: "GitHub",
+          type: 'custom-GitHub',
           position: "right",
         },
       ],

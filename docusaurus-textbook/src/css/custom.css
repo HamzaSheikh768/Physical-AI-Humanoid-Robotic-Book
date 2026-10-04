@@ -223,6 +223,16 @@ a:hover {
   height: 2.25rem;
 }
 
+.navbar__github-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.navbar__github-icon {
+  flex: 0 0 auto;
+}
+
 .navbar__item .clean-btn,
 .navbar__item .toggleButton_gllP {
   border: 1px solid var(--pa-border-dark);
