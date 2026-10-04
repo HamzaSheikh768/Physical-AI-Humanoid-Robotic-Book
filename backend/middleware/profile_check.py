@@ -4,7 +4,7 @@ from fastapi import HTTPException, Request, status
 from fastapi.security import HTTPBearer
 from jose import jwt
 
-from backend.config import get_settings
+from backend.config import get_jwt_secret, get_settings
 from backend.services.auth_service import get_or_create_user_profile
 
 security = HTTPBearer(auto_error=False)
@@ -27,7 +27,7 @@ async def check_profile_completeness_dependency(request: Request):
     try:
         # Decode the JWT token
         payload = jwt.decode(
-            token, settings.secret_key, algorithms=[settings.algorithm]
+            token, get_jwt_secret(), algorithms=[settings.algorithm]
         )
         user_id: str = payload.get("user_id")
 

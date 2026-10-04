@@ -6,7 +6,7 @@ from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
-from backend.config import get_settings
+from backend.config import get_jwt_secret, get_settings
 from backend.models.auth import (
     AuthResponse,
     Token,
@@ -110,7 +110,7 @@ async def get_profile(token: str = Depends(oauth2_scheme)):
 
     try:
         payload = jwt.decode(
-            token, settings.secret_key, algorithms=[settings.algorithm]
+            token, get_jwt_secret(), algorithms=[settings.algorithm]
         )
         user_id: str = payload.get("user_id")
         if user_id is None:
@@ -152,7 +152,7 @@ async def create_profile(
 
     try:
         payload = jwt.decode(
-            token, settings.secret_key, algorithms=[settings.algorithm]
+            token, get_jwt_secret(), algorithms=[settings.algorithm]
         )
         user_id: str = payload.get("user_id")
         if user_id is None:
@@ -200,7 +200,7 @@ async def update_profile(
 
     try:
         payload = jwt.decode(
-            token, settings.secret_key, algorithms=[settings.algorithm]
+            token, get_jwt_secret(), algorithms=[settings.algorithm]
         )
         user_id: str = payload.get("user_id")
         if user_id is None:
@@ -244,7 +244,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 
     try:
         payload = jwt.decode(
-            token, settings.secret_key, algorithms=[settings.algorithm]
+            token, get_jwt_secret(), algorithms=[settings.algorithm]
         )
         user_id: str = payload.get("user_id")
         email: str = payload.get("email")
@@ -289,7 +289,7 @@ async def check_profile_complete(token: str = Depends(oauth2_scheme)):
 
     try:
         payload = jwt.decode(
-            token, settings.secret_key, algorithms=[settings.algorithm]
+            token, get_jwt_secret(), algorithms=[settings.algorithm]
         )
         user_id: str = payload.get("user_id")
         if user_id is None:

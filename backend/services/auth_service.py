@@ -8,7 +8,7 @@ import asyncpg
 from jose import jwt
 from passlib.context import CryptContext
 
-from backend.config import get_settings
+from backend.config import get_jwt_secret, get_settings
 from backend.db.neon_postgres import db
 from backend.models.auth import UserCreate, UserInDB, UserProfileCreate, UserProfileInDB
 from backend.utils.auth_logging import AuthLogEvent, log_auth_event
@@ -41,7 +41,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
         expire = datetime.utcnow() + timedelta(minutes=30)  # Default 30 minutes
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(
-        to_encode, settings.secret_key, algorithm=settings.algorithm
+        to_encode, get_jwt_secret(), algorithm=settings.algorithm
     )
     return encoded_jwt
 

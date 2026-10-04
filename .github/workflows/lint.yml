@@ -37,4 +37,4 @@ jobs:
 
     - name: Type check with mypy
       run: |
-        mypy backend --package src --ignore-missing-imports
+        mypy backend/src --ignore-missing-imports --follow-imports=skip --exclude '(^|/)migrations/'

@@ -177,5 +177,12 @@ class _CohereServiceProvider:
                 self._instance = CohereEmbeddingService()
             setattr(self._instance, name, value)
 
+    def __delattr__(self, name):
+        """Delegate attribute cleanup so mocks can safely restore patched methods."""
+        if name.startswith("_"):
+            super().__delattr__(name)
+        elif self._instance is not None:
+            delattr(self._instance, name)
+
 
 cohere_service = _CohereServiceProvider()

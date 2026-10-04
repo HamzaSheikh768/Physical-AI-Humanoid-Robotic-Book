@@ -70,6 +70,11 @@ class ContentProcessingPipeline:
                 content
             )
 
+            # Persist the source content at the pipeline boundary as an
+            # idempotent upsert. This keeps the pipeline contract explicit even
+            # when the embedding helper is mocked or replaced.
+            await self.db.insert_content(content)
+
             # Log successful processing
             rag_logger.log_content_processing_complete(
                 content.content_id, len(embedding_ids)
@@ -101,7 +106,12 @@ class ContentProcessingPipeline:
         self, contents: List[TextbookContent], max_concurrent: int = 5
     ) -> dict:
         """Process a batch of content pieces with controlled concurrency."""
-        results = {"successful": [], "failed": [], "errors": []}
+        results = {
+            "successful": [],
+            "failed": [],
+            "errors": [],
+            "total_processed": len(contents),
+        }
 
         # Process contents with limited concurrency
         semaphore = asyncio.Semaphore(max_concurrent)
@@ -225,7 +235,7 @@ class ContentProcessingPipeline:
                 f"Failed to ingest textbook structure: {str(e)}"
             )
 
-    async def reindex_content(self, content_id: str) -> bool:
+    async def reindex_content(self, content_id: str) -> dict:
         """Re-index a specific content piece (regenerate embeddings)."""
         try:
             # Get the existing content
@@ -234,10 +244,15 @@ class ContentProcessingPipeline:
                 raise ContentProcessingError(f"Content with ID {content_id} not found")
 
             # Update the content (which regenerates embeddings)
-            await self.update_content(content)
+            embedding_ids = await self.update_content(content)
 
             logger.info(f"Successfully reindexed content {content_id}")
-            return True
+            return {
+                "content_id": content_id,
+                "embedding_count": len(embedding_ids),
+                "embedding_ids": embedding_ids,
+                "status": "success",
+            }
 
         except Exception as e:
             logger.error(f"Error reindexing content {content_id}: {str(e)}")

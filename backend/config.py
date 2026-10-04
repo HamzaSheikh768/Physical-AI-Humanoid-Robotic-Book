@@ -1,6 +1,7 @@
 """Configuration management for the RAG Chatbot API."""
 
 
+from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings
 
 
@@ -8,17 +9,19 @@ class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
 
     # API Keys
-    cohere_api_key: str = "your_api_key"
-    gemini_api_key: str = "your_api_key"
+    cohere_api_key: str = Field(default="", repr=False)
+    gemini_api_key: str = Field(default="", repr=False)
+    openai_api_key: str = Field(default="", repr=False)
 
     # Database settings
-    neon_postgres_url: str = "postgresql://neondb_owner:npg_lF7p6eSIxOQk@ep-wild-truth-a4b13qm7-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+    neon_postgres_url: str = Field(
+        default="postgresql://postgres:postgres@localhost:5432/test_db",
+        validation_alias=AliasChoices("NEON_POSTGRES_URL", "DATABASE_URL"),
+    )
 
     # Qdrant settings
-    qdrant_url: str = (
-        "c6399b27-5ad3-475b-a578-e8cbb5fa6e7d.europe-west3-0.gcp.cloud.qdrant.io:6333"
-    )
-    qdrant_api_key: str = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIn0._M-fZpqzPqgbD-U8NdFJcirPRgWOS-ofiiYXM3exCDs"
+    qdrant_url: str = "http://localhost:6333"
+    qdrant_api_key: str = Field(default="", repr=False)
 
     # Server settings
     uvicorn_host: str = "0.0.0.0"
@@ -34,9 +37,14 @@ class Settings(BaseSettings):
     # Cohere settings
     cohere_model: str = "embed-multilingual-v2.0"
     qdrant_collection: str = "Book-Embedding"
+    openai_model: str = "gpt-4o-mini"
 
     # Authentication settings
-    secret_key: str = "lECk7drIbqcAq04bcE6kQkQjw9qedV1s"
+    secret_key: str = Field(
+        default="",
+        repr=False,
+        validation_alias=AliasChoices("JWT_SECRET_KEY", "SECRET_KEY"),
+    )
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
 
@@ -57,6 +65,16 @@ def get_settings():
     if _settings_instance is None:
         _settings_instance = Settings()
     return _settings_instance
+
+
+def get_jwt_secret() -> str:
+    """Return the configured JWT secret, failing closed when it is missing or weak."""
+    secret = get_settings().secret_key
+    if len(secret) < 32:
+        raise RuntimeError(
+            "JWT_SECRET_KEY must be configured with at least 32 characters before auth is used"
+        )
+    return secret
 
 
 # For backward compatibility, create the settings instance when needed
