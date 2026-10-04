@@ -43,9 +43,44 @@ const systemRows = [
   ['Action', 'Motion, manipulation, feedback', '03'],
 ];
 
+const proofPoints = [
+  '4 learning modules',
+  'ROS 2 → Isaac',
+  'English + اردو',
+  'Open-source field guide',
+];
+
+const pillars = [
+  {
+    index: '01',
+    title: 'Embodied reasoning',
+    description: 'Learn how perception, planning, and control work together when the world does not behave like a clean dataset.',
+  },
+  {
+    index: '02',
+    title: 'Simulation before risk',
+    description: 'Use digital twins and repeatable experiments to expose failure modes before a motor, sensor, or person is in the loop.',
+  },
+  {
+    index: '03',
+    title: 'A path to deployment',
+    description: 'Move from concepts to production-minded systems with the interfaces, safety checks, and feedback loops real robots need.',
+  },
+];
+
 export default function HomepageJourney(): React.ReactElement {
   return (
     <div className={styles.journey}>
+      <section className={styles.proofSection} aria-label="Book highlights">
+        <div className={styles.container}>
+          <ul className={styles.proofGrid}>
+            {proofPoints.map((point) => (
+              <li key={point}>{point}</li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
       <section className={styles.workflowSection} aria-labelledby="journey-title">
         <div className={styles.container}>
           <div className={styles.sectionHeader}>
@@ -74,6 +109,30 @@ export default function HomepageJourney(): React.ReactElement {
               </li>
             ))}
           </ol>
+        </div>
+      </section>
+
+      <section className={styles.pillarsSection} aria-labelledby="pillars-title">
+        <div className={styles.container}>
+          <div className={styles.pillarsHeader}>
+            <div>
+              <p className={styles.eyebrow}>What makes this guide different</p>
+              <h2 id="pillars-title">Build systems that survive contact with the world.</h2>
+            </div>
+            <p className={styles.sectionLead}>
+              The hard part is not making a model speak. It is giving intelligence a body, a feedback loop, and a safe way to learn from what happens next.
+            </p>
+          </div>
+
+          <div className={styles.pillarGrid}>
+            {pillars.map((pillar) => (
+              <article className={styles.pillar} key={pillar.index}>
+                <span className={styles.pillarIndex}>{pillar.index}</span>
+                <h3>{pillar.title}</h3>
+                <p>{pillar.description}</p>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
