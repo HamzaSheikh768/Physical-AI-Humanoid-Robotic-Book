@@ -16,7 +16,7 @@ const config: Config = {
   title: "Physical AI & Humanoid Robotics: Complete Guide TextBook",
   tagline:
     "Bridging the digital brain with the physical form, Humanoids learning, moving, and intelligently performing, From ROS 2 to NVIDIA Isaac, simulations come alive, Master embodied AI and guide robots to thrive in the real world, Explore perception, planning, and action with cutting-edge AI, Transform knowledge into intelligent, autonomous humanoids.",
-  favicon: "img/robot-favicon.png",
+  favicon: "img/physical-ai-logo.svg",
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
@@ -114,15 +114,22 @@ const config: Config = {
     // Replace with your project's social card
     image: "img/docusaurus-social-card.jpg",
     colorMode: {
-      respectPrefersColorScheme: true,
+      defaultMode: "dark",
+      disableSwitch: false,
+      respectPrefersColorScheme: false,
     },
     navbar: {
       title: "Physical AI & Humanoid Robotic",
       logo: {
         alt: "Physical AI & Humanoid Robotic Book Logo",
-        src: "img/robot-logo.svg",
+        src: "img/physical-ai-logo.svg",
       },
       items: [
+        {
+          to: "/",
+          label: "Home",
+          position: "left",
+        },
         {
           type: "docSidebar",
           sidebarId: "tutorialSidebar",
@@ -148,6 +155,10 @@ const config: Config = {
         {
           title: "Docs",
           items: [
+            {
+              label: "Home",
+              to: "/",
+            },
             {
               label: "Introduction",
               to: "/docs/Introduction",

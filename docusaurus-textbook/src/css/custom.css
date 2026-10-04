@@ -82,9 +82,58 @@
   --ifm-transition-medium: var(--pa-duration-base);
 }
 
+html[data-theme='light'] {
+  --pa-black: #F7F9FC;
+  --pa-surface: #E7F0FA;
+  --pa-surface-soft: rgba(79, 145, 226, 0.1);
+  --pa-text-primary: #122D3D;
+  --pa-text-secondary: #44566C;
+  --pa-text-muted: #66788B;
+  --pa-text-on-accent: #FAFAFA;
+  --pa-accent: #185FA5;
+  --pa-accent-bright: #3578E5;
+  --pa-accent-soft: rgba(53, 120, 229, 0.12);
+  --pa-border-dark: rgba(18, 45, 61, 0.14);
+  --pa-border-muted: rgba(18, 45, 61, 0.3);
+  --pa-highlight: rgba(255, 255, 255, 0.8);
+  --pa-shadow-accent: 0 0.875rem 2rem rgba(53, 120, 229, 0.14);
+  --pa-shadow-accent-strong: 0 1rem 2.5rem rgba(53, 120, 229, 0.22);
+  --pa-shadow-card: 0 1.25rem 3.125rem rgba(18, 45, 61, 0.12);
+  --pa-shadow-card-hover: 0 1.5rem 3.75rem rgba(18, 45, 61, 0.18), 0 0 1.75rem rgba(53, 120, 229, 0.12);
+  --pa-shadow-xl: 1.25rem 1.25rem 3.125rem rgba(18, 45, 61, 0.16);
+  --pa-image-shadow: 0 1.5rem 2.5rem rgba(18, 45, 61, 0.22);
+
+  --ifm-color-primary: var(--pa-accent);
+  --ifm-color-primary-dark: #0B2F58;
+  --ifm-color-primary-darker: #0B2F58;
+  --ifm-color-primary-darkest: #122D3D;
+  --ifm-color-primary-light: var(--pa-accent-bright);
+  --ifm-color-primary-lighter: #74A7E8;
+  --ifm-color-primary-lightest: #9ABCF2;
+  --ifm-background-color: var(--pa-black);
+  --ifm-background-surface-color: var(--pa-surface-soft);
+  --ifm-color-emphasis-0: var(--pa-black);
+  --ifm-color-emphasis-100: var(--pa-surface-soft);
+  --ifm-color-emphasis-200: var(--pa-border-dark);
+  --ifm-color-emphasis-300: #66788B;
+  --ifm-color-emphasis-400: #66788B;
+  --ifm-color-emphasis-500: #44566C;
+  --ifm-color-emphasis-600: #122D3D;
+  --ifm-color-emphasis-700: #122D3D;
+  --ifm-color-emphasis-800: #122D3D;
+  --ifm-color-content: var(--pa-text-secondary);
+  --ifm-color-content-secondary: var(--pa-text-muted);
+  --ifm-heading-color: var(--pa-text-primary);
+  --ifm-card-background-color: var(--pa-surface-soft);
+  --ifm-navbar-background-color: var(--pa-black);
+  --ifm-footer-background-color: var(--pa-black);
+  --ifm-code-background: var(--pa-surface-soft);
+  --ifm-toc-border-color: var(--pa-border-dark);
+  --ifm-menu-color: var(--pa-text-secondary);
+  --ifm-menu-color-active: var(--pa-text-primary);
+}
+
 html,
-html[data-theme='light'],
-html[data-theme='dark'],
 body,
 #__docusaurus,
 .main-wrapper {
@@ -93,6 +142,10 @@ body,
 
 html {
   color-scheme: dark;
+}
+
+html[data-theme='light'] {
+  color-scheme: light;
 }
 
 body {
@@ -132,7 +185,7 @@ a:hover {
 .navbar {
   min-height: 4.5rem;
   border-bottom: 1px solid var(--pa-border-dark);
-  background: var(--pa-black) !important;
+  background: var(--ifm-navbar-background-color) !important;
   box-shadow: none;
 }
 
@@ -164,6 +217,35 @@ a:hover {
   border-color: var(--pa-border-dark);
 }
 
+.navbar__logo img {
+  display: block;
+  width: 2.25rem;
+  height: 2.25rem;
+}
+
+.navbar__item .clean-btn,
+.navbar__item .toggleButton_gllP {
+  border: 1px solid var(--pa-border-dark);
+  border-radius: var(--pa-radius-full);
+  color: var(--pa-text-primary);
+  transition: background-color var(--pa-duration-fast), border-color var(--pa-duration-fast), color var(--pa-duration-fast), transform var(--pa-duration-fast);
+}
+
+.navbar__item .clean-btn:hover,
+.navbar__item .clean-btn:focus-visible,
+.navbar__item .toggleButton_gllP:hover,
+.navbar__item .toggleButton_gllP:focus-visible {
+  border-color: var(--pa-accent);
+  background: var(--pa-accent-soft);
+  color: var(--pa-accent-bright);
+  transform: translateY(-1px);
+}
+
+.navbar__item .toggleButton_gllP:focus-visible {
+  outline: 2px solid var(--pa-accent-bright);
+  outline-offset: 3px;
+}
+
 .navbar--fixed-top ~ .main-wrapper {
   margin-top: 0;
   padding-top: 0;
@@ -171,7 +253,7 @@ a:hover {
 
 .footer {
   border-top: 1px solid var(--pa-border-dark);
-  background: var(--pa-black) !important;
+  background: var(--ifm-footer-background-color) !important;
   color: var(--pa-text-secondary);
 }
 
