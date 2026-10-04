@@ -1,12 +1,6 @@
 {
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "buildCommand": "npm run build",
-        "distDir": "build"
-      }
-    }
-  ]
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build",
+  "installCommand": "npm ci",
+  "outputDirectory": "build"
 }
