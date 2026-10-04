@@ -1,49 +1,49 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import React, {useState} from 'react';
+import {motion} from 'framer-motion';
+import Link from '@docusaurus/Link';
 import styles from '../css/FeatureCard.module.css';
 
 interface FeatureCardProps {
   title: string;
   description?: string;
   icon?: string;
-  themeColor?: string;
+  href?: string;
+  linkText?: string;
+  index?: number;
 }
 
 const FeatureCard: React.FC<FeatureCardProps> = ({
   title,
-  description = "",
+  description = '',
   icon,
-  themeColor = "#2563eb"
+  href,
+  linkText = 'Read chapter',
+  index = 1,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
-
-  const cardVariants = {
-    rest: {
-      y: 0,
-      scale: 1,
-      boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
-    },
-    hover: {
-      y: -10,
-      scale: 1.02,
-      boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
-    }
-  };
 
   return (
     <motion.div
       className={styles.featureCard}
-      variants={cardVariants}
-      animate={isHovered ? "hover" : "rest"}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
+      animate={{y: isHovered ? -6 : 0}}
+      whileTap={{scale: 0.99}}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      transition={{duration: 0.2, ease: 'easeOut'}}
     >
-      {icon && <div className={styles.icon}>{icon}</div>}
+      <div className={styles.cardTopline}>
+        <span className={styles.index}>{String(index).padStart(2, '0')}</span>
+        <span className={styles.arrow} aria-hidden="true">↗</span>
+      </div>
+      {icon && <div className={styles.icon} aria-hidden="true">{icon}</div>}
       <h3 className={styles.title}>{title}</h3>
       {description && <p className={styles.description}>{description}</p>}
+      {href && (
+        <Link className={styles.featureLink} to={href}>
+          {linkText}
+          <span aria-hidden="true">→</span>
+        </Link>
+      )}
     </motion.div>
   );
 };

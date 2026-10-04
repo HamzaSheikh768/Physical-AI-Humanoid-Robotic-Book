@@ -32,7 +32,7 @@ export const featureCardsData: FeatureCard[] = [
     id: 'feature-4',
     title: 'Production-ready AI Systems',
     description: 'Deploy and scale AI systems in real-world environments. Learn best practices for building robust, reliable, and maintainable AI applications.',
-    imageUrl: '/img/feature-4.svg',
+    imageUrl: '/img/cloud-training-local-inference-flow.svg',
     linkUrl: '/docs/Conclusion',
     linkText: 'Explore Tutorials',
     order: 4

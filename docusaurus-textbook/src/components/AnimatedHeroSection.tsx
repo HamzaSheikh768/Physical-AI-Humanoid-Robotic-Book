@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React from 'react';
+import {motion} from 'framer-motion';
 import Link from '@docusaurus/Link';
-import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import styles from '../css/AnimatedHeroSection.module.css';
 
 interface HeroSectionProps {
+  eyebrow?: string;
   title: string;
   subtitle?: string;
   primaryButtonText?: string;
@@ -16,210 +16,76 @@ interface HeroSectionProps {
 }
 
 const AnimatedHeroSection: React.FC<HeroSectionProps> = ({
+  eyebrow,
   title,
   subtitle,
-  primaryButtonText = "Get Started",
-  primaryButtonLink = "/docs/Introduction",
+  primaryButtonText = 'Get started',
+  primaryButtonLink = '/docs/Introduction',
   secondaryButtonText,
   secondaryButtonLink,
   imageUrl,
-  imageAlt = "Hero section image"
-}) => {
-  const { siteConfig } = useDocusaurusContext();
-  const [isPrimaryButtonHovered, setIsPrimaryButtonHovered] = useState(false);
-  const [isSecondaryButtonHovered, setIsSecondaryButtonHovered] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    setIsVisible(true);
-  }, []);
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        type: "spring" as const,
-        damping: 12,
-        stiffness: 100
-      }
-    }
-  };
-
-  const buttonVariants = {
-    rest: {
-      scale: 1,
-      y: 0,
-      transition: {
-        type: "spring" as const,
-        stiffness: 300,
-        damping: 20
-      }
-    },
-    hover: {
-      scale: 1.05,
-      y: -3,
-      transition: {
-        type: "spring" as const,
-        stiffness: 400,
-        damping: 10
-      }
-    }
-  };
-
-  const imageVariants = {
-    hidden: { scale: 0.8, opacity: 0 },
-    visible: {
-      scale: 1,
-      opacity: 1,
-      transition: {
-        delay: 0.3,
-        type: "spring" as const,
-        stiffness: 80,
-        damping: 15
-      }
-    },
-    hover: {
-      scale: 1.02,
-      transition: {
-        type: "spring" as const,
-        stiffness: 300,
-        damping: 10
-      }
-    }
-  };
-
-  return (
-    <header className={styles.heroBanner}>
-      <div className="container">
+  imageAlt = 'Hero section image',
+}) => (
+  <header className={styles.heroBanner} aria-labelledby="hero-title">
+    <div className={styles.heroGlow} aria-hidden="true" />
+    <div className="container">
+      <motion.div
+        className={styles.heroGrid}
+        initial={{opacity: 0, y: 16}}
+        animate={{opacity: 1, y: 0}}
+        transition={{duration: 0.65, ease: 'easeOut'}}
+      >
         <motion.div
-          className={styles.heroGrid}
-          variants={containerVariants}
-          initial="hidden"
-          animate={isVisible ? "visible" : "hidden"}
+          className={styles.textContent}
+          initial={{opacity: 0, x: -18}}
+          animate={{opacity: 1, x: 0}}
+          transition={{duration: 0.65, delay: 0.08, ease: 'easeOut'}}
         >
-          <motion.div className={styles.textContent} variants={itemVariants}>
-            <motion.h1 className={`hero__title ${styles.title}`} variants={itemVariants}>
-              {title.toUpperCase().includes('PHYSICAL AI') ? (
-                <>
-                  <div className={styles.titleLine1}>
-                    <span className={styles.titleBlue}>PHYSICAL AI</span>
-                  </div>
-                  <div className={styles.titleLine2}>
-                    <span className={styles.titleText}>
-                      {title.replace(/PHYSICAL AI &/i, '').trim()}
-                    </span>
-                  </div>
-                </>
-              ) : (
-                <span className={styles.titleText}>{title}</span>
-              )}
-            </motion.h1>
-            {subtitle && (
-              <motion.p className={`hero__subtitle ${styles.subtitle}`} variants={itemVariants}>
-                {subtitle}
-              </motion.p>
-            )}
-            <motion.div className={styles.buttons} variants={itemVariants}>
-              <Link
-                className={`button button--primary button--lg ${styles.primaryButton}`}
-                to={primaryButtonLink}
-                onMouseEnter={() => setIsPrimaryButtonHovered(true)}
-                onMouseLeave={() => setIsPrimaryButtonHovered(false)}
-              >
-                <motion.span
-                  variants={buttonVariants}
-                  animate={isPrimaryButtonHovered ? "hover" : "rest"}
-                >
-                  {primaryButtonText}
-                </motion.span>
+          {eyebrow && <p className={styles.eyebrow}>{eyebrow}</p>}
+          <h1 id="hero-title" className={styles.title}>{title}</h1>
+          {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
+          <div className={styles.buttons}>
+            <Link className={styles.primaryButton} to={primaryButtonLink}>
+              {primaryButtonText}
+              <span aria-hidden="true">↗</span>
+            </Link>
+            {secondaryButtonText && secondaryButtonLink && (
+              <Link className={styles.secondaryButton} to={secondaryButtonLink}>
+                {secondaryButtonText}
               </Link>
-              {secondaryButtonText && secondaryButtonLink && (
-                <Link
-                  className={`button button--secondary button--lg ${styles.secondaryButton}`}
-                  to={secondaryButtonLink}
-                  onMouseEnter={() => setIsSecondaryButtonHovered(true)}
-                  onMouseLeave={() => setIsSecondaryButtonHovered(false)}
-                >
-                  <motion.span
-                    variants={buttonVariants}
-                    animate={isSecondaryButtonHovered ? "hover" : "rest"}
-                  >
-                    {secondaryButtonText}
-                  </motion.span>
-                </Link>
-              )}
-            </motion.div>
-          </motion.div>
-          {imageUrl && (
-            <motion.div className={styles.imageContent} variants={itemVariants}>
+            )}
+          </div>
+          <div className={styles.heroMeta} aria-label="Book highlights">
+            <span>4 learning modules</span>
+            <span>ROS 2 → Isaac</span>
+            <span>Open source</span>
+          </div>
+        </motion.div>
+        {imageUrl && (
+          <motion.div
+            className={styles.imageContent}
+            initial={{opacity: 0, x: 18, scale: 0.96}}
+            animate={{opacity: 1, x: 0, scale: 1}}
+            transition={{duration: 0.75, delay: 0.15, ease: 'easeOut'}}
+          >
+            <div className={styles.imageFrame}>
+              <span className={styles.imageKicker}>Field guide / 01</span>
               <motion.img
                 src={imageUrl}
                 alt={imageAlt}
                 className={styles.heroImage}
-                variants={imageVariants}
-                whileHover="hover"
+                animate={{y: [0, -8, 0]}}
+                transition={{duration: 6, repeat: Infinity, ease: 'easeInOut'}}
               />
-            </motion.div>
-          )}
-        </motion.div>
-      </div>
-
-      {/* Animated background elements */}
-      <div className={styles.backgroundElements}>
-        <motion.div
-          className={styles.bgCircle}
-          animate={{
-            y: [0, -10, 0],
-            opacity: [0.1, 0.2, 0.1]
-          }}
-          transition={{
-            duration: 6,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        />
-        <motion.div
-          className={styles.bgCircle}
-          animate={{
-            y: [-5, 5, -5],
-            opacity: [0.05, 0.15, 0.05]
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 1
-          }}
-        />
-        <motion.div
-          className={styles.bgCircle}
-          animate={{
-            y: [10, -10, 10],
-            opacity: [0.08, 0.18, 0.08]
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 2
-          }}
-        />
-      </div>
-    </header>
-  );
-};
+              <span className={styles.imageCaption}>
+                The bridge from digital intelligence to physical action.
+              </span>
+            </div>
+          </motion.div>
+        )}
+      </motion.div>
+    </div>
+  </header>
+);
 
 export default AnimatedHeroSection;

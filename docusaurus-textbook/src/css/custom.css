@@ -1,152 +1,231 @@
-/* Custom CSS for UI Redesign with Framer Motion Animations */
-
-/* Import Inter font */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
-/* Define CSS custom properties for dark theme */
+/* Physical AI visual tokens — shared by the marketing surface and docs UI. */
 :root {
-  --ifm-font-family-base: "Inter", system-ui, sans-serif;
-  --ifm-color-primary: #2563eb; /* Blue for hover effects */
-  --ifm-color-primary-dark: #1d4ed8;
-  --ifm-color-primary-darker: #1a47c2;
-  --ifm-color-primary-darkest: #153a9e;
-  --ifm-color-primary-light: #3b82f6;
-  --ifm-color-primary-lighter: #5a9eff;
-  --ifm-color-primary-lightest: #7fb8ff;
-  --ifm-color-emphasis-0: #000000; /* dark background */
-  --ifm-color-emphasis-100: #1a1a1a; /* darker gray */
-  --ifm-color-emphasis-200: #333333; /* medium gray */
-  --ifm-color-emphasis-300: #4d4d4d; /* lighter gray */
-  --ifm-color-emphasis-400: #94a3b8; /* light text */
-  --ifm-color-emphasis-500: #cbd5e1; /* lighter text */
-  --ifm-color-emphasis-600: #e2e8f0; /* very light text */
-  --ifm-color-emphasis-700: #f1f5f9; /* near white */
-  --ifm-color-emphasis-800: #f8fafc; /* white */
+  --pa-black: #000000;
+  --pa-surface: #0B2F58;
+  --pa-surface-soft: rgba(11, 47, 88, 0.38);
+  --pa-text-primary: #FAFAFA;
+  --pa-text-secondary: #ADC0D8;
+  --pa-text-muted: #A1A1A1;
+  --pa-text-on-accent: #FAFAFA;
+  --pa-accent: #4F91E2;
+  --pa-accent-bright: #59AAF8;
+  --pa-accent-soft: rgba(79, 145, 226, 0.2);
+  --pa-border-dark: rgba(229, 229, 229, 0.18);
+  --pa-border-muted: rgba(172, 192, 216, 0.46);
+  --pa-highlight: rgba(250, 250, 250, 0.12);
+  --pa-content-width: 80rem;
+  --pa-control-height: 3.25rem;
+  --pa-radius-sm: 0.75rem;
+  --pa-radius-full: 9999px;
+  --pa-space-6: 0.625rem;
+  --pa-space-7: 0.75rem;
+  --pa-space-8: 0.875rem;
+  --pa-space-9: 1rem;
+  --pa-space-10: 1.25rem;
+  --pa-space-11: 1.5rem;
+  --pa-space-12: 1.75rem;
+  --pa-space-13: 2rem;
+  --pa-space-14: 2.5rem;
+  --pa-space-15: 3.75rem;
+  --pa-space-17: 6rem;
+  --pa-space-18: 7rem;
+  --pa-text-xs: 0.625rem;
+  --pa-text-sm: 0.75rem;
+  --pa-text-base: 0.875rem;
+  --pa-text-lg: 1.125rem;
+  --pa-text-xl: 1.25rem;
+  --pa-text-2xl: 1.5rem;
+  --pa-leading-tight: 1.1;
+  --pa-leading-normal: 1.5;
+  --pa-leading-relaxed: 1.75;
+  --pa-duration-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --pa-duration-base: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --pa-shadow-accent: 0 0.875rem 2rem rgba(79, 145, 226, 0.18);
+  --pa-shadow-accent-strong: 0 1rem 2.5rem rgba(79, 145, 226, 0.3);
+  --pa-shadow-card: 0 1.25rem 3.125rem rgba(0, 0, 0, 0.24);
+  --pa-shadow-card-hover: 0 1.5rem 3.75rem rgba(0, 0, 0, 0.4), 0 0 1.75rem rgba(79, 145, 226, 0.16);
+  --pa-shadow-xl: 1.25rem 1.25rem 3.125rem rgba(0, 0, 0, 0.3);
+  --pa-image-shadow: 0 1.5rem 2.5rem rgba(0, 0, 0, 0.5);
 
-  /* Spacing system (8/16/24px) */
-  --ifm-spacing-xs: 0.5rem;    /* 8px */
-  --ifm-spacing-sm: 1rem;      /* 16px */
-  --ifm-spacing-md: 1.5rem;    /* 24px */
-  --ifm-spacing-lg: 2rem;      /* 32px */
-  --ifm-spacing-xl: 2.5rem;    /* 40px */
-  --ifm-spacing-2xl: 3rem;     /* 48px */
-  --ifm-spacing-3xl: 3.5rem;   /* 56px */
-  --ifm-spacing-4xl: 4rem;     /* 64px */
-
-  /* Rounded corners (10-14px) */
-  --ifm-radius-sm: 0.625rem;   /* 10px */
-  --ifm-radius-md: 0.75rem;    /* 12px */
-  --ifm-radius-lg: 0.875rem;   /* 14px */
-  --ifm-radius-xl: 1rem;       /* 16px */
-
-  /* Global shadow */
-  --ifm-global-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-
-  /* Animation */
-  --ifm-transition-fast: 0.2s ease;
-  --ifm-transition-medium: 0.3s ease;
-  --ifm-transition-slow: 0.5s ease;
-
-  /* Heading colors for dark theme */
-  --ifm-heading-color: var(--ifm-color-emphasis-600);
-  --ifm-font-color-base: var(--ifm-color-emphasis-400);
-  --ifm-card-background-color: var(--ifm-color-emphasis-100);
-
-  /* Global styling system for UI upgrade */
-  --hero-background: #000000; /* True black background */
-  --feature-card-bg: var(--ifm-color-emphasis-100);
-  --text-primary: var(--ifm-color-emphasis-600);
-  --text-secondary: var(--ifm-color-emphasis-400);
+  --ifm-font-family-base: Poppins, system-ui, sans-serif;
+  --ifm-font-family-monospace: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --ifm-color-primary: var(--pa-accent);
+  --ifm-color-primary-dark: #185FA5;
+  --ifm-color-primary-darker: #185FA5;
+  --ifm-color-primary-darkest: #0B2F58;
+  --ifm-color-primary-light: var(--pa-accent-bright);
+  --ifm-color-primary-lighter: #9CCCFF;
+  --ifm-color-primary-lightest: #9CCCFF;
+  --ifm-background-color: var(--pa-black);
+  --ifm-background-surface-color: var(--pa-surface-soft);
+  --ifm-color-emphasis-0: var(--pa-black);
+  --ifm-color-emphasis-100: var(--pa-surface-soft);
+  --ifm-color-emphasis-200: var(--pa-border-dark);
+  --ifm-color-emphasis-300: #ADC0D8;
+  --ifm-color-emphasis-400: #ADC0D8;
+  --ifm-color-emphasis-500: #E5E5E5;
+  --ifm-color-emphasis-600: #FAFAFA;
+  --ifm-color-emphasis-700: #FAFAFA;
+  --ifm-color-emphasis-800: #FAFAFA;
+  --ifm-color-content: var(--pa-text-secondary);
+  --ifm-color-content-secondary: var(--pa-text-muted);
+  --ifm-heading-color: var(--pa-text-primary);
+  --ifm-card-background-color: var(--pa-surface-soft);
+  --ifm-navbar-background-color: var(--pa-black);
+  --ifm-footer-background-color: var(--pa-black);
+  --ifm-code-background: var(--pa-surface-soft);
+  --ifm-toc-border-color: var(--pa-border-dark);
+  --ifm-menu-color: var(--pa-text-secondary);
+  --ifm-menu-color-active: var(--pa-text-primary);
+  --ifm-global-radius: var(--pa-radius-sm);
+  --ifm-transition-fast: var(--pa-duration-fast);
+  --ifm-transition-medium: var(--pa-duration-base);
 }
 
-/* Global overrides */
-/* Apply true black background consistently across the site */
+html,
+html[data-theme='light'],
+html[data-theme='dark'],
+body,
+#__docusaurus,
+.main-wrapper {
+  background: var(--pa-black) !important;
+}
+
 html {
-  background-color: #000000 !important;
+  color-scheme: dark;
 }
 
 body {
-  background-color: #000000 !important;
-  color: var(--text-secondary);
+  color: var(--pa-text-secondary);
+  font-family: var(--ifm-font-family-base);
+  font-size: var(--pa-text-base);
+}
+
+::selection {
+  background: var(--pa-accent);
+  color: var(--pa-text-primary);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--pa-text-primary);
   font-family: var(--ifm-font-family-base);
 }
 
-/* Ensure consistent typography system */
-h1, h2, h3, h4, h5, h6 {
-  color: var(--text-primary);
-  font-family: var(--ifm-font-family-base);
-  font-weight: 600;
+a {
+  color: var(--pa-accent-bright);
 }
 
-/* Ensure consistent spacing system */
+a:hover {
+  color: var(--pa-text-primary);
+}
+
 .container {
-  padding: var(--ifm-spacing-md) var(--ifm-spacing-lg);
+  padding-right: var(--pa-space-11);
+  padding-left: var(--pa-space-11);
 }
 
-/* Apply consistent rounded corners */
-.card,
-.button,
-.navbar,
-.footer,
-.hero,
-.form-control,
-.modal {
-  border-radius: var(--ifm-radius-md);
-}
-
-/* Remove gap between navbar and hero section */
-.navbar--fixed-top ~ .main-wrapper {
-  margin-top: 0 !important;
-  padding-top: 0 !important;
-}
-
-/* Specific fix for homepage hero section */
-.navbar--fixed-top ~ .main-wrapper .heroBanner {
-  margin-top: 0;
-  padding-top: 0.25rem; /* Minimal top padding for better connection to navbar */
-}
-
-/* Ensure no extra spacing on the homepage layout */
-main {
-  margin-top: 0 !important;
-  padding-top: 0 !important;
-}
-
-/* Navbar and Footer styling */
 .navbar {
-  background-color: #000000 !important;
-  color: white;
+  min-height: 4.5rem;
+  border-bottom: 1px solid var(--pa-border-dark);
+  background: var(--pa-black) !important;
+  box-shadow: none;
 }
 
-.navbar__brand {
-  color: white;
+.navbar__title,
+.navbar__link,
+.navbar__toggle {
+  color: var(--pa-text-primary);
 }
 
 .navbar__link {
-  color: white;
+  font-size: var(--pa-text-sm);
+  font-weight: 500;
 }
 
-.navbar__link:hover {
-  color: var(--ifm-color-primary);
+.navbar__link:hover,
+.navbar__link--active {
+  color: var(--pa-accent-bright);
+}
+
+.navbar__brand:hover {
+  color: var(--pa-text-primary);
+}
+
+.navbar__logo {
+  height: 2rem;
+}
+
+.navbar__toggle {
+  border-color: var(--pa-border-dark);
+}
+
+.navbar--fixed-top ~ .main-wrapper {
+  margin-top: 0;
+  padding-top: 0;
 }
 
 .footer {
-  background-color: #000000 !important;
-  color: white;
+  border-top: 1px solid var(--pa-border-dark);
+  background: var(--pa-black) !important;
+  color: var(--pa-text-secondary);
 }
 
 .footer__title {
-  color: white;
+  color: var(--pa-text-primary);
 }
 
-.footer__link {
-  color: var(--ifm-color-emphasis-400);
+.footer__link,
+.footer__copyright {
+  color: var(--pa-text-muted);
 }
 
 .footer__link:hover {
-  color: var(--ifm-color-primary);
+  color: var(--pa-accent-bright);
 }
 
-.footer__copyright {
-  color: var(--ifm-color-emphasis-400);
+.button:focus-visible,
+.menu__link:focus-visible,
+.navbar__link:focus-visible {
+  outline: 2px solid var(--pa-accent-bright);
+  outline-offset: 4px;
+}
+
+.theme-doc-sidebar-container {
+  background: var(--pa-black);
+}
+
+.theme-doc-markdown h1,
+.theme-doc-markdown h2,
+.theme-doc-markdown h3 {
+  letter-spacing: -0.03em;
+}
+
+.theme-doc-markdown p,
+.theme-doc-markdown li {
+  color: var(--pa-text-secondary);
+}
+
+.theme-doc-markdown code {
+  border: 1px solid var(--pa-border-dark);
+  background: var(--pa-surface-soft);
+}
+
+@media screen and (max-width: 576px) {
+  .container {
+    padding-right: var(--pa-space-10);
+    padding-left: var(--pa-space-10);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+  }
 }

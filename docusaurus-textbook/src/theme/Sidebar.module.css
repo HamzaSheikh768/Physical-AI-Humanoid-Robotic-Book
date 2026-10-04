@@ -1,159 +1,187 @@
-/**
- * Copyright (c) Facebook, Inc. and its affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
- .sidebar {
+.sidebar {
+  position: sticky;
+  top: var(--ifm-navbar-height);
+  z-index: var(--ifm-z-index-sidebar);
   display: flex;
   flex-direction: column;
   width: var(--doc-sidebar-width);
-  position: sticky;
-  top: 0;
-  left: 0;
   height: calc(100vh - var(--ifm-navbar-height));
-  padding-top: var(--ifm-navbar-height);
-  transition: box-shadow var(--ifm-transition-fast) ease;
-  background-color: var(--ifm-color-emphasis-0);
-  color: white;
-  z-index: calc(var(--ifm-z-index-sidebar) - 1);
-  border-right: 1px solid var(--ifm-toc-border-color);
-  box-shadow: var(--ifm-global-shadow);
-  border-radius: 0 8px 8px 0;
-  overflow: hidden;
+  padding: var(--pa-space-11) var(--pa-space-8);
+  border-right: 1px solid var(--pa-border-dark);
+  background: var(--pa-black);
+  transition: transform var(--pa-duration-base), opacity var(--pa-duration-base);
 }
 
-.sidebarLogo {
+.sidebarHeader {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 1rem;
-  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  justify-content: space-between;
+  padding: 0 var(--pa-space-8) var(--pa-space-10);
+  border-bottom: 1px solid var(--pa-border-dark);
 }
 
-.sidebarToggle {
-  background: none;
-  border: 1px solid var(--ifm-color-emphasis-300);
-  border-radius: 4px;
-  color: var(--ifm-color-emphasis-900);
-  cursor: pointer;
-  display: none; /* Hidden on desktop */
-  font-size: 1.25rem;
-  padding: 0.25rem 0.5rem;
+.sidebarLabel {
+  color: var(--pa-text-muted);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: var(--pa-text-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .sidebarMenu {
   flex: 1;
   overflow-y: auto;
-  padding: 1rem 0;
+  padding-top: var(--pa-space-9);
 }
 
 .sidebarList {
-  list-style: none;
   margin: 0;
   padding: 0;
+  list-style: none;
 }
 
 .sidebarItem {
-  margin: 0.25rem 0.5rem;
+  margin: var(--pa-space-6) 0;
 }
 
 .sidebarItemLink {
-  display: block;
-  padding: 0.5rem 1rem;
-  margin: 0 0.5rem;
-  border-radius: 6px;
-  color: var(--ifm-color-emphasis-300);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pa-space-8);
+  padding: var(--pa-space-8) var(--pa-space-9);
+  border: 1px solid transparent;
+  border-radius: var(--pa-radius-sm);
+  color: var(--pa-text-secondary);
+  font-size: var(--pa-text-sm);
   text-decoration: none;
-  transition: all var(--ifm-transition-fast);
+  transition: background-color var(--pa-duration-fast), border-color var(--pa-duration-fast), color var(--pa-duration-fast), transform var(--pa-duration-fast);
 }
 
-.sidebarItemLink:hover {
-  background-color: var(--ifm-color-emphasis-100);
-  color: white;
-  transform: translateX(5px);
+.sidebarArrow {
+  color: var(--pa-text-muted);
+  opacity: 0;
+  transition: color var(--pa-duration-fast), opacity var(--pa-duration-fast), transform var(--pa-duration-fast);
+}
+
+.sidebarItemLink:hover,
+.sidebarItemLink:focus-visible {
+  border-color: var(--pa-border-dark);
+  background: var(--pa-surface-soft);
+  color: var(--pa-text-primary);
   text-decoration: none;
+  transform: translateX(3px);
+}
+
+.sidebarItemLink:hover .sidebarArrow,
+.sidebarItemLink:focus-visible .sidebarArrow,
+.sidebarItemLinkActive .sidebarArrow {
+  color: var(--pa-accent-bright);
+  opacity: 1;
+  transform: translate(2px, -2px);
 }
 
 .sidebarItemLinkActive {
-  background-color: rgba(37, 99, 235, 0.2);
-  color: var(--ifm-color-primary);
-  border-left: 3px solid var(--ifm-color-primary);
-  box-shadow: inset 2px 0 4px rgba(37, 99, 235, 0.3);
+  border-color: rgba(79, 145, 226, 0.45);
+  background: var(--pa-accent-soft);
+  color: var(--pa-text-primary);
+  box-shadow: inset 2px 0 0 var(--pa-accent), 0 0 1.5rem rgba(79, 145, 226, 0.1);
 }
 
-.sidebarHidden {
-  width: 0 !important;
-  opacity: 0;
+.sidebarItemLink:focus-visible,
+.sidebarToggle:focus-visible,
+.mobileToggle:focus-visible,
+.sidebarBackdrop:focus-visible {
+  outline: 2px solid var(--pa-accent-bright);
+  outline-offset: 3px;
 }
 
-.sidebarVisible {
-  width: var(--doc-sidebar-width) !important;
-  opacity: 1;
+.sidebarToggle,
+.mobileToggle {
+  border: 1px solid var(--pa-border-dark);
+  border-radius: var(--pa-radius-full);
+  background: transparent;
+  color: var(--pa-text-primary);
+  cursor: pointer;
+  font-family: var(--ifm-font-family-monospace);
+  font-size: var(--pa-text-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: background-color var(--pa-duration-fast), border-color var(--pa-duration-fast), color var(--pa-duration-fast);
 }
 
-.sidebarMenuVisible {
-  display: block;
+.sidebarToggle {
+  padding: var(--pa-space-6) var(--pa-space-8);
 }
 
-/* Mobile styles */
-@media (max-width: 996px) {
+.sidebarToggle:hover,
+.mobileToggle:hover {
+  border-color: var(--pa-accent);
+  background: var(--pa-accent-soft);
+  color: var(--pa-accent-bright);
+}
+
+.mobileToggle {
+  display: none;
+}
+
+.sidebarBackdrop {
+  display: none;
+}
+
+@media screen and (max-width: 996px) {
   .sidebar {
     position: fixed;
-    width: 80%;
-    max-width: 300px;
-    height: 100%;
     top: 0;
     left: 0;
-    z-index: calc(var(--ifm-z-index-sidebar) + 1);
-    transform: translateX(-100%);
-    transition: transform var(--ifm-transition-fast) ease;
-  }
-
-  .sidebarVisible {
+    width: min(82vw, 20rem);
+    height: 100dvh;
+    padding-top: var(--pa-space-13);
+    border-right: 1px solid var(--pa-border-dark);
+    background: var(--pa-black);
+    box-shadow: var(--pa-shadow-xl);
     transform: translateX(0);
   }
 
-  .sidebarToggle {
+  .sidebarHidden {
+    pointer-events: none;
+    opacity: 0;
+    transform: translateX(-105%);
+  }
+
+  .sidebarVisible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .mobileToggle {
+    position: fixed;
+    top: calc(var(--ifm-navbar-height) + var(--pa-space-8));
+    left: var(--pa-space-9);
+    z-index: calc(var(--ifm-z-index-sidebar) + 2);
+    display: inline-flex;
+    padding: var(--pa-space-7) var(--pa-space-9);
+  }
+
+  .sidebarBackdrop {
+    position: fixed;
+    inset: 0;
+    z-index: calc(var(--ifm-z-index-sidebar) - 1);
     display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: rgba(0, 0, 0, 0.62);
+    cursor: pointer;
   }
 }
 
-/* Tablet styles */
-@media (min-width: 997px) and (max-width: 1200px) {
-  .sidebar {
-    width: 220px;
-  }
-}
-
-/* Dark mode compatibility */
-html[data-theme='dark'] .sidebar {
-  background-color: var(--ifm-color-emphasis-0);
-  border-right: 1px solid var(--ifm-toc-border-color);
-}
-
-html[data-theme='dark'] .sidebarItemLink {
-  color: var(--ifm-color-emphasis-300);
-}
-
-html[data-theme='dark'] .sidebarItemLink:hover {
-  background-color: var(--ifm-color-emphasis-100);
-  color: white;
-}
-
-/* Accessibility improvements */
 @media (prefers-reduced-motion: reduce) {
   .sidebar,
   .sidebarItemLink,
-  .sidebarItemLink:hover {
+  .sidebarArrow,
+  .sidebarToggle,
+  .mobileToggle {
     transition: none;
-    transform: none;
   }
-}
-
-/* Focus management */
-.sidebarItemLink:focus {
-  outline: 2px solid var(--ifm-color-primary);
-  outline-offset: 2px;
 }

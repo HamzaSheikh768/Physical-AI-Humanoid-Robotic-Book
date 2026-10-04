@@ -1,6 +1,4 @@
 import type {ReactNode} from 'react';
-import clsx from 'clsx';
-import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
 import HomepageFeatureCards from '@site/src/components/HomepageFeatures/HomepageFeatureCards';
@@ -11,16 +9,17 @@ export default function Home(): ReactNode {
   return (
     <Layout
       title={`${siteConfig.title}`}
-      description="Description will go into a meta tag in <head />">
+      description="A practical guide to physical AI, humanoid robotics, and production-ready intelligent systems.">
       <HeroSection
-        title="PHYSICAL AI & HUMANOID ROBOTICS"
-        subtitle="Complete Guide TextBook - Bridging the digital brain with the physical form, Humanoids learning, moving, and intelligently performing"
-        primaryButtonText="Start Learning →"
+        eyebrow="The physical AI field guide"
+        title="Build intelligence that can move."
+        subtitle="A complete textbook for learning how digital brains become capable physical systems — from ROS 2 and simulation to perception, planning, and humanoid action."
+        primaryButtonText="Start learning"
         primaryButtonLink="/docs/Introduction"
-        secondaryButtonText="Explore Modules 📚"
+        secondaryButtonText="Explore the modules"
         secondaryButtonLink="/docs/Overview-Module-and-Chapter"
         imageUrl="/img/book.png"
-        imageAlt="Physical AI & Humanoid Robotics TextBook"
+        imageAlt="Physical AI and Humanoid Robotics textbook cover"
       />
       <main>
         <HomepageFeatureCards />
