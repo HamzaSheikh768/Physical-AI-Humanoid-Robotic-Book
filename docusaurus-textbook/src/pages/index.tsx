@@ -3,6 +3,7 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
 import HomepageFeatureCards from '@site/src/components/HomepageFeatures/HomepageFeatureCards';
 import HeroSection from '@site/src/components/AnimatedHeroSection';
+import HomepageJourney from '@site/src/components/HomepageJourney';
 
 export default function Home(): ReactNode {
   const {siteConfig} = useDocusaurusContext();
@@ -23,6 +24,7 @@ export default function Home(): ReactNode {
       />
       <main>
         <HomepageFeatureCards />
+        <HomepageJourney />
       </main>
     </Layout>
   );
