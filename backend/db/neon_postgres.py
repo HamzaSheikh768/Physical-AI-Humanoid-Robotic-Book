@@ -1,5 +1,6 @@
 """Database connection for Neon Postgres in the RAG Chatbot API."""
 
+import json
 import logging
 from datetime import datetime
 from typing import Any, Dict, List, Optional
@@ -220,7 +221,7 @@ class NeonPostgresDB:
                 content.chapter,
                 content.section,
                 content.page_numbers,
-                content.metadata,
+                json.dumps(content.metadata),
                 content.created_at,
                 content.updated_at,
             )
@@ -245,7 +246,7 @@ class NeonPostgresDB:
                 content.chapter,
                 content.section,
                 content.page_numbers,
-                content.metadata,
+                json.dumps(content.metadata),
                 content.updated_at,
                 content.content_id,
             )
@@ -381,7 +382,7 @@ class NeonPostgresDB:
                 embedding.module,
                 embedding.chapter,
                 embedding.section,
-                embedding.metadata,
+                json.dumps(embedding.metadata),
                 embedding.created_at,
                 embedding.updated_at,
             )
@@ -486,7 +487,7 @@ class NeonPostgresDB:
                 created_at,
                 updated_at,
                 title,
-                metadata,
+                json.dumps(metadata),
             )
             return result_id
 
@@ -566,8 +567,8 @@ class NeonPostgresDB:
                 role,
                 content,
                 timestamp,
-                context_used,
-                citations,
+                json.dumps(context_used),
+                json.dumps(citations),
             )
             return result_id
 
