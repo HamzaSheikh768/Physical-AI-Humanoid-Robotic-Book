@@ -128,13 +128,17 @@ const config: Config = {
         {
           to: "/",
           label: "Home",
-          position: "left",
+          position: "right",
         },
         {
           type: "docSidebar",
           sidebarId: "tutorialSidebar",
-          position: "left",
+          position: "right",
           label: "TextBook",
+        },
+        {
+          type: "localeDropdown",
+          position: "right",
         },
         // { to: "/blog", label: "Blog", position: "left" },
         {
