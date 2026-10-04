@@ -9,6 +9,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from backend.config import get_jwt_secret, get_settings
 from backend.models.auth import (
     AuthResponse,
+    BEARER_TOKEN_TYPE,
     Token,
     UserCreate,
     UserProfileCreate,
@@ -61,7 +62,7 @@ async def register(user: UserCreate):
         )
 
         return AuthResponse(
-            user=user_public, access_token=access_token, token_type="bearer"
+            user=user_public, access_token=access_token, token_type=BEARER_TOKEN_TYPE
         )
     except ValueError as e:
         # Email already exists
@@ -91,7 +92,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
         expires_delta=access_token_expires,
     )
 
-    return Token(access_token=access_token, token_type="bearer")
+    return Token(access_token=access_token, token_type=BEARER_TOKEN_TYPE)
 
 
 @router.get("/profile", response_model=UserProfilePublic)
