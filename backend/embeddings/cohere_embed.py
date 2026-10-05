@@ -18,7 +18,12 @@ class CohereEmbeddingService:
 
     def __init__(self):
         settings = get_settings()
-        self.client = cohere.Client(settings.cohere_api_key)
+        self._test_mode = settings.environment.lower() in {"test", "testing"}
+        # Tests use deterministic local vectors and must not require or contact
+        # the external Cohere service during module collection or execution.
+        self.client = (
+            None if self._test_mode else cohere.Client(settings.cohere_api_key)
+        )
         self.model = settings.cohere_model
 
     @staticmethod
