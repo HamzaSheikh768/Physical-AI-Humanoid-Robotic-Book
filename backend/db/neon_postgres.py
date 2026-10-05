@@ -45,7 +45,7 @@ class NeonPostgresDB:
 
     def _pool_is_ready(self) -> bool:
         """Return whether the connection pool can accept database work."""
-        return self.pool is not None and not self.pool.is_closed()
+        return self.pool is not None and not self.pool.is_closing()
 
     @staticmethod
     def _is_test_environment() -> bool:

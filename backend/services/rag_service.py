@@ -47,7 +47,7 @@ class RAGService:
 
     def _database_is_ready(self) -> bool:
         """Return whether persistence is initialized for conversation tracking."""
-        return self.db.pool is not None and not self.db.pool.is_closed()
+        return self.db.pool is not None and not self.db.pool.is_closing()
 
     async def initialize(self):
         """Initialize the RAG service by connecting to databases."""
