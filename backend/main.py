@@ -5,7 +5,8 @@ import os
 import sys
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 # Add the project root to Python path to allow imports
@@ -86,6 +87,29 @@ async def not_found_handler(request, exc):
             "error": "Endpoint not found",
             "message": "The requested endpoint does not exist",
         },
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def request_validation_handler(request: Request, exc: RequestValidationError):
+    """Expose request-model validation failures as the public 400 contract."""
+    return JSONResponse(
+        status_code=400,
+        content={
+            "error": "Validation Error",
+            "message": "Request validation failed",
+        },
+    )
+
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    """Keep HTTP errors consistent with the API's flat error response shape."""
+    content = exc.detail if isinstance(exc.detail, dict) else {"detail": exc.detail}
+    return JSONResponse(
+        status_code=exc.status_code,
+        content=content,
+        headers=exc.headers,
     )
 
 

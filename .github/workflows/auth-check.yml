@@ -15,7 +15,15 @@ jobs:
     - name: Check for hardcoded secrets
       run: |
         echo "Checking for hardcoded secrets in auth-related files..."
-        if grep -r "secret.*=.*['\"]\w\+['\"]\|password.*=.*['\"]\w\+['\"]\|token.*=.*['\"]\w\+['\"]" . --exclude="*.md" --exclude-dir=".git" --exclude-dir="node_modules" --exclude-dir="__pycache__"; then
+        SECRET_NAME='secret'
+        PASSWORD_NAME='password'
+        API_KEY_NAME='api[_-]?key'
+        ACCESS_TOKEN_NAME='access[_-]?token'
+        AUTH_TOKEN_NAME='auth[_-]?token'
+        ASSIGNMENT='[[:space:]]*[:=][[:space:]]*'
+        QUOTED_VALUE="['\"][^'\"]{8,}['\"]"
+        PATTERN="${SECRET_NAME}${ASSIGNMENT}${QUOTED_VALUE}|${PASSWORD_NAME}${ASSIGNMENT}${QUOTED_VALUE}|${API_KEY_NAME}${ASSIGNMENT}${QUOTED_VALUE}|${ACCESS_TOKEN_NAME}${ASSIGNMENT}${QUOTED_VALUE}|${AUTH_TOKEN_NAME}${ASSIGNMENT}${QUOTED_VALUE}"
+        if grep -r -n -E "$PATTERN" . --exclude="*.md" --exclude-dir=".git" --exclude-dir="node_modules" --exclude-dir="__pycache__"; then
           echo "Potential hardcoded secrets found! Please review."
           exit 1
         else

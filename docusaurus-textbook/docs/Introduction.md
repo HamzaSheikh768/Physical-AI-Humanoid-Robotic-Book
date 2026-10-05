@@ -6,10 +6,6 @@ sidebar_position: 1
 
 # Introduction to Physical AI & Humanoid Robotics
 
-import TranslationButton from '@site/src/components/TranslationButton/TranslationButton';
-
-<TranslationButton chapterId="introduction" content={`# Introduction to Physical AI & Humanoid Robotics
-
 This chapter establishes the intellectual and practical foundation of Physical AI and Humanoid Robotics, defining core concepts and explaining why humanoid robots are central to future AI systems.
 
 ## What is Physical AI?
@@ -96,7 +92,7 @@ Brooks, R. A. (1991). Intelligence without representation. *Artificial Intellige
 
 Clark, A. (2008). *Supersizing the mind: Embodiment, action, and cognitive extension*. Oxford University Press.
 
-Pfeifer, R., & Bongard, J. (2006). *How the body shapes the way we think: A new view of intelligence*. MIT Press.`} />
+Pfeifer, R., & Bongard, J. (2006). *How the body shapes the way we think: A new view of intelligence*. MIT Press.
 
 This chapter establishes the intellectual and practical foundation of Physical AI and Humanoid Robotics, defining core concepts and explaining why humanoid robots are central to future AI systems.
 

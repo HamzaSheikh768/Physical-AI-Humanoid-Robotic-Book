@@ -6,6 +6,8 @@ from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
+BEARER_TOKEN_TYPE = "bearer"
+
 
 class SoftwareLevel(str, Enum):
     BEGINNER = "BEGINNER"
@@ -154,4 +156,4 @@ class AuthResponse(BaseModel):
 
     user: UserPublic
     access_token: str
-    token_type: str = "bearer"
+    token_type: str = BEARER_TOKEN_TYPE

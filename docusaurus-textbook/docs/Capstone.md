@@ -6,10 +6,6 @@ description: 'Integrated capstone project combining all Physical AI concepts: ar
 
 # Capstone Project: Autonomous Humanoid Robot System
 
-import TranslationButton from '@site/src/components/TranslationButton/TranslationButton';
-
-<TranslationButton chapterId="capstone" content={`# Capstone Project: Autonomous Humanoid Robot System
-
 The capstone project integrates all concepts learned throughout the Physical AI curriculum into a comprehensive autonomous humanoid robot system. This project demonstrates the complete pipeline from perception to action, incorporating Vision-Language-Action (VLA) capabilities in both simulated and real-world environments.
 
 The project involves developing an autonomous humanoid robot capable of understanding natural language commands, perceiving its environment, planning actions, and executing complex manipulation and navigation tasks. This represents the culmination of all technical concepts covered in the curriculum.
@@ -20,7 +16,7 @@ The project involves developing an autonomous humanoid robot capable of understa
 
 The autonomous humanoid system follows a modular architecture with clear separation of concerns while maintaining tight integration between components:
 
-\`\`\`
+```
 ┌─────────────────────────────────────────────────────────────────┐
 │                    Autonomous Humanoid System                   │
 ├─────────────────────────────────────────────────────────────────┤
@@ -44,7 +40,7 @@ The autonomous humanoid system follows a modular architecture with clear separat
 │                    │ • Safety        │                        │
 │                    └─────────────────┘                        │
 └─────────────────────────────────────────────────────────────────┘
-\`\`\`
+```
 
 ### Core Components
 
@@ -70,7 +66,7 @@ The autonomous humanoid system follows a modular architecture with clear separat
 
 The system uses ROS 2 as the communication backbone with the following key topics and services:
 
-\`\`\`yaml
+```yaml
 Topics:
   - /camera/rgb/image_raw: RGB camera data
   - /camera/depth/image_raw: Depth camera data
@@ -86,7 +82,7 @@ Services:
   - /plan_motion: Plan robot motion
   - /execute_action: Execute specific actions
   - /get_map: Retrieve environment map
-\`\`\`
+```
 
 ## Vision-Language-Action (VLA) Pipeline
 
@@ -94,7 +90,7 @@ Services:
 
 The language processing component converts natural language commands into executable actions:
 
-\`\`\`python
+```python
 class LanguageProcessor:
     def __init__(self):
         self.tokenizer = AutoTokenizer.from_pretrained("model")
@@ -117,13 +113,13 @@ class LanguageProcessor:
         action_plan = self.generate_action_plan(intent, grounded_entities)
 
         return action_plan
-\`\`\`
+```
 
 ### Vision Processing Pipeline
 
 The vision processing component provides environmental perception:
 
-\`\`\`python
+```python
 class VisionProcessor:
     def __init__(self):
         self.detector = ObjectDetector()
@@ -149,13 +145,13 @@ class VisionProcessor:
             'poses': poses,
             'map': self.mapper.get_map()
         }
-\`\`\`
+```
 
 ### Action Execution Pipeline
 
 The action execution component converts plans into robot motions:
 
-\`\`\`python
+```python
 class ActionExecutor:
     def __init__(self):
         self.motion_planner = MotionPlanner()
@@ -179,13 +175,13 @@ class ActionExecutor:
 
             # Monitor execution
             self.monitor_execution(action)
-\`\`\`
+```
 
 ### Integration Pipeline
 
 The integration component coordinates all modules:
 
-\`\`\`python
+```python
 class VLAIntegrator:
     def __init__(self):
         self.language_processor = LanguageProcessor()
@@ -216,7 +212,7 @@ class VLAIntegrator:
         self.state_manager.update_execution_result(execution_result)
 
         return execution_result
-\`\`\`
+```
 
 ## Simulation Implementation
 
@@ -224,7 +220,7 @@ class VLAIntegrator:
 
 The simulation environment uses NVIDIA Isaac Sim for high-fidelity physics and rendering:
 
-\`\`\`python
+```python
 # Environment configuration
 class HumanoidEnvironment:
     def __init__(self):
@@ -262,13 +258,13 @@ class HumanoidEnvironment:
         self.create_cup()
         self.create_fridge()
         # Add more objects as needed
-\`\`\`
+```
 
 ### Sensor Simulation
 
 Simulated sensors provide realistic data for the perception system:
 
-\`\`\`python
+```python
 # RGB-D camera simulation
 class SimulatedCamera:
     def __init__(self, env, robot_handle):
@@ -308,13 +304,13 @@ class SimulatedCamera:
             'rgb': color_tensor,
             'depth': depth_tensor
         }
-\`\`\`
+```
 
 ### Physics Simulation
 
 Realistic physics simulation ensures proper interaction with the environment:
 
-\`\`\`python
+```python
 # Physics properties configuration
 class PhysicsConfig:
     def __init__(self):
@@ -335,7 +331,7 @@ class PhysicsConfig:
         self.sim_params.physx.solver_type = 1
         self.sim_params.physx.num_position_iterations = 4
         self.sim_params.physx.num_velocity_iterations = 1
-\`\`\`
+```
 
 ## Simulation-to-Real Transfer
 
@@ -343,7 +339,7 @@ class PhysicsConfig:
 
 To improve sim-to-real transfer, we implement domain randomization:
 
-\`\`\`python
+```python
 class DomainRandomizer:
     def __init__(self):
         self.randomization_params = {
@@ -378,13 +374,13 @@ class DomainRandomizer:
             self.randomization_params['lighting']['intensity_range'][1]
         )
         # Apply to environment
-\`\`\`
+```
 
 ### System Identification
 
 Real robot system identification helps bridge the sim-to-real gap:
 
-\`\`\`python
+```python
 class SystemIdentifier:
     def __init__(self, robot):
         self.robot = robot
@@ -416,13 +412,13 @@ class SystemIdentifier:
             outputs.append(output)
 
         return {'inputs': inputs, 'outputs': outputs}
-\`\`\`
+```
 
 ### Controller Adaptation
 
 Adaptive controllers help handle model discrepancies:
 
-\`\`\`python
+```python
 class AdaptiveController:
     def __init__(self):
         self.nominal_controller = PIDController()
@@ -447,13 +443,13 @@ class AdaptiveController:
         total_control = nominal_control + adaptive_control
 
         return total_control
-\`\`\`
+```
 
 ## Implementation Diagrams
 
 ### System Architecture Diagram
 
-\`\`\`mermaid
+```mermaid
 graph TB
     subgraph "User Interface"
         A[Voice Commands] --> B[Text Commands]
@@ -501,11 +497,11 @@ graph TB
     style A fill:#e1f5fe
     style Q fill:#f3e5f5
     style T fill:#e8f5e8
-\`\`\`
+```
 
 ### Data Flow Diagram
 
-\`\`\`mermaid
+```mermaid
 graph LR
     A[User Command] --> B{Natural Language}
     B --> C[Command Parser]
@@ -529,13 +525,13 @@ graph LR
     N --> O[Physical Robot]
     O --> E
     M --> A
-\`\`\`
+```
 
 ## Code Implementation
 
 ### Main System Controller
 
-\`\`\`python
+```python
 #!/usr/bin/env python3
 
 import rclpy
@@ -700,11 +696,11 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
-\`\`\`
+```
 
 ### Vision Processing Module
 
-\`\`\`python
+```python
 #!/usr/bin/env python3
 
 import cv2
@@ -891,13 +887,13 @@ class EnvironmentMapper:
             'points': self.map_points,
             'colors': self.map_colors
         }
-\`\`\`
+```
 
 ## Testing and Validation
 
 ### Simulation Testing
 
-\`\`\`python
+```python
 import unittest
 import numpy as np
 from capstone_system import AutonomousHumanoidController, VisionProcessor
@@ -970,7 +966,7 @@ class TestCapstoneSystem(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-\`\`\`
+```
 
 ## Deployment Considerations
 
@@ -1001,7 +997,7 @@ For real-time operation:
 - **Caching**: Store frequently accessed data in memory
 - **Resource Management**: Dynamic allocation based on priority
 
-This capstone project demonstrates the integration of all Physical AI concepts into a functional autonomous humanoid system, bridging the gap between simulation and reality while maintaining safety and performance requirements.`} />
+This capstone project demonstrates the integration of all Physical AI concepts into a functional autonomous humanoid system, bridging the gap between simulation and reality while maintaining safety and performance requirements.
 
 ## Introduction
 

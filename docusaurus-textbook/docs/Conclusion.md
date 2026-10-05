@@ -6,10 +6,6 @@ description: 'Summary of the Physical AI curriculum, future outlook for humanoid
 
 # Conclusion: The Future of Physical AI and Humanoid Robotics
 
-import TranslationButton from '@site/src/components/TranslationButton/TranslationButton';
-
-<TranslationButton chapterId="conclusion" content={`# Conclusion: The Future of Physical AI and Humanoid Robotics
-
 ## Summary
 
 The Physical AI curriculum has provided a comprehensive journey through the essential components of humanoid robotics, from foundational concepts to advanced autonomous systems. We have explored the complete pipeline from simulation to reality, covering perception, cognition, and action systems that enable humanoid robots to operate effectively in human environments.
@@ -181,7 +177,7 @@ The technologies you have learned—the integration of ROS 2, simulation environ
 
 The future of Physical AI is bright, and your journey in this field has the potential to make a meaningful impact on society. Continue learning, experimenting, and innovating, and you will be part of shaping the future of human-robot collaboration.
 
-Thank you for completing this comprehensive curriculum on Physical AI and humanoid robotics. Your foundation is now complete—you are ready to build the future of robotics.`} />
+Thank you for completing this comprehensive curriculum on Physical AI and humanoid robotics. Your foundation is now complete—you are ready to build the future of robotics.
 
 ## Summary
 

@@ -6,10 +6,6 @@ description: Mastering ROS 2 communication patterns - topics, services, and acti
 
 # Nodes, Topics, Services, and Actions
 
-import TranslationButton from '@site/src/components/TranslationButton/TranslationButton';
-
-<TranslationButton chapterId="module1-nodes-topics-services" content={`# Nodes, Topics, Services, and Actions
-
 ## Introduction to ROS 2 Communication Patterns
 
 ROS 2 communication patterns form the foundation of distributed robotic systems, enabling modular design and scalable architectures. Understanding these patterns is essential for creating robust, maintainable robotic applications that can grow from simple prototypes to complex multi-robot systems.
@@ -211,7 +207,7 @@ Complex robotic behaviors often require combining communication patterns:
 
 These combinations enable sophisticated robotic applications while maintaining modularity and clarity.
 
-Understanding these communication patterns is essential for designing effective robotic systems that can scale from simple prototypes to complex multi-robot deployments. Each pattern serves specific purposes and understanding their appropriate use enables the creation of robust, maintainable robotic applications.`} />
+Understanding these communication patterns is essential for designing effective robotic systems that can scale from simple prototypes to complex multi-robot deployments. Each pattern serves specific purposes and understanding their appropriate use enables the creation of robust, maintainable robotic applications.
 
 ## Introduction to ROS 2 Communication Patterns
 

@@ -6,10 +6,6 @@ description: Deep dive into ROS 2 internal architecture, DDS communication layer
 
 # ROS 2 Architecture
 
-import TranslationButton from '@site/src/components/TranslationButton/TranslationButton';
-
-<TranslationButton chapterId="module1-ros2-architecture" content={`# ROS 2 Architecture
-
 ## Introduction to ROS 2 Internal Design
 
 ROS 2 represents a significant architectural evolution from ROS 1, fundamentally redesigned to address the needs of production robotics systems. The primary architectural change centers on the adoption of Data Distribution Service (DDS) as the underlying communication layer, providing enterprise-grade features including real-time performance, fault tolerance, and security.
@@ -196,7 +192,7 @@ ROS 2's architecture supports hardware abstraction layers that provide uniform i
 **Parallel Development**: Maintaining both versions during transition
 **Component Replacement**: Gradual replacement of components rather than complete rewrites
 
-This architectural foundation enables ROS 2 to support the demanding requirements of production robotic systems while maintaining the flexibility and ease of use that made ROS 1 successful in research environments.`} />
+This architectural foundation enables ROS 2 to support the demanding requirements of production robotic systems while maintaining the flexibility and ease of use that made ROS 1 successful in research environments.
 
 ## Introduction to ROS 2 Internal Design
 

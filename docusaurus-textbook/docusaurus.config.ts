@@ -16,7 +16,7 @@ const config: Config = {
   title: "Physical AI & Humanoid Robotics: Complete Guide TextBook",
   tagline:
     "Bridging the digital brain with the physical form, Humanoids learning, moving, and intelligently performing, From ROS 2 to NVIDIA Isaac, simulations come alive, Master embodied AI and guide robots to thrive in the real world, Explore perception, planning, and action with cutting-edge AI, Transform knowledge into intelligent, autonomous humanoids.",
-  favicon: "img/robot-favicon.png",
+  favicon: "img/physical-ai-logo.svg",
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
@@ -38,8 +38,6 @@ const config: Config = {
   customFields: {
     //Backend API Url
     CHAT_API_URL: process.env.CHAT_API_URL || 'http://localhost:8000',
-    // Translation API URL
-    TRANSLATION_API_URL: process.env.TRANSLATION_API_URL || 'http://localhost:3001/api/translate',
   },
 
   // GitHub pages deployment config removed for Vercel deployment
@@ -52,17 +50,7 @@ const config: Config = {
   // may want to replace "en" with "zh-Hans".
   i18n: {
     defaultLocale: "en",
-    locales: ["en", "ur"],
-    localeConfigs: {
-      en: {
-        label: "English",
-        direction: "ltr",
-      },
-      ur: {
-        label: "اردو",
-        direction: "rtl",
-      },
-    },
+    locales: ["en"],
   },
 
   presets: [
@@ -107,26 +95,31 @@ const config: Config = {
   stylesheets: [
     "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap",
     "/css/chat.css",
-    "/css/rtl-urdu.css",
-    "/css/translation-button.css",
   ],
   themeConfig: {
     // Replace with your project's social card
     image: "img/docusaurus-social-card.jpg",
     colorMode: {
-      respectPrefersColorScheme: true,
+      defaultMode: "dark",
+      disableSwitch: false,
+      respectPrefersColorScheme: false,
     },
     navbar: {
       title: "Physical AI & Humanoid Robotic",
       logo: {
         alt: "Physical AI & Humanoid Robotic Book Logo",
-        src: "img/robot-logo.svg",
+        src: "img/physical-ai-logo.svg",
       },
       items: [
         {
+          to: "/",
+          label: "Home",
+          position: "right",
+        },
+        {
           type: "docSidebar",
           sidebarId: "tutorialSidebar",
-          position: "left",
+          position: "right",
           label: "TextBook",
         },
         // { to: "/blog", label: "Blog", position: "left" },
@@ -136,8 +129,7 @@ const config: Config = {
           // Additional props can be added here
         },
         {
-          href: "https://github.com/HamzaSheikh768/Physical-AI-Humanoid-Robotic-Book",
-          label: "GitHub",
+          type: 'custom-GitHub',
           position: "right",
         },
       ],
@@ -148,6 +140,10 @@ const config: Config = {
         {
           title: "Docs",
           items: [
+            {
+              label: "Home",
+              to: "/",
+            },
             {
               label: "Introduction",
               to: "/docs/Introduction",

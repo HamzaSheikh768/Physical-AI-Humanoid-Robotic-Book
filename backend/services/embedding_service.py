@@ -32,6 +32,9 @@ class EmbeddingService:
     ) -> List[float]:
         """Generate embedding for the given text using Cohere."""
         try:
+            if not text or not text.strip():
+                raise ValueError("Text cannot be empty or whitespace only")
+
             # Use the async method from CohereEmbeddingService
             embedding = await self.cohere_service.generate_embedding(
                 text, model_name, input_type

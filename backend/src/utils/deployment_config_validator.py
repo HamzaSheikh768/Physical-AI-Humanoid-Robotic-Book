@@ -53,7 +53,7 @@ class DeploymentConfigValidator:
         return len(secret) >= 16
 
     @staticmethod
-    def validate_deployment_config(config: Dict[str, Any]) -> Dict[str, List[str]]:
+    def validate_deployment_config(config: Dict[str, Any]) -> Dict[str, Any]:
         """
         Validate a complete deployment configuration
         Returns a dictionary with validation results and any errors

@@ -5,10 +5,6 @@ sidebar_position: 6
 
 # Chapter 06 — Gazebo Setup and Simulation
 
-import TranslationButton from '@site/src/components/TranslationButton/TranslationButton';
-
-<TranslationButton chapterId="module2-gazebo-setup" content={`# Chapter 06 — Gazebo Setup and Simulation
-
 ## Introduction: Digital Twins in Physical AI
 
 Digital twins have revolutionized the way we approach robotics development, offering a virtual sandbox where we can test, iterate, and validate our robotic systems before deploying them in the real world. In the context of Physical AI, digital twins serve as virtual laboratories that bridge the gap between simulation and reality, enabling us to explore complex interactions between robots, sensors, and environments without the constraints and risks associated with physical hardware.
@@ -63,30 +59,30 @@ Before installing Gazebo, ensure your system meets the following requirements:
 
 #### Step 1: Update System Packages
 
-\`\`\`bash
+```bash
 sudo apt update && sudo apt upgrade
-\`\`\`
+```
 
 #### Step 2: Install Gazebo Garden
 
-\`\`\`bash
+```bash
 sudo apt install gazebo
-\`\`\`
+```
 
 #### Step 3: Install Additional Dependencies
 
-\`\`\`bash
+```bash
 sudo apt install libgazebo-dev
 sudo apt install gz-sim7
 sudo apt install ros-humble-gazebo-ros-pkgs
 sudo apt install ros-humble-gazebo-dev
-\`\`\`
+```
 
 #### Step 4: Verify Installation
 
-\`\`\`bash
+```bash
 gz sim --version
-\`\`\`
+```
 
 ### Configuration and Environment Setup
 
@@ -94,17 +90,17 @@ gz sim --version
 
 Add the following to your ~/.bashrc file:
 
-\`\`\`bash
+```bash
 export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:$HOME/.gazebo/models
 export GAZEBO_RESOURCE_PATH=$GAZEBO_RESOURCE_PATH:$HOME/.gazebo/worlds
 export GAZEBO_PLUGIN_PATH=$GAZEBO_PLUGIN_PATH:/usr/lib/x86_64-linux-gnu/gazebo-11/plugins
-\`\`\`
+```
 
 Then reload your bash configuration:
 
-\`\`\`bash
+```bash
 source ~/.bashrc
-\`\`\`
+```
 
 ## Creating Simulation Environments
 
@@ -114,7 +110,7 @@ Gazebo environments are defined using SDF (Simulation Description Format) files,
 
 #### Basic World Structure
 
-\`\`\`xml
+```xml
 <?xml version="1.0"?>
 <sdf version="1.7">
   <world name="my_world">
@@ -140,7 +136,7 @@ Gazebo environments are defined using SDF (Simulation Description Format) files,
     </physics>
   </world>
 </sdf>
-\`\`\`
+```
 
 ### Model Creation and Integration
 
@@ -149,7 +145,7 @@ Gazebo environments are defined using SDF (Simulation Description Format) files,
 While URDF (Unified Robot Description Format) is commonly used for ROS robots, Gazebo primarily uses SDF. However, Gazebo can automatically convert URDF to SDF.
 
 Example URDF snippet for a simple robot:
-\`\`\`xml
+```xml
 <robot name="simple_robot">
   <link name="base_link">
     <visual>
@@ -177,13 +173,13 @@ Example URDF snippet for a simple robot:
     </visual>
   </link>
 </robot>
-\`\`\`
+```
 
 ### Sensor Integration
 
 #### Camera Sensors
 
-\`\`\`xml
+```xml
 <sensor name="camera" type="camera">
   <camera>
     <horizontal_fov>1.047</horizontal_fov>
@@ -200,11 +196,11 @@ Example URDF snippet for a simple robot:
   <update_rate>30</update_rate>
   <visualize>true</visualize>
 </sensor>
-\`\`\`
+```
 
 #### Lidar Sensors
 
-\`\`\`xml
+```xml
 <sensor name="lidar" type="gpu_lidar">
   <pose>0.2 0 0.1 0 0 0</pose>
   <ray>
@@ -226,7 +222,7 @@ Example URDF snippet for a simple robot:
   <update_rate>10</update_rate>
   <visualize>true</visualize>
 </sensor>
-\`\`\`
+```
 
 ## Physics Simulation
 
@@ -300,7 +296,7 @@ Robots are integrated into Gazebo using robot description packages that contain 
 
 The ROS-Gazebo interface allows real ROS nodes to control simulated robots:
 
-\`\`\`cpp
+```cpp
 #include <ros/ros.h>
 #include <geometry_msgs/Twist.h>
 
@@ -323,7 +319,7 @@ int main(int argc, char** argv) {
 
     return 0;
 }
-\`\`\`
+```
 
 ## Advanced Simulation Techniques
 
@@ -411,7 +407,7 @@ Managing system resources for optimal simulation performance:
 
 **Modular Design**: Design models to be reusable across different scenarios.
 
-Understanding and mastering Gazebo simulation is crucial for successful Physical AI development. The ability to create realistic, efficient simulations accelerates development and reduces risks associated with physical robot testing. Proper simulation setup enables the development of robust, real-world capable robotic systems.`} />
+Understanding and mastering Gazebo simulation is crucial for successful Physical AI development. The ability to create realistic, efficient simulations accelerates development and reduces risks associated with physical robot testing. Proper simulation setup enables the development of robust, real-world capable robotic systems.
 
 ## Introduction: Digital Twins in Physical AI
 
